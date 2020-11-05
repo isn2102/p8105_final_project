@@ -1,7 +1,16 @@
 Proposal
 ================
-Isabel Nelson
 11/5/2020
+
+### Authors
+
+  - Isabel Nelson (isn2102)
+  - Sushupta Vijapur (smv2138)
+  - Kelley Lou (kl3181)
+
+### Project Title
+
+**Mapping Community Gardens in New York City**
 
 ### Submissions
 

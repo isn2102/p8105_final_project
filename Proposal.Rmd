@@ -1,9 +1,39 @@
 ---
 title: "Proposal"
-author: "Isabel Nelson"
 date: "11/5/2020"
 output: github_document
 ---
+### Authors
+
+* Isabel Nelson (isn2102)
+* Sushupta Vijapur (smv2138)
+* Kelley Lou (kl3181)
+
+
+### Project Title
+
+**Mapping Community Gardens in New York City**
+
+
+### Motivation
+
+
+### Intended Final Products
+
+
+### Anticipated Data Sources
+
+Our primary data source will be the "NYC Greenthumb Community Gardens" dataset from NYC OpenData.
+
+### Planned Analyses / Visualizations / Coding Challenges
+
+
+### Planned Timeline
+
+
+
+
+## INSTRUCTIONS
 
 ### Submissions
 Other than peer assessments, each deliverable will appear online (as e.g. a GH repo or youtube video). Links should be submitted via Courseworks by one team member (not necessarily the same person for each deliverable).
