@@ -1,0 +1,23 @@
+---
+title: "Proposal"
+author: "Isabel Nelson"
+date: "11/5/2020"
+output: github_document
+---
+
+### Submissions
+Other than peer assessments, each deliverable will appear online (as e.g. a GH repo or youtube video). Links should be submitted via Courseworks by one team member (not necessarily the same person for each deliverable).
+
+### Team registration and proposal
+First, you will define your teams and propose a project. This proposal should be a half-page to a page in length and include:
+
+* The group members (names and UNIs)
+* The tentative project title
+* The motivation for this project
+* The intended final products
+* The anticipated data sources
+* The planned analyses / visualizations / coding challenges
+* The planned timeline
+* There should be one proposal per group, written collaboratively using .Rmd (rendering to a GH document) in a dedicated GitHub repo. Conceptually, this is intended to review a project that is 10% complete.
+
+
