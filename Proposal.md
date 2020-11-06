@@ -12,6 +12,21 @@ Proposal
 
 **Mapping Community Gardens in New York City**
 
+### Motivation
+
+### Intended Final Products
+
+### Anticipated Data Sources
+
+Our primary data source will be the “NYC Greenthumb Community Gardens”
+dataset from NYC OpenData.
+
+### Planned Analyses / Visualizations / Coding Challenges
+
+### Planned Timeline
+
+## INSTRUCTIONS
+
 ### Submissions
 
 Other than peer assessments, each deliverable will appear online (as
