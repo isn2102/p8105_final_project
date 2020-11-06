@@ -30,6 +30,12 @@ proxmity to different racial and economic clusters.
 
 ### Intended Final Products
 
+Our final project will be a website, consisting of a main landing page
+with a brief introduction and overview of the project and the
+collaborators involved. Further, we will have a report depicting any
+associations with community garden locations and frequency with other
+variables such as median income in the neighborhood, age, and race.
+
 ### Anticipated Data Sources
 
 Our primary data source will be the [NYC Greenthumb Community
@@ -38,7 +44,24 @@ dataset from NYC OpenData.
 
 ### Planned Analyses / Visualizations / Coding Challenges
 
+We plan to provide a leaflet map overlaying the location of the gardens
+throughout the boroughs in New York. We also hope to show a few other
+plots through shiny or a dashboard.
+
+We anticipate there may be coding challenges when we merge datasets. If
+the data is not coded consistenly or with similar variables, it may be
+difficult to combine the datasets that we need in order to answer our
+research questions.
+
 ### Planned Timeline
+
+  - November 7: Proposal
+  - November 10-13: Project review meeting
+  - November 14-20: Work on the report
+  - November 21-27: Work on the webpage and screencast
+  - November 28-December 5: Edit and finalize report, webpage and
+    screencast, complete peer assessment
+  - December 6-10: Prep for in class presentation/discussion\!
 
 ## INSTRUCTIONS
 
