@@ -12,7 +12,7 @@ output: github_document
 
 ### Project Title
 
-**The locations of Community Gardens in New York City**
+**The Locations of Community Gardens in New York City**
 
 
 ### Motivation
@@ -50,25 +50,4 @@ We anticipate there may be coding challenges when we merge datasets. If the data
 * November 21-27: Work on the webpage and screencast
 * November 28-December 5: Edit and finalize report, webpage and screencast, complete peer assessment
 * December 6-10: Prep for in class presentation/discussion!
-
-
-
-
-## INSTRUCTIONS
-
-### Submissions
-Other than peer assessments, each deliverable will appear online (as e.g. a GH repo or youtube video). Links should be submitted via Courseworks by one team member (not necessarily the same person for each deliverable).
-
-### Team registration and proposal
-First, you will define your teams and propose a project. This proposal should be a half-page to a page in length and include:
-
-* The group members (names and UNIs)
-* The tentative project title
-* The motivation for this project
-* The intended final products
-* The anticipated data sources
-* The planned analyses / visualizations / coding challenges
-* The planned timeline
-* There should be one proposal per group, written collaboratively using .Rmd (rendering to a GH document) in a dedicated GitHub repo. Conceptually, this is intended to review a project that is 10% complete.
-
 
