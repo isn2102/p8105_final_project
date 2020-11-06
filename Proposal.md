@@ -10,47 +10,59 @@ Proposal
 
 ### Project Title
 
-**Mapping Community Gardens in New York City**
+**The position of Community Gardens in New York City**
 
 ### Motivation
 
 New York City is known for its towering skyscrapers and “concrete
 jungle”. However, in more recent years, there has been a push to
-advocate for more green spaces. Starting in the 60s, vacant lots have
-been transformed into usable open space with the help of local
-residents, ultimately becoming the Community Garden movement in the 70s
-with the help of the Green Guerillas. These gardens offer residents an
-escape from the hustle of the city while providing a sense of ownership
-and stability in the rapidly changing city.
+advocate for more green spaces. Starting in the 60s, vacant lots left
+behind in a period of economic crisis and disinvestment were gradually
+transformed into usable open space by local residents. This ultimately
+became the Community Garden movement in the 70s with the help of the
+Green Guerillas and later community-driven initiatives. These gardens
+offer residents an escape from the hustle of the city while providing a
+sense of ownership and stability in the rapidly changing city.
 
 This project hopes to explore the distribution these community gardens
 and their relationships with the surrounding neighborhoods and
-residents. We hope to explore the geographic location of the gardens and
-proxmity to different racial and economic clusters.
+residents. We hope to examine the geographic location of the gardens,
+proximity to different racial and economic clusters, and association
+with property values.
 
 ### Intended Final Products
 
 Our final project will be a website, consisting of a main landing page
 with a brief introduction and overview of the project and the
-collaborators involved. Further, we will have a report depicting any
-associations with community garden locations and frequency with other
-variables such as median income in the neighborhood, age, and race.
+collaborators involved. Further, we will map locations of community
+gardens with relevant information about each garden. We will also
+produce a report depicting any associations between the number/location
+of community gardens and other variables of interest such as median
+income in the neighborhood, age, race, and property values.
 
 ### Anticipated Data Sources
 
   - Primary data source will be [NYC Greenthumb Community
     Gardens](https://data.cityofnewyork.us/Environment/NYC-Greenthumb-Community-Gardens/ajxm-kzmj)
-  - Further neighorhood demographic data from
+  - Further neighborhood demographic data from
     [NYU](https://furmancenter.org/neighborhoods)
+  - Additional demographic data by community board from
+    [nyc.gov](https://communityprofiles.planning.nyc.gov/)
+  - Property value data from [Revised property value
+    notices](https://data.cityofnewyork.us/City-Government/Revised-Notice-of-Property-Value-RNOPV-/8vgb-zm6e)
 
 ### Planned Analyses / Visualizations / Coding Challenges
 
 We plan to provide a leaflet map overlaying the location of the gardens
 throughout the boroughs in New York. We also hope to show a few other
-plots through shiny or a dashboard.
+plots through shiny or a dashboard to help visualize the distribution of
+gardens and the relationship to the other variables of interest.
+Analyses will include regression models to assess if number of community
+gardens in a certain location is associated with property values /
+median incomes.
 
 We anticipate there may be coding challenges when we merge datasets. If
-the data is not coded consistenly or with similar variables, it may be
+the data is not coded consistently or with similar variables, it may be
 difficult to combine the datasets that we need in order to answer our
 research questions.
 
