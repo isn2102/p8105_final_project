@@ -12,6 +12,36 @@ Proposal
 
 **Mapping Community Gardens in New York City**
 
+### Motivation
+
+New York City is known for its towering skyscrapers and “concrete
+jungle”. However, in more recent years, there has been a push to
+advocate for more green spaces. Starting in the 60s, vacant lots have
+been transformed into usable open space with the help of local
+residents, ultimately becoming the Community Garden movement in the 70s
+with the help of the Green Guerillas. These gardens offer residents an
+escape from the hustle of the city while providing a sense of ownership
+and stability in the rapidly changing city.
+
+This project hopes to explore the distribution these community gardens
+and their relationships with the surrounding neighborhoods and
+residents. We hope to explore the geographic location of the gardens and
+proxmity to different racial and economic clusters.
+
+### Intended Final Products
+
+### Anticipated Data Sources
+
+Our primary data source will be the [NYC Greenthumb Community
+Gardens](https://data.cityofnewyork.us/Environment/NYC-Greenthumb-Community-Gardens/ajxm-kzmj)
+dataset from NYC OpenData.
+
+### Planned Analyses / Visualizations / Coding Challenges
+
+### Planned Timeline
+
+## INSTRUCTIONS
+
 ### Submissions
 
 Other than peer assessments, each deliverable will appear online (as
