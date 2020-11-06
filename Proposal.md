@@ -10,7 +10,8 @@ Proposal
 
 ### Project Title
 
-**The locations of Community Gardens in New York City**
+**Community Gardens in New York City: planting the seed of urban
+growth**
 
 ### Motivation
 
@@ -27,8 +28,8 @@ sense of ownership and stability in the rapidly changing city.
 This project hopes to explore the distribution these community gardens
 and their relationships with the surrounding neighborhoods and
 residents. We hope to examine the geographic location of the gardens,
-proximity to different racial and economic clusters, and association
-with property values.
+proximity to different racial and economic clusters, the connection
+between gardens, local infrastructure investment, and property values.
 
 ### Intended Final Products
 
@@ -38,8 +39,8 @@ collaborators involved. Further, we will map locations of community
 gardens with relevant descriptive information about each garden. We will
 also produce a report depicting any associations between the
 number/location of community gardens and other variables of interest
-such as median income in the neighborhood, age, race, and property
-values.
+such as median income in the neighborhood, age, race, property values,
+community investment, and accessibility.
 
 ### Anticipated Data Sources
 
@@ -51,23 +52,26 @@ values.
     [nyc.gov](https://communityprofiles.planning.nyc.gov/)
   - Property value data from [Revised property value
     notices](https://data.cityofnewyork.us/City-Government/Revised-Notice-of-Property-Value-RNOPV-/8vgb-zm6e)
+  - Participatory budgeting project tracker from [NYC
+    OpenData](https://data.cityofnewyork.us/City-Government/Participatory-Budgeting-Project-Tracker/qm5f-frjb)
 
 ### Planned Analyses / Visualizations / Coding Challenges
 
 We plan to provide a leaflet map overlaying the location of the gardens
 throughout the boroughs in New York. We also hope to show a few other
 plots through shiny or a dashboard to help visualize the distribution of
-gardens and the relationship to the other variables of interest. We are
-also included in looking at the size of the community gardens and
-whether they have any relationship to boroughs and/or other geographic
-markers across the city. Furthermore, in the data source looking across
-community districts (<https://communityprofiles.planning.nyc.gov/>),
-there is a variable that assesses the accessibility to parks. We are
-also potentially interested in looking at park accessibility by key
+gardens and the relationship to the other variables of interest. These
+variables include the size of the community gardens and whether they
+have any relationship to boroughs and/or other geographic markers across
+the city. Furthermore, in the data source looking across community
+districts (<https://communityprofiles.planning.nyc.gov/>), there is a
+variable that assesses the accessibility to parks. We are also
+potentially interested in looking at park accessibility by key
 demographic and geographic variables. Analyses will include regression
 models to assess if number of community gardens in a certain location is
 associated with property values / median incomes and other demographic
-variables.
+variables. Further association between investment from the city for
+local projects with gardens will be explored.
 
 We anticipate there may be coding challenges when we merge datasets. If
 the data is not coded consistently or with similar variables, it may be
@@ -85,29 +89,3 @@ the in data cleaning/tidying phase of the project.
   - November 28-December 5: Edit and finalize report, webpage and
     screencast, complete peer assessment
   - December 6-10: Prep for in class presentation/discussion\!
-
-## INSTRUCTIONS
-
-### Submissions
-
-Other than peer assessments, each deliverable will appear online (as
-e.g. a GH repo or youtube video). Links should be submitted via
-Courseworks by one team member (not necessarily the same person for each
-deliverable).
-
-### Team registration and proposal
-
-First, you will define your teams and propose a project. This proposal
-should be a half-page to a page in length and include:
-
-  - The group members (names and UNIs)
-  - The tentative project title
-  - The motivation for this project
-  - The intended final products
-  - The anticipated data sources
-  - The planned analyses / visualizations / coding challenges
-  - The planned timeline
-  - There should be one proposal per group, written collaboratively
-    using .Rmd (rendering to a GH document) in a dedicated GitHub repo.
-    Conceptually, this is intended to review a project that is 10%
-    complete.
