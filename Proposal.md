@@ -38,9 +38,10 @@ variables such as median income in the neighborhood, age, and race.
 
 ### Anticipated Data Sources
 
-Our primary data source will be the [NYC Greenthumb Community
-Gardens](https://data.cityofnewyork.us/Environment/NYC-Greenthumb-Community-Gardens/ajxm-kzmj)
-dataset from NYC OpenData.
+  - Primary data source will be [NYC Greenthumb Community
+    Gardens](https://data.cityofnewyork.us/Environment/NYC-Greenthumb-Community-Gardens/ajxm-kzmj)
+  - Further neighorhood demographic data from
+    [NYU](https://furmancenter.org/neighborhoods)
 
 ### Planned Analyses / Visualizations / Coding Challenges
 
