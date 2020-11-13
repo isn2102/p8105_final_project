@@ -1,0 +1,56 @@
+---
+title: "Data Cleaning and Merging"
+date: "11/13/20"
+output: github_document
+---
+### Authors
+
+* Isabel Nelson (isn2102)
+* Sushupta Vijapur (smv2138)
+* Kelley Lou (kl3181)
+
+
+```{r}
+library(tidyverse)
+library(readxl)
+```
+
+Reading in multiple data sources 
+
+[NYC Greenthumb Community Gardens](https://data.cityofnewyork.us/Environment/NYC-Greenthumb-Community-Gardens/ajxm-kzmj)
+```{r}
+gardens = 
+  read_csv("./data/nyc_community_gardens.csv") %>% 
+  janitor::clean_names() %>% 
+  drop_na(community_board) %>% 
+  relocate(community_board)
+
+table(gardens$community_board)
+```
+
+Demographic and Community data
+```{r}
+demo = 
+  read_xlsx("./data/health_profiles.xlsx",
+  sheet = "CHP_all_data", skip = 1) %>% 
+  janitor::clean_names()
+```
+
+[Revised property value notices](https://data.cityofnewyork.us/City-Government/Revised-Notice-of-Property-Value-RNOPV-/8vgb-zm6e)
+```{r}
+property = 
+  read_csv("./data/property_values.csv") %>% 
+  janitor::clean_names() %>% 
+  relocate(community_board) %>% 
+  drop_na(community_board)
+```
+
+[NYC OpenData](https://data.cityofnewyork.us/City-Government/Participatory-Budgeting-Project-Tracker/qm5f-frjb)
+```{r}
+budget = 
+  read_csv("./data/budget_tracker.csv") %>% 
+  janitor::clean_names() %>% 
+  relocate(community_board) %>% 
+  drop_na(community_board)
+```
+
