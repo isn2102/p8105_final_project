@@ -89,3 +89,11 @@ the in data cleaning/tidying phase of the project.
   - November 28-December 5: Edit and finalize report, webpage and
     screencast, complete peer assessment
   - December 6-10: Prep for in class presentation/discussion\!
+
+### Plan
+
+  - Clean and merge data sources (gardens, community board, property
+    value and budgeting) - SMV
+  - Create basic website structure (framework for shiny app) - KL
+  - Start on first part of report (explaining goals, motivation,
+    discussion, methods/analytic steps) - ISN
