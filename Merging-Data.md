@@ -4,6 +4,7 @@ Data Cleaning and Merging
 
 ``` r
 library(tidyverse)
+<<<<<<< HEAD
 ```
 
     ## -- Attaching packages ------------------------------------------------ tidyverse 1.3.0 --
@@ -18,6 +19,8 @@ library(tidyverse)
     ## x dplyr::lag()    masks stats::lag()
 
 ``` r
+=======
+>>>>>>> e077778f36cc2e1466d504e351bf754267764d48
 library(readxl)
 ```
 

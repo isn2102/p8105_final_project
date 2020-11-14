@@ -1,0 +1,498 @@
+<!DOCTYPE html>
+
+<html>
+
+<head>
+
+<meta charset="utf-8" />
+<meta name="generator" content="pandoc" />
+<meta http-equiv="X-UA-Compatible" content="IE=EDGE" />
+
+
+
+
+<title>Merging-Data.utf8</title>
+
+<script src="site_libs/jquery-1.11.3/jquery.min.js"></script>
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<link href="site_libs/bootstrap-3.3.5/css/paper.min.css" rel="stylesheet" />
+<script src="site_libs/bootstrap-3.3.5/js/bootstrap.min.js"></script>
+<script src="site_libs/bootstrap-3.3.5/shim/html5shiv.min.js"></script>
+<script src="site_libs/bootstrap-3.3.5/shim/respond.min.js"></script>
+<script src="site_libs/navigation-1.1/tabsets.js"></script>
+<link href="site_libs/highlightjs-9.12.0/default.css" rel="stylesheet" />
+<script src="site_libs/highlightjs-9.12.0/highlight.js"></script>
+
+<style type="text/css">code{white-space: pre;}</style>
+<style type="text/css">
+  pre:not([class]) {
+    background-color: white;
+  }
+</style>
+<script type="text/javascript">
+if (window.hljs) {
+  hljs.configure({languages: []});
+  hljs.initHighlightingOnLoad();
+  if (document.readyState && document.readyState === "complete") {
+    window.setTimeout(function() { hljs.initHighlighting(); }, 0);
+  }
+}
+</script>
+
+
+
+<style type="text/css">
+h1 {
+  font-size: 34px;
+}
+h1.title {
+  font-size: 38px;
+}
+h2 {
+  font-size: 30px;
+}
+h3 {
+  font-size: 24px;
+}
+h4 {
+  font-size: 18px;
+}
+h5 {
+  font-size: 16px;
+}
+h6 {
+  font-size: 12px;
+}
+.table th:not([align]) {
+  text-align: left;
+}
+</style>
+
+
+
+
+<style type = "text/css">
+.main-container {
+  max-width: 940px;
+  margin-left: auto;
+  margin-right: auto;
+}
+code {
+  color: inherit;
+  background-color: rgba(0, 0, 0, 0.04);
+}
+img {
+  max-width:100%;
+}
+.tabbed-pane {
+  padding-top: 12px;
+}
+.html-widget {
+  margin-bottom: 20px;
+}
+button.code-folding-btn:focus {
+  outline: none;
+}
+summary {
+  display: list-item;
+}
+</style>
+
+
+<style type="text/css">
+/* padding for bootstrap navbar */
+body {
+  padding-top: 64px;
+  padding-bottom: 40px;
+}
+/* offset scroll position for anchor links (for fixed navbar)  */
+.section h1 {
+  padding-top: 69px;
+  margin-top: -69px;
+}
+.section h2 {
+  padding-top: 69px;
+  margin-top: -69px;
+}
+.section h3 {
+  padding-top: 69px;
+  margin-top: -69px;
+}
+.section h4 {
+  padding-top: 69px;
+  margin-top: -69px;
+}
+.section h5 {
+  padding-top: 69px;
+  margin-top: -69px;
+}
+.section h6 {
+  padding-top: 69px;
+  margin-top: -69px;
+}
+.dropdown-submenu {
+  position: relative;
+}
+.dropdown-submenu>.dropdown-menu {
+  top: 0;
+  left: 100%;
+  margin-top: -6px;
+  margin-left: -1px;
+  border-radius: 0 6px 6px 6px;
+}
+.dropdown-submenu:hover>.dropdown-menu {
+  display: block;
+}
+.dropdown-submenu>a:after {
+  display: block;
+  content: " ";
+  float: right;
+  width: 0;
+  height: 0;
+  border-color: transparent;
+  border-style: solid;
+  border-width: 5px 0 5px 5px;
+  border-left-color: #cccccc;
+  margin-top: 5px;
+  margin-right: -10px;
+}
+.dropdown-submenu:hover>a:after {
+  border-left-color: #ffffff;
+}
+.dropdown-submenu.pull-left {
+  float: none;
+}
+.dropdown-submenu.pull-left>.dropdown-menu {
+  left: -100%;
+  margin-left: 10px;
+  border-radius: 6px 0 6px 6px;
+}
+</style>
+
+<script>
+// manage active state of menu based on current page
+$(document).ready(function () {
+  // active menu anchor
+  href = window.location.pathname
+  href = href.substr(href.lastIndexOf('/') + 1)
+  if (href === "")
+    href = "index.html";
+  var menuAnchor = $('a[href="' + href + '"]');
+
+  // mark it active
+  menuAnchor.parent().addClass('active');
+
+  // if it's got a parent navbar menu mark it active as well
+  menuAnchor.closest('li.dropdown').addClass('active');
+});
+</script>
+
+<!-- tabsets -->
+
+<style type="text/css">
+.tabset-dropdown > .nav-tabs {
+  display: inline-table;
+  max-height: 500px;
+  min-height: 44px;
+  overflow-y: auto;
+  background: white;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+}
+
+.tabset-dropdown > .nav-tabs > li.active:before {
+  content: "";
+  font-family: 'Glyphicons Halflings';
+  display: inline-block;
+  padding: 10px;
+  border-right: 1px solid #ddd;
+}
+
+.tabset-dropdown > .nav-tabs.nav-tabs-open > li.active:before {
+  content: "&#xe258;";
+  border: none;
+}
+
+.tabset-dropdown > .nav-tabs.nav-tabs-open:before {
+  content: "";
+  font-family: 'Glyphicons Halflings';
+  display: inline-block;
+  padding: 10px;
+  border-right: 1px solid #ddd;
+}
+
+.tabset-dropdown > .nav-tabs > li.active {
+  display: block;
+}
+
+.tabset-dropdown > .nav-tabs > li > a,
+.tabset-dropdown > .nav-tabs > li > a:focus,
+.tabset-dropdown > .nav-tabs > li > a:hover {
+  border: none;
+  display: inline-block;
+  border-radius: 4px;
+  background-color: transparent;
+}
+
+.tabset-dropdown > .nav-tabs.nav-tabs-open > li {
+  display: block;
+  float: none;
+}
+
+.tabset-dropdown > .nav-tabs > li {
+  display: none;
+}
+</style>
+
+<!-- code folding -->
+
+
+
+
+</head>
+
+<body>
+
+
+<div class="container-fluid main-container">
+
+
+
+
+<div class="navbar navbar-default  navbar-fixed-top" role="navigation">
+  <div class="container">
+    <div class="navbar-header">
+      <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar">
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+      </button>
+      <a class="navbar-brand" href="index.html">Home</a>
+    </div>
+    <div id="navbar" class="navbar-collapse collapse">
+      <ul class="nav navbar-nav">
+        
+      </ul>
+      <ul class="nav navbar-nav navbar-right">
+        <li>
+  <a href="main.html">Garden Map</a>
+</li>
+<li>
+  <a href="report.html">Report</a>
+</li>
+<li>
+  <a href="health.html">Health Conditions</a>
+</li>
+<li>
+  <a href="property_values.html">Property Values</a>
+</li>
+<li>
+  <a href="analysis.html">Statistical Analysis</a>
+</li>
+      </ul>
+    </div><!--/.nav-collapse -->
+  </div><!--/.container -->
+</div><!--/.navbar -->
+
+<div class="fluid-row" id="header">
+
+
+
+
+</div>
+
+
+<div id="data-cleaning-and-merging" class="section level1">
+<h1>Data Cleaning and Merging</h1>
+<p>11/13/20</p>
+<div id="authors" class="section level3">
+<h3>Authors</h3>
+<ul>
+<li>Isabel Nelson (isn2102)</li>
+<li>Sushupta Vijapur (smv2138)</li>
+<li>Kelley Lou (kl3181)</li>
+</ul>
+<!-- end list -->
+<pre class="r"><code>library(tidyverse)
+library(readxl)</code></pre>
+<p>Reading in multiple data sources</p>
+<p><a href="https://data.cityofnewyork.us/Environment/NYC-Greenthumb-Community-Gardens/ajxm-kzmj">NYC Greenthumb Community Gardens</a></p>
+<pre class="r"><code>gardens = 
+  read_csv(&quot;./data/nyc_community_gardens.csv&quot;) %&gt;% 
+  janitor::clean_names() %&gt;% 
+  mutate(
+    community_board = replace(community_board, community_board == &quot;N/A&quot;, NA)
+  ) %&gt;% 
+  relocate(community_board) %&gt;% 
+  select(-prop_id,-census_tract, -bin, -bbl, -nta)</code></pre>
+<pre><code>## Parsed with column specification:
+## cols(
+##   PropID = col_character(),
+##   Boro = col_character(),
+##   `Community Board` = col_character(),
+##   `Council District` = col_double(),
+##   `Garden Name` = col_character(),
+##   Address = col_character(),
+##   Size = col_double(),
+##   Jurisdiction = col_character(),
+##   NeighborhoodName = col_character(),
+##   `Cross Streets` = col_character(),
+##   Latitude = col_double(),
+##   Longitude = col_double(),
+##   Postcode = col_double(),
+##   `Census Tract` = col_double(),
+##   BIN = col_double(),
+##   BBL = col_double(),
+##   NTA = col_character()
+## )</code></pre>
+<p>Community board is not a unique identifier here….</p>
+<p>Demographic and Community data</p>
+<p>ID Borough Name 0 City NYC 1 NYC Manhattan (M) 2 NYC Bronx (x) 3 NYC Brooklyn (B) 4 NYC Queens (Q) 5 NYC Staten Island (R)</p>
+<pre class="r"><code>demo = 
+  read_xlsx(&quot;./data/health_profiles.xlsx&quot;,
+  sheet = &quot;CHP_all_data&quot;, skip = 1) %&gt;% 
+  janitor::clean_names() %&gt;% 
+  slice(-(1:6)) %&gt;% 
+  slice_head(n = 59) %&gt;% 
+  mutate(
+    id = str_replace(id, &quot;^1&quot;, &quot;M&quot;),
+    id = str_replace(id, &quot;^2&quot;, &quot;X&quot;),
+    id = str_replace(id, &quot;^3&quot;, &quot;B&quot;),
+    id = str_replace(id, &quot;^4&quot;, &quot;Q&quot;),
+    id = str_replace(id, &quot;^5&quot;, &quot;R&quot;),
+    gentrification = replace(gentrification, gentrification == &quot;n/a&quot;, NA),
+    avertable_death = replace(avertable_death, avertable_death == &quot;n/a&quot;, NA),
+    avertable_death = replace(avertable_death, avertable_death == &quot;^&quot;, NA)
+  ) %&gt;% 
+  rename(community_board = id, not_complete_hs = edu_did_not_complete_hs, hs_some_college = edu_hs_grad_some_college, college_higher = edu_college_degree_and_higher) %&gt;% 
+  select(community_board:age65plus, on_time_hs_grad, not_complete_hs, hs_some_college, college_higher, poverty, unemployment, rent_burden, gentrification,
+         avertable_death, assault_hosp)</code></pre>
+<pre><code>## New names:
+## * lower_95CL -&gt; lower_95CL...16
+## * upper_95CL -&gt; upper_95CL...17
+## * NYC_Comparison -&gt; NYC_Comparison...18
+## * lower_95CL -&gt; lower_95CL...20
+## * upper_95CL -&gt; upper_95CL...21
+## * ...</code></pre>
+<pre class="r"><code>garden_demo = left_join(gardens, demo, by = &quot;community_board&quot;)</code></pre>
+<p><a href="https://data.cityofnewyork.us/City-Government/Revised-Notice-of-Property-Value-RNOPV-/8vgb-zm6e">Revised property value notices</a></p>
+<pre class="r"><code>property = 
+  read_csv(&quot;./data/property_values.csv&quot;) %&gt;% 
+  janitor::clean_names() %&gt;% 
+  relocate(community_board, borough) %&gt;% 
+  drop_na(community_board) %&gt;% 
+  mutate(
+    comm_board = case_when(
+      borough == &quot;MANHATTAN&quot; ~ &quot;M&quot;,
+      borough == &quot;BRONX&quot; ~ &quot;X&quot;,
+      borough == &quot;BROOKLYN&quot; ~ &quot;B&quot;,
+      borough == &quot;QUEENS&quot; ~ &quot;Q&quot;,
+      borough == &quot;STATEN IS&quot; ~ &quot;R&quot;
+    )
+  ) %&gt;% 
+   relocate(community_board, borough, comm_board)</code></pre>
+<pre><code>## Parsed with column specification:
+## cols(
+##   .default = col_double(),
+##   `MAILED DATE` = col_character(),
+##   EASE = col_logical(),
+##   NAME = col_character(),
+##   `Address 1` = col_character(),
+##   `Address 2` = col_character(),
+##   `Address 3` = col_character(),
+##   `City, State, Zip` = col_character(),
+##   Country = col_logical(),
+##   `BLD Class` = col_character(),
+##   `RC 1` = col_character(),
+##   RC2 = col_character(),
+##   RC3 = col_logical(),
+##   RC4 = col_logical(),
+##   RC5 = col_logical(),
+##   Borough = col_character(),
+##   NTA = col_character()
+## )
+
+## See spec(...) for full column specifications.</code></pre>
+<p><a href="https://data.cityofnewyork.us/City-Government/Participatory-Budgeting-Project-Tracker/qm5f-frjb">NYC OpenData</a></p>
+<pre class="r"><code>budget = 
+  read_csv(&quot;./data/budget_tracker.csv&quot;) %&gt;% 
+  janitor::clean_names() %&gt;% 
+  drop_na(community_board) %&gt;% 
+  mutate(
+    comm_board = case_when(
+      borough == &quot;MANHATTAN&quot; ~ &quot;M&quot;,
+      borough == &quot;BRONX&quot; ~ &quot;X&quot;,
+      borough == &quot;BROOKLYN&quot; ~ &quot;B&quot;,
+      borough == &quot;QUEENS&quot; ~ &quot;Q&quot;,
+      borough == &quot;STATEN IS&quot; ~ &quot;R&quot;
+    ),
+  comm_board = ifelse(is.na(community_board), NA, community_board) 
+  ) %&gt;% 
+  relocate(community_board, borough, comm_board)</code></pre>
+<pre><code>## Parsed with column specification:
+## cols(
+##   .default = col_character(),
+##   `Vote Year` = col_double(),
+##   `Ballot Price` = col_double(),
+##   `Subproject Cost` = col_double(),
+##   `Brooklyn Borough President Funding` = col_double(),
+##   `Total Appropriated` = col_double(),
+##   `Number of Subprojects` = col_double(),
+##   Postcode = col_double(),
+##   `Community Board` = col_double(),
+##   `Census Tract` = col_double(),
+##   BIN = col_double(),
+##   BBL = col_double()
+## )
+
+## See spec(...) for full column specifications.</code></pre>
+</div>
+</div>
+
+
+
+
+</div>
+
+<script>
+
+// add bootstrap table styles to pandoc tables
+function bootstrapStylePandocTables() {
+  $('tr.header').parent('thead').parent('table').addClass('table table-condensed');
+}
+$(document).ready(function () {
+  bootstrapStylePandocTables();
+});
+
+
+</script>
+
+<!-- tabsets -->
+
+<script>
+$(document).ready(function () {
+  window.buildTabsets("TOC");
+});
+
+$(document).ready(function () {
+  $('.tabset-dropdown > .nav-tabs > li').click(function () {
+    $(this).parent().toggleClass('nav-tabs-open')
+  });
+});
+</script>
+
+<!-- code folding -->
+
+
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+  (function () {
+    var script = document.createElement("script");
+    script.type = "text/javascript";
+    script.src  = "https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML";
+    document.getElementsByTagName("head")[0].appendChild(script);
+  })();
+</script>
+
+</body>
+</html>
