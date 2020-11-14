@@ -38,8 +38,11 @@ Gardens](https://data.cityofnewyork.us/Environment/NYC-Greenthumb-Community-Gard
 gardens = 
   read_csv("./data/nyc_community_gardens.csv") %>% 
   janitor::clean_names() %>% 
-  drop_na(community_board) %>% 
-  relocate(community_board)
+  mutate(
+    community_board = replace(community_board, community_board == "N/A", NA)
+  ) %>% 
+  relocate(community_board) %>% 
+  select(-prop_id,-census_tract, -bin, -bbl, -nta)
 ```
 
     ## Parsed with column specification:
@@ -63,25 +66,33 @@ gardens =
     ##   NTA = col_character()
     ## )
 
-``` r
-table(gardens$community_board)
-```
-
-    ## 
-    ## B01 B02 B03 B04 B05 B06 B07 B08 B09 B11 B12 B13 B14 B16 B17 B18 BK4 M01 M02 M03 
-    ##  16  16  48  13  52  15   3  14   4   3   3   5   4  22   4   2   1   1   3  43 
-    ## M04 M07 M08 M09 M10 M11 M12 N/A Q01 Q02 Q03 Q04 Q05 Q06 Q07 Q08 Q09 Q10 Q11 Q12 
-    ##   6   5   1  13  29  36  12   5   2   1   3   2   2   2   1   1   1   1   1  11 
-    ## Q13 Q14 R01 R03 X01 X02 X03 X04 X05 X06 X07 X08 X09 X10 X11 X12 
-    ##   2   3   3   1  24   7  20  20   7  20   7   1   7   2   1   4
+Community board is not a unique identifier here….
 
 Demographic and Community data
+
+ID Borough Name 0 City NYC 1 NYC Manhattan (M) 2 NYC Bronx (x) 3 NYC
+Brooklyn (B) 4 NYC Queens (Q) 5 NYC Staten Island (R)
 
 ``` r
 demo = 
   read_xlsx("./data/health_profiles.xlsx",
   sheet = "CHP_all_data", skip = 1) %>% 
-  janitor::clean_names()
+  janitor::clean_names() %>% 
+  slice(-(1:6)) %>% 
+  slice_head(n = 59) %>% 
+  mutate(
+    id = str_replace(id, "^1", "M"),
+    id = str_replace(id, "^2", "X"),
+    id = str_replace(id, "^3", "B"),
+    id = str_replace(id, "^4", "Q"),
+    id = str_replace(id, "^5", "R"),
+    gentrification = replace(gentrification, gentrification == "n/a", NA),
+    avertable_death = replace(avertable_death, avertable_death == "n/a", NA),
+    avertable_death = replace(avertable_death, avertable_death == "^", NA)
+  ) %>% 
+  rename(community_board = id, not_complete_hs = edu_did_not_complete_hs, hs_some_college = edu_hs_grad_some_college, college_higher = edu_college_degree_and_higher) %>% 
+  select(community_board:age65plus, on_time_hs_grad, not_complete_hs, hs_some_college, college_higher, poverty, unemployment, rent_burden, gentrification,
+         avertable_death, assault_hosp)
 ```
 
     ## New names:
@@ -92,6 +103,10 @@ demo =
     ## * upper_95CL -> upper_95CL...21
     ## * ...
 
+``` r
+garden_demo = left_join(gardens, demo, by = "community_board")
+```
+
 [Revised property value
 notices](https://data.cityofnewyork.us/City-Government/Revised-Notice-of-Property-Value-RNOPV-/8vgb-zm6e)
 
@@ -99,8 +114,18 @@ notices](https://data.cityofnewyork.us/City-Government/Revised-Notice-of-Propert
 property = 
   read_csv("./data/property_values.csv") %>% 
   janitor::clean_names() %>% 
-  relocate(community_board) %>% 
-  drop_na(community_board)
+  relocate(community_board, borough) %>% 
+  drop_na(community_board) %>% 
+  mutate(
+    comm_board = case_when(
+      borough == "MANHATTAN" ~ "M",
+      borough == "BRONX" ~ "X",
+      borough == "BROOKLYN" ~ "B",
+      borough == "QUEENS" ~ "Q",
+      borough == "STATEN IS" ~ "R"
+    )
+  ) %>% 
+   relocate(community_board, borough, comm_board)
 ```
 
     ## Parsed with column specification:
@@ -133,8 +158,18 @@ OpenData](https://data.cityofnewyork.us/City-Government/Participatory-Budgeting-
 budget = 
   read_csv("./data/budget_tracker.csv") %>% 
   janitor::clean_names() %>% 
-  relocate(community_board) %>% 
-  drop_na(community_board)
+  drop_na(community_board) %>% 
+  mutate(
+    comm_board = case_when(
+      borough == "MANHATTAN" ~ "M",
+      borough == "BRONX" ~ "X",
+      borough == "BROOKLYN" ~ "B",
+      borough == "QUEENS" ~ "Q",
+      borough == "STATEN IS" ~ "R"
+    ),
+  comm_board = ifelse(is.na(community_board), NA, community_board) 
+  ) %>% 
+  relocate(community_board, borough, comm_board)
 ```
 
     ## Parsed with column specification:

@@ -22,27 +22,72 @@ Reading in multiple data sources
 gardens = 
   read_csv("./data/nyc_community_gardens.csv") %>% 
   janitor::clean_names() %>% 
-  drop_na(community_board) %>% 
-  relocate(community_board)
+  mutate(
+    community_board = replace(community_board, community_board == "N/A", NA)
+  ) %>% 
+  relocate(community_board) %>% 
+  select(-prop_id,-census_tract, -bin, -bbl, -nta)
 
-table(gardens$community_board)
 ```
+Community board is not a unique identifier here....
+
 
 Demographic and Community data
+
+ID    Borough	    Name
+0	    City	      NYC
+1	    NYC	        Manhattan (M)
+2	    NYC	        Bronx (x)
+3	    NYC	        Brooklyn (B)
+4	    NYC	        Queens (Q)
+5	    NYC	        Staten Island (R)
+
 ```{r}
 demo = 
   read_xlsx("./data/health_profiles.xlsx",
   sheet = "CHP_all_data", skip = 1) %>% 
-  janitor::clean_names()
+  janitor::clean_names() %>% 
+  slice(-(1:6)) %>% 
+  slice_head(n = 59) %>% 
+  mutate(
+    id = str_replace(id, "^1", "M"),
+    id = str_replace(id, "^2", "X"),
+    id = str_replace(id, "^3", "B"),
+    id = str_replace(id, "^4", "Q"),
+    id = str_replace(id, "^5", "R"),
+    gentrification = replace(gentrification, gentrification == "n/a", NA),
+    avertable_death = replace(avertable_death, avertable_death == "n/a", NA),
+    avertable_death = replace(avertable_death, avertable_death == "^", NA)
+  ) %>% 
+  rename(community_board = id, not_complete_hs = edu_did_not_complete_hs, hs_some_college = edu_hs_grad_some_college, college_higher = edu_college_degree_and_higher) %>% 
+  select(community_board:age65plus, on_time_hs_grad, not_complete_hs, hs_some_college, college_higher, poverty, unemployment, rent_burden, gentrification,
+         avertable_death, assault_hosp)
 ```
+
+
+```{r}
+garden_demo = left_join(gardens, demo, by = "community_board")
+```
+
+
 
 [Revised property value notices](https://data.cityofnewyork.us/City-Government/Revised-Notice-of-Property-Value-RNOPV-/8vgb-zm6e)
 ```{r}
 property = 
   read_csv("./data/property_values.csv") %>% 
   janitor::clean_names() %>% 
-  relocate(community_board) %>% 
-  drop_na(community_board)
+  relocate(community_board, borough) %>% 
+  drop_na(community_board) %>% 
+  mutate(
+    comm_board = case_when(
+      borough == "MANHATTAN" ~ "M",
+      borough == "BRONX" ~ "X",
+      borough == "BROOKLYN" ~ "B",
+      borough == "QUEENS" ~ "Q",
+      borough == "STATEN IS" ~ "R"
+    )
+  ) %>% 
+   relocate(community_board, borough, comm_board)
 ```
 
 [NYC OpenData](https://data.cityofnewyork.us/City-Government/Participatory-Budgeting-Project-Tracker/qm5f-frjb)
@@ -50,7 +95,18 @@ property =
 budget = 
   read_csv("./data/budget_tracker.csv") %>% 
   janitor::clean_names() %>% 
-  relocate(community_board) %>% 
-  drop_na(community_board)
+  drop_na(community_board) %>% 
+  mutate(
+    comm_board = case_when(
+      borough == "MANHATTAN" ~ "M",
+      borough == "BRONX" ~ "X",
+      borough == "BROOKLYN" ~ "B",
+      borough == "QUEENS" ~ "Q",
+      borough == "STATEN IS" ~ "R"
+    ),
+  comm_board = ifelse(is.na(community_board), NA, community_board) 
+  ) %>% 
+  relocate(community_board, borough, comm_board)
+
 ```
 
