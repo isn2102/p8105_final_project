@@ -3,21 +3,25 @@ title: "Data Cleaning and Merging"
 date: "11/13/20"
 output: github_document
 ---
-### Authors
 
-* Isabel Nelson (isn2102)
-* Sushupta Vijapur (smv2138)
-* Kelley Lou (kl3181)
-
-
-```{r}
+```{r setup}
 library(tidyverse)
 library(readxl)
 ```
 
-Reading in multiple data sources 
+**Borough Codes**
 
-[NYC Greenthumb Community Gardens](https://data.cityofnewyork.us/Environment/NYC-Greenthumb-Community-Gardens/ajxm-kzmj)
+* 1 - Manhattan (M)
+* 2 - Bronx (x)
+* 3 - Brooklyn (B)
+* 4 - Queens (Q)
+* 5 - Staten Island (R)
+
+
+### [NYC Greenthumb Community Gardens](https://data.cityofnewyork.us/Environment/NYC-Greenthumb-Community-Gardens/ajxm-kzmj)
+
+**Cleaning and tidying garden data**
+
 ```{r}
 gardens = 
   read_csv("./data/nyc_community_gardens.csv") %>% 
@@ -26,22 +30,14 @@ gardens =
     community_board = replace(community_board, community_board == "N/A", NA)
   ) %>% 
   relocate(community_board) %>% 
-  select(-prop_id,-census_tract, -bin, -bbl, -nta)
+  select(-prop_id,-census_tract, -bin, -bbl, -nta, -boro)
 
 ```
-Community board is not a unique identifier here....
 
 
-Demographic and Community data
+### Demographic and Community data
 
-ID    Borough	    Name
-0	    City	      NYC
-1	    NYC	        Manhattan (M)
-2	    NYC	        Bronx (x)
-3	    NYC	        Brooklyn (B)
-4	    NYC	        Queens (Q)
-5	    NYC	        Staten Island (R)
-
+**Cleaning and tidying demographic data**
 ```{r}
 demo = 
   read_xlsx("./data/health_profiles.xlsx",
@@ -65,48 +61,128 @@ demo =
 ```
 
 
-```{r}
-garden_demo = left_join(gardens, demo, by = "community_board")
-```
+### [Revised property value notices](https://data.cityofnewyork.us/City-Government/Revised-Notice-of-Property-Value-RNOPV-/8vgb-zm6e)
 
+**Cleaning and tidying property data**
 
-
-[Revised property value notices](https://data.cityofnewyork.us/City-Government/Revised-Notice-of-Property-Value-RNOPV-/8vgb-zm6e)
 ```{r}
 property = 
   read_csv("./data/property_values.csv") %>% 
-  janitor::clean_names() %>% 
-  relocate(community_board, borough) %>% 
-  drop_na(community_board) %>% 
+  janitor::clean_names() %>% drop_na(community_board) %>% 
+  rename(old_community_board = community_board) %>% 
   mutate(
-    comm_board = case_when(
-      borough == "MANHATTAN" ~ "M",
-      borough == "BRONX" ~ "X",
-      borough == "BROOKLYN" ~ "B",
-      borough == "QUEENS" ~ "Q",
-      borough == "STATEN IS" ~ "R"
-    )
-  ) %>% 
-   relocate(community_board, borough, comm_board)
-```
-
-[NYC OpenData](https://data.cityofnewyork.us/City-Government/Participatory-Budgeting-Project-Tracker/qm5f-frjb)
-```{r}
-budget = 
-  read_csv("./data/budget_tracker.csv") %>% 
-  janitor::clean_names() %>% 
-  drop_na(community_board) %>% 
-  mutate(
-    comm_board = case_when(
+    boro_letter = case_when(
       borough == "MANHATTAN" ~ "M",
       borough == "BRONX" ~ "X",
       borough == "BROOKLYN" ~ "B",
       borough == "QUEENS" ~ "Q",
       borough == "STATEN IS" ~ "R"
     ),
-  comm_board = ifelse(is.na(community_board), NA, community_board) 
+    board_num = ifelse(nchar(old_community_board) == 1, paste0(0, old_community_board), old_community_board)
   ) %>% 
-  relocate(community_board, borough, comm_board)
+  unite("community_board", boro_letter, board_num, sep = "") %>% 
+  relocate(community_board, old_community_board, borough) %>% 
+  select(community_board, lot, tax_class, original_market_value, revised_market_value)
+```
+
+**Grouping values by community board**
+
+```{r}
+property_tidy = 
+  property %>% 
+  group_by(community_board) %>% 
+  summarize(
+    avg_org_value = mean(original_market_value, na.rm = TRUE),
+    avg_rev_value = mean(revised_market_value, na.rm = TRUE),
+    avg_lot = mean(lot, na.rm = TRUE),
+    median_tax_class = median(tax_class, na.rm = TRUE)
+  )
+```
+**Questions:**
+
+* Should we take the mean or median of # of tax class? We could also round to nearest whole number after taking the mean
+  
+
+### [NYC OpenData](https://data.cityofnewyork.us/City-Government/Participatory-Budgeting-Project-Tracker/qm5f-frjb)
+
+**Cleaning and tidying budget data**
+
+```{r}
+budget = 
+  read_csv("./data/budget_tracker.csv") %>% 
+  janitor::clean_names() %>% drop_na(community_board) %>% 
+  rename(old_community_board = community_board) %>% 
+  mutate(
+    boro_letter = case_when(
+      borough == "MANHATTAN" ~ "M",
+      borough == "BRONX" ~ "X",
+      borough == "BROOKLYN" ~ "B",
+      borough == "QUEENS" ~ "Q",
+      borough == "STATEN IS" ~ "R"
+    ),
+    board_num = ifelse(nchar(old_community_board) == 1, paste0(0, old_community_board), old_community_board)
+  ) %>% 
+  unite("community_board", boro_letter, board_num, sep = "") %>% 
+  relocate(community_board, old_community_board, borough) %>% 
+  select(community_board, project:subproject_cost, total_appropriated, number_of_subprojects, status_summary)
 
 ```
+
+**Grouping values by community board**
+
+```{r}
+budget_tidy = 
+  budget %>% 
+  group_by(community_board) %>% 
+  summarize(
+    avg_ballot_price = mean(ballot_price, na.rm = TRUE),
+    avg_subproj_cost = mean(subproject_cost, na.rm = TRUE),
+    avg_tot_appropriated = mean(total_appropriated, na.rm = TRUE),
+    median_num_subproj = median(number_of_subprojects, na.rm = TRUE)
+  )
+
+```
+**Questions:**
+
+* Should we take the mean or median of # of subprojects? We could also round to nearest whole number after taking the mean
+
+
+### Merging method 1:
+```{r}
+with_grouping =
+  left_join(gardens, demo, by = "community_board") %>% 
+  left_join(., property_tidy, by = "community_board") %>% 
+  left_join(., budget_tidy, by = "community_board")
+
+# To see how many times a community board appears 
+table(with_grouping$community_board)
+```
+**Notes:**
+
+* This dataset contains 536 observations (the number of gardens in the garden dataset). 
+
+* I grouped the the property value variables and budgeting information variables by community board so there was 1 observations per community board in the "property_tidy" and "budget_tidy" dataframes
+
+* Let me know if anything looks off here
+
+
+### Merging method 2:
+```{r}
+without_grouping = 
+  left_join(gardens, demo, by = "community_board") %>% 
+  left_join(., property, by = "community_board") %>% 
+  left_join(., budget, by = "community_board")
+
+# To see how many times a community board appears 
+table(without_grouping$community_board)
+```
+**Notes:**
+
+* This dataset contains over 1 million records because no grouping was done for the budget or property datasets 
+
+* This dataset contains over 1 million records because no grouping was done for the budget or property datasets 
+
+* Personally, I think that this creates a lot of extraneous information in our dataset. Since our project is aimed at looking at individual gardens, not properties or specific budgeting projects, I'm not sure this merging method makes sense
+
+* **Isabel**, please correct me if I interpreted how you wanted to merge incorrectly.
 
