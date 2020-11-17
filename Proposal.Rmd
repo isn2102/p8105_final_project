@@ -37,7 +37,7 @@ This project aims to further explore the relationship between community gardens 
 
 ### Intended Products + Website Flow
 
-Website pages:  
+**Website pages:**  
 
 * Landing page with Title, authors, introduction, research questions, citations (written above), and the map of community gardens (plotly)  
   - Map will be using leaflet and will show the location of individual gardens, with information on each when you hover  
@@ -56,6 +56,15 @@ Website pages:
   - write up of results from analyses  
   - visualizations found on the other pages  
   - plots showing basic demographic characteristics of each neighborhood: age distribution, race distribution, population size, education distribution
+  
+**Analysis**  
+1. Spatial dependence of gardens (clusters statistically significant / not normally distributed)  
+2. Spatial regression model for economic indicators (choose one or two)  
+  - Can use property values by interpolating and summarizing at community board level, or median income/gentrification value for each community board, or create a composite variable for average participatory budgeting amount per location  
+  - Adjust for covariates: race, age  
+3. Spatial regression model for health indicators (choose one or two)  
+  - Can use the value for each community board  
+  - Adjust for covariates: race, age, income
 
 ### Data Sources
 
