@@ -29,8 +29,9 @@ gardens =
   mutate(
     community_board = replace(community_board, community_board == "N/A", NA)
   ) %>% 
+  drop_na(community_board) %>% 
   relocate(community_board) %>% 
-  select(-prop_id,-census_tract, -bin, -bbl, -nta, -boro)
+  select(-prop_id,-census_tract, -bin, -bbl, -nta, -boro, -council_district, -cross_streets, -jurisdiction, -postcode)
 
 ```
 
@@ -56,8 +57,7 @@ demo =
     avertable_death = replace(avertable_death, avertable_death == "^", NA)
   ) %>% 
   rename(community_board = id, not_complete_hs = edu_did_not_complete_hs, hs_some_college = edu_hs_grad_some_college, college_higher = edu_college_degree_and_higher) %>% 
-  select(community_board:age65plus, on_time_hs_grad, not_complete_hs, hs_some_college, college_higher, poverty, unemployment, rent_burden, gentrification,
-         avertable_death, assault_hosp)
+  select(community_board:age65plus, on_time_hs_grad, not_complete_hs, hs_some_college, college_higher, poverty, rent_burden, obesity, hypertension, life_expectancy, self_rep_health)
 ```
 
 
@@ -82,7 +82,7 @@ property =
   ) %>% 
   unite("community_board", boro_letter, board_num, sep = "") %>% 
   relocate(community_board, old_community_board, borough) %>% 
-  select(community_board, lot, tax_class, original_market_value, revised_market_value)
+  select(community_board, original_market_value, revised_market_value)
 ```
 
 **Grouping values by community board**
@@ -93,14 +93,12 @@ property_tidy =
   group_by(community_board) %>% 
   summarize(
     avg_org_value = mean(original_market_value, na.rm = TRUE),
-    avg_rev_value = mean(revised_market_value, na.rm = TRUE),
-    avg_lot = mean(lot, na.rm = TRUE),
-    median_tax_class = median(tax_class, na.rm = TRUE)
+    avg_rev_value = mean(revised_market_value, na.rm = TRUE)
   )
 ```
 **Questions:**
 
-* Should we take the mean or median of # of tax class? We could also round to nearest whole number after taking the mean
+* Check to see how different mean and median are
   
 
 ### [NYC OpenData](https://data.cityofnewyork.us/City-Government/Participatory-Budgeting-Project-Tracker/qm5f-frjb)
@@ -124,7 +122,7 @@ budget =
   ) %>% 
   unite("community_board", boro_letter, board_num, sep = "") %>% 
   relocate(community_board, old_community_board, borough) %>% 
-  select(community_board, project:subproject_cost, total_appropriated, number_of_subprojects, status_summary)
+  select(community_board, vote_year, total_appropriated)
 
 ```
 
@@ -135,54 +133,24 @@ budget_tidy =
   budget %>% 
   group_by(community_board) %>% 
   summarize(
-    avg_ballot_price = mean(ballot_price, na.rm = TRUE),
-    avg_subproj_cost = mean(subproject_cost, na.rm = TRUE),
-    avg_tot_appropriated = mean(total_appropriated, na.rm = TRUE),
-    median_num_subproj = median(number_of_subprojects, na.rm = TRUE)
+    avg_tot_appropriated = mean(total_appropriated, na.rm = TRUE)
   )
 
 ```
-**Questions:**
-
-* Should we take the mean or median of # of subprojects? We could also round to nearest whole number after taking the mean
 
 
 ### Merging method 1:
 ```{r}
-with_grouping =
+final_tidy =
   left_join(gardens, demo, by = "community_board") %>% 
   left_join(., property_tidy, by = "community_board") %>% 
   left_join(., budget_tidy, by = "community_board")
 
-# To see how many times a community board appears 
-table(with_grouping$community_board)
 ```
 **Notes:**
 
-* This dataset contains 536 observations (the number of gardens in the garden dataset). 
+* This dataset contains 531 observations (the number of gardens in the garden dataset). 
 
 * I grouped the the property value variables and budgeting information variables by community board so there was 1 observations per community board in the "property_tidy" and "budget_tidy" dataframes
 
-* Let me know if anything looks off here
-
-
-### Merging method 2:
-```{r}
-without_grouping = 
-  left_join(gardens, demo, by = "community_board") %>% 
-  left_join(., property, by = "community_board") %>% 
-  left_join(., budget, by = "community_board")
-
-# To see how many times a community board appears 
-table(without_grouping$community_board)
-```
-**Notes:**
-
-* This dataset contains over 1 million records because no grouping was done for the budget or property datasets 
-
-* This dataset contains over 1 million records because no grouping was done for the budget or property datasets 
-
-* Personally, I think that this creates a lot of extraneous information in our dataset. Since our project is aimed at looking at individual gardens, not properties or specific budgeting projects, I'm not sure this merging method makes sense
-
-* **Isabel**, please correct me if I interpreted how you wanted to merge incorrectly.
 
