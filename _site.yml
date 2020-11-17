@@ -11,8 +11,6 @@ navbar:
       href: health.html
     - text: "Property Values"
       href: property_values.html
-    - text: "Statistical Analysis"
-      href: analysis.html
 output:
   html_document:
     theme: paper
