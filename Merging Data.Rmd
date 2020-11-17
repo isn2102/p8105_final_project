@@ -146,6 +146,9 @@ final_tidy =
   left_join(., property_tidy, by = "community_board") %>% 
   left_join(., budget_tidy, by = "community_board")
 
+
+write_csv(final_tidy, "./data/final_df.csv")
+
 ```
 **Notes:**
 
