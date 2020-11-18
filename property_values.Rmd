@@ -2,12 +2,13 @@
 title: "Economic Investment"
 output: 
   flexdashboard::flex_dashboard:
-    orientation: rows
+    orientation: columns
 ---
 ```{r}
 library(tidyverse)
 library(plotly)
 library(leaflet)
+library(ggridges)
 
 #Set global theme for plots
 theme_set(theme_minimal() + 
@@ -48,11 +49,10 @@ property_data_final =
   
 ```
 
-
-Row 
--------------------------------------
+Column {data-width=600}
+-----------------------------------------------------------------------
     
-### Chart 1
+### Distribution of Gardens by Budget Allocation
     
 ```{r}
 pal <- colorNumeric(
@@ -67,13 +67,14 @@ property_data %>%
   addProviderTiles(providers$CartoDB.Positron) %>% 
   addCircleMarkers(~longitude, ~latitude, radius = .1, color = ~pal(avg_tot_appropriated), popup = ~click_label)
 ```
+    
+Column {.tabset .tabset-fade data-width=400}
+-----------------------------------------------------------------------
    
-Row {.tabset .tabset-fade}
--------------------------------------
-   
-### Chart 2
+### Property Market Value by Community Board and Borough
 
 ```{r}
+market_value = 
   property_data_final %>% 
    ggplot(aes(x = community_board, y = value_diff, label = borough)) +
     geom_segment(aes(x = community_board, xend = community_board, y = 0, yend =  value_diff, color = borough), size = 1.3, alpha = 0.9) +
@@ -87,10 +88,60 @@ Row {.tabset .tabset-fade}
       x = "Community Board",
       y = "Change in Value"
     )
+
+ggplotly(market_value)
 ```   
- 
-### Chart 3
+
+
+### Budget Allocation by Borough
     
 ```{r}
+budget_allocation = 
+  property_data_final %>% 
+    drop_na(avg_tot_appropriated) %>% 
+    ggplot(aes(x = borough, y = avg_tot_appropriated, fill = borough)) +
+    geom_boxplot() +
+    labs(
+      title = "Average Budget Allocation",
+      x = "Budget Allocation",
+      y = "Borough"
+    ) +
+    theme(legend.position = "none")
 
+ggplotly(budget_allocation)
 ```
+
+### Percent Poverty by Borough
+
+```{r}
+poverty = 
+  property_data_final %>% 
+    ggplot(aes(x = borough, y = poverty, fill = borough)) +
+    geom_boxplot() +
+    labs(
+      title = "Percent Poverty",
+      x = "Borough",
+      y = "Poverty (%)"
+    ) +
+    theme(legend.position = "none")
+
+ggplotly(poverty)
+```
+
+### Rent Burden by Borough
+
+```{r}
+rent_burden = 
+  property_data_final %>% 
+    ggplot(aes(x = borough, y = rent_burden, fill = borough)) +
+    geom_boxplot() +
+    labs(
+      title = "Rent Burden",
+      x = "Borough",
+      y = "Percent of Income Spent on Rent"
+    ) +
+    theme(legend.position = "none")
+
+ggplotly(rent_burden)
+```
+
