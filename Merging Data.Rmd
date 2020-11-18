@@ -31,7 +31,7 @@ gardens =
   ) %>% 
   drop_na(community_board) %>% 
   relocate(community_board) %>% 
-  select(-prop_id,-census_tract, -bin, -bbl, -nta, -boro, -council_district, -cross_streets, -jurisdiction, -postcode)
+  select(-prop_id,-census_tract, -bin, -bbl, -nta, -council_district, -cross_streets, -jurisdiction, -postcode)
 
 ```
 
@@ -143,6 +143,11 @@ budget_tidy =
 ```{r}
 final_tidy =
   left_join(gardens, demo, by = "community_board") %>% 
+  left_join(., property_tidy, by = "community_board") %>% 
+  left_join(., budget_tidy, by = "community_board")
+
+final_tidy =
+  left_join(demo, gardens, by = "community_board") %>% 
   left_join(., property_tidy, by = "community_board") %>% 
   left_join(., budget_tidy, by = "community_board")
 

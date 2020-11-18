@@ -4,23 +4,6 @@ Data Cleaning and Merging
 
 ``` r
 library(tidyverse)
-<<<<<<< HEAD
-```
-
-    ## -- Attaching packages ------------------------------------------------ tidyverse 1.3.0 --
-
-    ## v ggplot2 3.3.2     v purrr   0.3.4
-    ## v tibble  3.0.3     v dplyr   1.0.2
-    ## v tidyr   1.1.2     v stringr 1.4.0
-    ## v readr   1.3.1     v forcats 0.5.0
-
-    ## -- Conflicts --------------------------------------------------- tidyverse_conflicts() --
-    ## x dplyr::filter() masks stats::filter()
-    ## x dplyr::lag()    masks stats::lag()
-
-``` r
-=======
->>>>>>> e077778f36cc2e1466d504e351bf754267764d48
 library(readxl)
 ```
 
@@ -43,8 +26,9 @@ gardens =
   mutate(
     community_board = replace(community_board, community_board == "N/A", NA)
   ) %>% 
+  drop_na(community_board) %>% 
   relocate(community_board) %>% 
-  select(-prop_id,-census_tract, -bin, -bbl, -nta, -boro)
+  select(-prop_id,-census_tract, -bin, -bbl, -nta, -council_district, -cross_streets, -jurisdiction, -postcode)
 ```
 
     ## Parsed with column specification:
@@ -90,8 +74,7 @@ demo =
     avertable_death = replace(avertable_death, avertable_death == "^", NA)
   ) %>% 
   rename(community_board = id, not_complete_hs = edu_did_not_complete_hs, hs_some_college = edu_hs_grad_some_college, college_higher = edu_college_degree_and_higher) %>% 
-  select(community_board:age65plus, on_time_hs_grad, not_complete_hs, hs_some_college, college_higher, poverty, unemployment, rent_burden, gentrification,
-         avertable_death, assault_hosp)
+  select(community_board:age65plus, on_time_hs_grad, not_complete_hs, hs_some_college, college_higher, poverty, rent_burden, obesity, hypertension, life_expectancy, self_rep_health)
 ```
 
     ## New names:
@@ -123,7 +106,7 @@ property =
   ) %>% 
   unite("community_board", boro_letter, board_num, sep = "") %>% 
   relocate(community_board, old_community_board, borough) %>% 
-  select(community_board, lot, tax_class, original_market_value, revised_market_value)
+  select(community_board, original_market_value, revised_market_value)
 ```
 
     ## Parsed with column specification:
@@ -157,9 +140,7 @@ property_tidy =
   group_by(community_board) %>% 
   summarize(
     avg_org_value = mean(original_market_value, na.rm = TRUE),
-    avg_rev_value = mean(revised_market_value, na.rm = TRUE),
-    avg_lot = mean(lot, na.rm = TRUE),
-    median_tax_class = median(tax_class, na.rm = TRUE)
+    avg_rev_value = mean(revised_market_value, na.rm = TRUE)
   )
 ```
 
@@ -167,8 +148,7 @@ property_tidy =
 
 **Questions:**
 
-  - Should we take the mean or median of \# of tax class? We could also
-    round to nearest whole number after taking the mean
+  - Check to see how different mean and median are
 
 ### [NYC OpenData](https://data.cityofnewyork.us/City-Government/Participatory-Budgeting-Project-Tracker/qm5f-frjb)
 
@@ -191,7 +171,7 @@ budget =
   ) %>% 
   unite("community_board", boro_letter, board_num, sep = "") %>% 
   relocate(community_board, old_community_board, borough) %>% 
-  select(community_board, project:subproject_cost, total_appropriated, number_of_subprojects, status_summary)
+  select(community_board, vote_year, total_appropriated)
 ```
 
     ## Parsed with column specification:
@@ -219,88 +199,35 @@ budget_tidy =
   budget %>% 
   group_by(community_board) %>% 
   summarize(
-    avg_ballot_price = mean(ballot_price, na.rm = TRUE),
-    avg_subproj_cost = mean(subproject_cost, na.rm = TRUE),
-    avg_tot_appropriated = mean(total_appropriated, na.rm = TRUE),
-    median_num_subproj = median(number_of_subprojects, na.rm = TRUE)
+    avg_tot_appropriated = mean(total_appropriated, na.rm = TRUE)
   )
 ```
 
     ## `summarise()` ungrouping output (override with `.groups` argument)
 
-**Questions:**
-
-  - Should we take the mean or median of \# of subprojects? We could
-    also round to nearest whole number after taking the mean
-
 ### Merging method 1:
 
 ``` r
-with_grouping =
+final_tidy =
   left_join(gardens, demo, by = "community_board") %>% 
   left_join(., property_tidy, by = "community_board") %>% 
   left_join(., budget_tidy, by = "community_board")
 
-# To see how many times a community board appears 
-table(with_grouping$community_board)
-```
+final_tidy =
+  left_join(demo, gardens, by = "community_board") %>% 
+  left_join(., property_tidy, by = "community_board") %>% 
+  left_join(., budget_tidy, by = "community_board")
 
-    ## 
-    ## B01 B02 B03 B04 B05 B06 B07 B08 B09 B11 B12 B13 B14 B16 B17 B18 BK4 M01 M02 M03 
-    ##  16  16  48  13  52  15   3  14   4   3   3   5   4  22   4   2   1   1   3  43 
-    ## M04 M07 M08 M09 M10 M11 M12 Q01 Q02 Q03 Q04 Q05 Q06 Q07 Q08 Q09 Q10 Q11 Q12 Q13 
-    ##   6   5   1  13  29  36  12   2   1   3   2   2   2   1   1   1   1   1  11   2 
-    ## Q14 R01 R03 X01 X02 X03 X04 X05 X06 X07 X08 X09 X10 X11 X12 
-    ##   3   3   1  24   7  20  20   7  20   7   1   7   2   1   4
+
+write_csv(final_tidy, "./data/final_df.csv")
+```
 
 **Notes:**
 
-  - This dataset contains 536 observations (the number of gardens in the
+  - This dataset contains 531 observations (the number of gardens in the
     garden dataset).
 
   - I grouped the the property value variables and budgeting information
     variables by community board so there was 1 observations per
     community board in the “property\_tidy” and “budget\_tidy”
     dataframes
-
-  - Let me know if anything looks off here
-
-### Merging method 2:
-
-``` r
-without_grouping = 
-  left_join(gardens, demo, by = "community_board") %>% 
-  left_join(., property, by = "community_board") %>% 
-  left_join(., budget, by = "community_board")
-
-# To see how many times a community board appears 
-table(without_grouping$community_board)
-```
-
-    ## 
-    ##    B01    B02    B03    B04    B05    B06    B07    B08    B09    B11    B12 
-    ## 226656  49200 113280   3276   5252 111000  12240   4508   1040   7161   7455 
-    ##    B13    B14    B16    B17    B18    BK4    M01    M02    M03    M04    M07 
-    ##   5580   7008    726   7560    614      1   1612   2658   7353  42300  68400 
-    ##    M08    M09    M10    M11    M12    Q01    Q02    Q03    Q04    Q05    Q06 
-    ##  23199   2275   2436 257580   5616   6448   1863    834   1568   5700   7200 
-    ##    Q07    Q08    Q09    Q10    Q11    Q12    Q13    Q14    R01    R03    X01 
-    ##  10816    251   2100    253   4290  40040   8856  15327   5814    659   9672 
-    ##    X02    X03    X04    X05    X06    X07    X08    X09    X10    X11    X12 
-    ##    385    340   1600    280   9000    784    645    483    264    108    396
-
-**Notes:**
-
-  - This dataset contains over 1 million records because no grouping was
-    done for the budget or property datasets
-
-  - This dataset contains over 1 million records because no grouping was
-    done for the budget or property datasets
-
-  - Personally, I think that this creates a lot of extraneous
-    information in our dataset. Since our project is aimed at looking at
-    individual gardens, not properties or specific budgeting projects,
-    I’m not sure this merging method makes sense
-
-  - **Isabel**, please correct me if I interpreted how you wanted to
-    merge incorrectly.

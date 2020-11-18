@@ -10,9 +10,8 @@
 
 
 
-<meta name="date" content="2020-11-13" />
 
-<title>Data Cleaning and Merging</title>
+<title>Merging-Data.utf8</title>
 
 <script src="site_libs/jquery-1.11.3/jquery.min.js"></script>
 <meta name="viewport" content="width=device-width, initial-scale=1" />
@@ -287,9 +286,6 @@ $(document).ready(function () {
 <li>
   <a href="property_values.html">Property Values</a>
 </li>
-<li>
-  <a href="analysis.html">Statistical Analysis</a>
-</li>
       </ul>
     </div><!--/.nav-collapse -->
   </div><!--/.container -->
@@ -299,22 +295,15 @@ $(document).ready(function () {
 
 
 
-<h1 class="title toc-ignore">Data Cleaning and Merging</h1>
-<h4 class="date">11/13/20</h4>
 
 </div>
 
 
-<pre class="r"><code>library(tidyverse)</code></pre>
-<pre><code>## -- Attaching packages ------------------------------------------------------------------------------------------------------------------ tidyverse 1.3.0 --</code></pre>
-<pre><code>## v ggplot2 3.3.2     v purrr   0.3.4
-## v tibble  3.0.3     v dplyr   1.0.2
-## v tidyr   1.1.2     v stringr 1.4.0
-## v readr   1.3.1     v forcats 0.5.0</code></pre>
-<pre><code>## -- Conflicts --------------------------------------------------------------------------------------------------------------------- tidyverse_conflicts() --
-## x dplyr::filter() masks stats::filter()
-## x dplyr::lag()    masks stats::lag()</code></pre>
-<pre class="r"><code>library(readxl)</code></pre>
+<div id="data-cleaning-and-merging" class="section level1">
+<h1>Data Cleaning and Merging</h1>
+<p>11/13/20</p>
+<pre class="r"><code>library(tidyverse)
+library(readxl)</code></pre>
 <p><strong>Borough Codes</strong></p>
 <ul>
 <li>1 - Manhattan (M)</li>
@@ -334,7 +323,7 @@ $(document).ready(function () {
   ) %&gt;% 
   drop_na(community_board) %&gt;% 
   relocate(community_board) %&gt;% 
-  select(-prop_id,-census_tract, -bin, -bbl, -nta, -boro, -council_district, -cross_streets, -jurisdiction, -postcode)</code></pre>
+  select(-prop_id,-census_tract, -bin, -bbl, -nta, -council_district, -cross_streets, -jurisdiction, -postcode)</code></pre>
 <pre><code>## Parsed with column specification:
 ## cols(
 ##   PropID = col_character(),
@@ -424,8 +413,9 @@ $(document).ready(function () {
 ##   RC5 = col_logical(),
 ##   Borough = col_character(),
 ##   NTA = col_character()
-## )</code></pre>
-<pre><code>## See spec(...) for full column specifications.</code></pre>
+## )
+
+## See spec(...) for full column specifications.</code></pre>
 <p><strong>Grouping values by community board</strong></p>
 <pre class="r"><code>property_tidy = 
   property %&gt;% 
@@ -474,8 +464,9 @@ $(document).ready(function () {
 ##   `Census Tract` = col_double(),
 ##   BIN = col_double(),
 ##   BBL = col_double()
-## )</code></pre>
-<pre><code>## See spec(...) for full column specifications.</code></pre>
+## )
+
+## See spec(...) for full column specifications.</code></pre>
 <p><strong>Grouping values by community board</strong></p>
 <pre class="r"><code>budget_tidy = 
   budget %&gt;% 
@@ -492,6 +483,11 @@ $(document).ready(function () {
   left_join(., property_tidy, by = &quot;community_board&quot;) %&gt;% 
   left_join(., budget_tidy, by = &quot;community_board&quot;)
 
+final_tidy =
+  left_join(demo, gardens, by = &quot;community_board&quot;) %&gt;% 
+  left_join(., property_tidy, by = &quot;community_board&quot;) %&gt;% 
+  left_join(., budget_tidy, by = &quot;community_board&quot;)
+
 
 write_csv(final_tidy, &quot;./data/final_df.csv&quot;)</code></pre>
 <p><strong>Notes:</strong></p>
@@ -499,6 +495,7 @@ write_csv(final_tidy, &quot;./data/final_df.csv&quot;)</code></pre>
 <li><p>This dataset contains 531 observations (the number of gardens in the garden dataset).</p></li>
 <li><p>I grouped the the property value variables and budgeting information variables by community board so there was 1 observations per community board in the “property_tidy” and “budget_tidy” dataframes</p></li>
 </ul>
+</div>
 </div>
 
 

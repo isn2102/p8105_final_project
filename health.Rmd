@@ -1,7 +1,151 @@
 ---
 title: "Health Conditions"
 output: 
-  html_document:
-    toc: true
-    toc_float: true
+  flexdashboard::flex_dashboard:
+    orientation: rows
 ---
+
+```{r}
+library(tidyverse)
+library(patchwork)
+#Set global theme for plots
+theme_set(theme_minimal() + 
+            theme(legend.position = "bottom", 
+                  axis.text.x = element_text(angle = 90, vjust = 0.5, hjust = 1)))
+#Set options for all plots
+options(
+  ggplot2.continuous.colour = "viridis",
+  ggplot2.continuous.fill = "viridis"
+)
+scale_colour_discrete = scale_colour_viridis_d
+scale_fill_discrete = scale_fill_viridis_d
+```
+
+```{r}
+health_data <-
+  read_csv("./data/final_df.csv") %>% 
+  select(community_board, garden_name, obesity, hypertension, life_expectancy, self_rep_health) %>% 
+  mutate(duplicate = community_board) %>% 
+  separate(duplicate, c("boro", NA), sep = 1)
+
+num_gardens <-
+  health_data %>% 
+  drop_na(garden_name) %>% 
+  group_by(community_board) %>% 
+  summarize(garden_num = n())
+
+unique_comboard <-
+  health_data %>% 
+  distinct(community_board, .keep_all = TRUE)
+
+health_data_final <-
+  left_join(unique_comboard, num_gardens, by = "community_board") %>% 
+  select(-garden_name) %>% 
+  replace_na(list(community_board = 0, obesity = 0, hypertension = 0, life_expectancy = 0, self_rep_health = 0, boro = 0, garden_num = 0)) %>% 
+  mutate(
+    boro_name = case_when(
+      boro == "M" ~ "Manhattan",
+      boro == "X" ~ "Bronx",
+      boro == "B" ~ "Brooklyn",
+      boro == "Q" ~ "Queens",
+      boro == "R" ~ "Staten Island"
+    ))
+  
+```
+
+Row
+-----------------------------------------------------------------------
+
+* Page about health outcomes (dashboard)  
+  - Map of distribution of gardens and maps showing self-reported health, obesity, diabetes, htn, psychiatric hospitalization, premature mortality, life expectancy  
+  - Possibly also small graphs showing these variables  
+  - Results from spatial regression or cluster identification to assess the relationship between these variables and community gardens  
+  
+Variables needed: 
+community_board
+garden_name
+
+obesity: Percentage of adults ages 18 and older who have obesity (Body Mass Index of 30 or greater) based on self-reported height and weight
+hypertension: Percentage of adults ages 18 and older who report ever being told by a healthcare professional that they have hypertension, also known as high blood pressure
+life_expectancy: Life expectancy at birth
+self_rep_health: Percentage of adults ages 18 and older who report their overall health is “excellent,” "very good" or “good” on a scale of excellent, very good, good, fair or poor
+
+Row
+-----------------------------------------------------------------------
+
+### Chart A - Map of community board colored by number of gardens
+https://www.r-graph-gallery.com/183-choropleth-map-with-leaflet.html
+```{r}
+
+```
+
+### Chart B - Grid of 4 maps of community board colored by the four health outcomes
+
+```{r}
+
+```
+
+Row
+-----------------------------------------------------------------------
+
+### Chart C
+
+```{r}
+obesity_graph <-
+  health_data_final %>% 
+  ggplot(aes(x = community_board, y = obesity, color = boro_name)) +
+  geom_point() + 
+  geom_segment( aes(x = community_board, xend = community_board, y = 0, yend = obesity)) +
+  labs(
+    title = "Obesity",
+    x = "Community Board",
+    y = "Percent of Adults with Obesity"
+  )
+
+life_expect_graph <-
+  health_data_final %>% 
+  ggplot(aes(x = community_board, y = life_expectancy, color = boro_name)) +
+  geom_point() + 
+  geom_segment( aes(x = community_board, xend = community_board, y = 0, yend = life_expectancy)) +
+  labs(
+    title = "Life Expectancy",
+    x = "Community Board",
+    y = "Life Expectancy in Years"
+  )
+
+htn_graph <-
+  health_data_final %>% 
+  ggplot(aes(x = community_board, y = hypertension, color = boro_name)) +
+  geom_point() + 
+  geom_segment( aes(x = community_board, xend = community_board, y = 0, yend = hypertension)) +
+  labs(
+    title = "Hypertension",
+    x = "Community Board",
+    y = "Percent of Adults with Hypertension"
+  )
+
+self_rep_graph <-
+  health_data_final %>% 
+  ggplot(aes(x = community_board, y = self_rep_health, color = boro_name)) +
+  geom_point() + 
+  geom_segment( aes(x = community_board, xend = community_board, y = 0, yend = self_rep_health)) +
+  labs(
+    title = "Self Reported Health",
+    x = "Community Board",
+    y = "Percent of Adults with Self Reported Good Health"
+  )
+
+garden_graph <-
+  health_data_final %>% 
+  ggplot(aes(x = community_board, y = garden_num, color = boro_name)) +
+  geom_point() + 
+  geom_segment( aes(x = community_board, xend = community_board, y = 0, yend = garden_num)) +
+  labs(
+    title = "Garden Number",
+    x = "Community Board",
+    y = "Number of Community Gardens"
+  )
+
+(garden_graph + self_rep_graph + life_expect_graph + htn_graph + obesity_graph)
+```
+  
