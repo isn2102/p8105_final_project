@@ -1,13 +1,12 @@
 ---
 title: "Community Gardens Map"
 output: 
-  flexdashboard::flex_dashboard:
-    orientation: columns
-    vertical_layout: fill
+  html_document:
+    toc: true
+    toc_float: true
 ---
 
 ```{r setup, include=FALSE}
-library(flexdashboard)
 
 library(tidyverse)
 library(plotly)
@@ -28,10 +27,9 @@ scale_fill_discrete = scale_fill_viridis_d
 ```
 
 
-```{r}
+```{r include=FALSE}
 garden =
   read_csv("./data/final_df.csv") %>%
-  drop_na(garden_name) %>% 
   group_by(community_board) %>%
   select(community_board, borough, overall_pop, race_white:college_higher, garden_name:longitude)
 
@@ -46,43 +44,144 @@ garden_tidy =
 
 ```
 
-Column {.sidebar}
------------------------------------------------------------------------
 
-```{r}
+### Garden Locations around NYC 
 
-```
-
-Column {data-width=650}
------------------------------------------------------------------------
-
-### Chart A
-
-```{r}
-pal <- colorNumeric(
-  palette = "viridis",
-  domain = garden_tidy$garden_num)
+```{r, echo = FALSE, warning = FALSE}
+leafIcons <- icons(
+  iconUrl = ifelse(garden_tidy$size > 0.55,
+    "http://leafletjs.com/examples/custom-icons/leaf-orange.png",
+    "http://leafletjs.com/examples/custom-icons/leaf-green.png"
+  ),
+  iconWidth = 20, iconHeight = 30,
+  iconAnchorX = 22, iconAnchorY = 94,
+)
 
 garden_tidy %>%
    mutate(
     click_label =
-      str_c("<b>", garden_name), "</b><br>", garden_num) %>% 
+      str_c("<b>", garden_name, "</b><br>", borough, "</b><br>", size, " acres")) %>% 
   leaflet() %>%
   addProviderTiles(providers$CartoDB.Positron) %>% 
-  addCircleMarkers(~longitude, ~latitude, radius = 1, color = ~pal(garden_num), popup = ~click_label)
-```
-
-Column {data-width=350}
------------------------------------------------------------------------
-
-### Chart B
-
-```{r}
+  addMarkers(~longitude, ~latitude, icon = leafIcons, popup = ~click_label)
 
 ```
 
-### Chart C
+**Questions** 
+  * If you guys hate the leaf icons I can change it to normal points :-)
 
-```{r}
+
+
+### Number of gardens in each Community Board
+
+```{r, echo = FALSE, warning = FALSE}
+number_borough = 
+  garden_tidy %>% 
+  select(community_board, garden_num, borough) %>% 
+  distinct() %>% 
+  mutate(
+    community_board = as.factor(community_board)
+  )
+
+x_layout = list(
+  title = "Community Board",
+  tickmode = "linear"
+)
+
+y_layout = list(
+  title = "Number of Community Gardens",
+  dtick = 5
+)
+
+number_borough[is.na(number_borough)] <- 0 
+
+number_borough %>%
+  mutate(community_board = fct_reorder(community_board, garden_num),
+         text_label = str_c("Number of Gardens: ", garden_num, "\nBorough: ", borough)) %>% 
+  plot_ly(
+    x = ~community_board, y = ~garden_num, text = ~text_label, color = ~borough, 
+    type = "bar", colors = "viridis"
+  ) %>% 
+  layout(title = "Number of Gardens by Community Board")
+```
+**Question** Why won't factor reorder work? 
+
+
+### Proportion of difference Races by Community Board
+
+```{r, echo = FALSE, warning = FALSE}
+
+race_tidy = 
+  garden_tidy %>% 
+  select(community_board, borough, garden_num, race_white:race_other) %>% 
+  distinct() %>% 
+  pivot_longer(
+      race_white:race_other,
+      names_to = "race",
+      values_to = "proportions"
+    )
+
+race_white = 
+  race_tidy %>% 
+  filter(race == "race_white") %>% 
+  group_by(borough, race) %>% 
+  mutate(community_board = fct_reorder(community_board, proportions)) %>% 
+  ggplot(aes(x = borough, y = proportions,  color = borough)) +
+      geom_point() +
+      geom_segment(aes(x = borough, xend = borough, y = 0, yend = proportions))
+
+race_white_ply = ggplotly(race_white)
+
+race_black = 
+  race_tidy %>% 
+  filter(race == "race_black") %>% 
+  group_by(community_board, race) %>% 
+  mutate(community_board = fct_reorder(community_board, proportions)) %>% 
+  ggplot(aes(x = community_board, y = proportions,  color = borough)) +
+      geom_point() +
+      geom_segment(aes(x = community_board, xend = community_board, y = 0, yend = proportions))
+
+race_black_ply = ggplotly(race_black)
+
+race_asian = 
+  race_tidy %>% 
+  filter(race == "race_asian") %>% 
+  group_by(community_board, race) %>% 
+  mutate(community_board = fct_reorder(community_board, proportions)) %>% 
+  ggplot(aes(x = community_board, y = proportions,  color = borough)) +
+      geom_point() +
+      geom_segment(aes(x = community_board, xend = community_board, y = 0, yend = proportions))
+
+race_asian_ply = ggplotly(race_asian)
+
+race_latino = 
+  race_tidy %>% 
+  filter(race == "race_latino") %>% 
+  group_by(community_board, race) %>% 
+  mutate(community_board = fct_reorder(community_board, proportions)) %>% 
+  ggplot(aes(x = community_board, y = proportions,  color = borough)) +
+      geom_point() +
+      geom_segment(aes(x = community_board, xend = community_board, y = 0, yend = proportions))
+
+race_latino_ply = ggplotly(race_latino)
+
+race_fig <- subplot(race_white_ply, race_black_ply, race_asian_ply, race_latino_ply, nrows = 2)
+race_fig
+```
+
+
+```{r include = FALSE}
+ 
+race_white = 
+  race_tidy %>% 
+  filter(race == "race_white") %>% 
+  group_by(borough, race) %>% 
+  mutate(borough = fct_reorder(borough, proportions)) %>% 
+  plot_ly(
+    x = ~borough, y = ~proportions, color = ~borough,
+    type = "bar", colors = "viridis"
+  )
 
 ```
+
+
