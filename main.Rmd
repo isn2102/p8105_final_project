@@ -102,7 +102,7 @@ number_borough %>%
     x = ~community_board, y = ~garden_num, text = ~text_label, color = ~borough, 
     type = "bar", colors = "viridis"
   ) %>% 
-  layout(title = "Number of Gardens by Community Board")
+  layout(xaxis = x_layout, yaxis = y_layout, title = "Number of Gardens by Community Board")
 ```
 **Question** Why won't factor reorder work? 
 
@@ -124,11 +124,11 @@ race_tidy =
 race_white = 
   race_tidy %>% 
   filter(race == "race_white") %>% 
-  group_by(borough, race) %>% 
+  group_by(community_board, race) %>% 
   mutate(community_board = fct_reorder(community_board, proportions)) %>% 
-  ggplot(aes(x = borough, y = proportions,  color = borough)) +
+  ggplot(aes(x = community_board, y = proportions,  color = borough)) +
       geom_point() +
-      geom_segment(aes(x = borough, xend = borough, y = 0, yend = proportions))
+      geom_segment(aes(x = community_board, xend = community_board, y = 0, yend = proportions))
 
 race_white_ply = ggplotly(race_white)
 
@@ -165,22 +165,37 @@ race_latino =
 
 race_latino_ply = ggplotly(race_latino)
 
-race_fig <- subplot(race_white_ply, race_black_ply, race_asian_ply, race_latino_ply, nrows = 2)
+race_fig <- subplot(race_white_ply, race_black_ply, race_asian_ply, race_latino_ply, nrows = 4)
 race_fig
 ```
 
 
 ```{r include = FALSE}
- 
+
+## Using plot-ly instead 
 race_white = 
   race_tidy %>% 
   filter(race == "race_white") %>% 
-  group_by(borough, race) %>% 
-  mutate(borough = fct_reorder(borough, proportions)) %>% 
+  group_by(community_board, race) %>% 
+  mutate(community_board = fct_reorder(community_board, proportions)) %>% 
   plot_ly(
-    x = ~borough, y = ~proportions, color = ~borough,
+    x = ~community_board, y = ~proportions, color = ~community_board,
     type = "bar", colors = "viridis"
   )
+
+race_latino = 
+  race_tidy %>% 
+  filter(race == "race_latino") %>% 
+  group_by(community_board, race) %>% 
+  mutate(community_board = fct_reorder(community_board, proportions)) %>% 
+  ggplot(aes(x = community_board, y = proportions,  color = borough)) +
+      geom_point() +
+      geom_segment(aes(x = community_board, xend = community_board, y = 0, yend = proportions))
+
+race_latino_ply = ggplotly(race_latino)
+
+race_fig <- subplot(race_white_ply, race_black_ply, race_asian_ply, race_latino_ply, nrows = 2)
+race_fig
 
 ```
 
