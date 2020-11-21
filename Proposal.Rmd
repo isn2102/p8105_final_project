@@ -101,3 +101,54 @@ We plan to provide a leaflet map overlaying the location of the gardens througho
 
 We anticipate there may be coding challenges when we merge datasets. If the data is not coded consistently or with similar variables, it may be difficult to combine the datasets that we need in order to answer our research questions. We also anticipate there may be challenges with missing data in certain key variables, which we will have to deal with the in data cleaning/tidying phase of the project. 
 
+### To Do's
+
+Clean up stuff: 
+
+- play around with theme for dashboards
+
+- Make sure the global graph settings are all the same
+
+- How to get back to main page from dashboards? 
+
+- Names at bottom of site
+
+- Icons for menu
+
+- Remove floating menu
+
+- Change color theme
+
+- Home page stuff
+
+
+
+Main page: 
+
+images of gardens + motivation + what you’ll find here (short)
+
+menu: 
+
+home
+
+garden distribution - shiny (two visual views, one showing either map of garden points or map of garden number by community board and the other one showing demographic characteristics with drop down)
+
+drop down visualization 
+
+analysis 
+
+
+
+right: 
+
+project report (move main garden map code to report)
+
+youtube
+
+git / drop down contact
+
+
+
+health & dashboard: 
+
+only maps, no graphs
