@@ -20,6 +20,5 @@ library(tidyverse)
 ```
 
 ```{r}
-ggplot(health_data_final, aes(x = garden_num, y = life_expectancy)) + geom_point()
 ```
 
