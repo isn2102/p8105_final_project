@@ -1,9 +1,7 @@
 ---
 title: "Community Gardens in New York City: planting the seed of urban growth"
 output: 
-  html_document:
-    toc: true
-    toc_float: true
+  html_document
 ---
 
 

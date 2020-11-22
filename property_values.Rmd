@@ -3,12 +3,16 @@ title: "Economic Investment"
 output: 
   flexdashboard::flex_dashboard:
     orientation: columns
+    theme: bootstrap
+    navbar:
+       - { title: "Back to Home", href: index.html, align: right }
+
 ---
 ```{r}
 library(tidyverse)
+library(magrittr)
 library(plotly)
 library(leaflet)
-library(ggridges)
 
 #Set global theme for plots
 theme_set(theme_minimal() + 
@@ -22,9 +26,6 @@ options(
 scale_colour_discrete = scale_colour_viridis_d
 scale_fill_discrete = scale_fill_viridis_d
 ```
-  
-Questions:
-* When was original and revised market value documented? Do we know what this money is intended for?
   
   
 ```{r}
@@ -49,12 +50,16 @@ property_data_final =
   
 ```
 
-Column {data-width=600}
+Column {data-width=500}
 -----------------------------------------------------------------------
     
 ### Distribution of Gardens by Budget Allocation
     
 ```{r}
+
+css_fix <- "div.info.legend.leaflet-control br {clear: both;}" # CSS to correct spacing
+html_fix <- htmltools::tags$style(type = "text/css", css_fix)  # Convert CSS to HTML
+
 pal <- colorNumeric(
   palette = "viridis",
   domain = property_data$avg_tot_appropriated)
@@ -62,86 +67,87 @@ pal <- colorNumeric(
 property_data %>%
   mutate(
     click_label =
-      str_c("<b>", garden_name, "</b><br>Budget: $", avg_tot_appropriated, "<br>", rent_burden, "% of income to pay rent", "<br>", poverty, "% poverty")) %>% 
+      str_c("<b>", garden_name, "</b><br>Budget: $", avg_tot_appropriated)) %>% 
   leaflet() %>%
   addProviderTiles(providers$CartoDB.Positron) %>% 
-  addCircleMarkers(~longitude, ~latitude, radius = .1, color = ~pal(avg_tot_appropriated), popup = ~click_label)
+  addCircleMarkers(~longitude, ~latitude, radius = .1, color = ~pal(avg_tot_appropriated), popup = ~click_label) %>% 
+  addLegend("topleft", pal = pal, values = ~avg_tot_appropriated,
+            title = "Budget Allocation",
+            labFormat = labelFormat(prefix = "$"),
+            opacity = 1) %<>% htmlwidgets::prependContent(html_fix)
 ```
-    
-Column {.tabset .tabset-fade data-width=400}
+
+> Visualization of the distribution of community gardens in New York City, colored by budget allocated to each community board.
+
+Column {.tabset .tabset-fade data-width=500}
 -----------------------------------------------------------------------
    
-### Property Market Value by Community Board and Borough
+### Distribution of Gardens by Market Value
 
 ```{r}
-market_value = 
-  property_data_final %>% 
-   ggplot(aes(x = community_board, y = value_diff, label = borough)) +
-    geom_segment(aes(x = community_board, xend = community_board, y = 0, yend =  value_diff, color = borough), size = 1.3, alpha = 0.9) +
-    theme_light() +
-    theme(
-      panel.border = element_blank(),
-      axis.text.x = element_blank(),
-      axis.ticks.x = element_blank()) +
-    labs(
-      title = "How has the market value changed over time?",
-      x = "Community Board",
-      y = "Change in Value"
-    )
+pal2 <- colorNumeric(
+  palette = "viridis",
+  domain = property_data$avg_rev_value)
 
-ggplotly(market_value)
+property_data %>%
+  mutate(
+    click_label =
+      str_c("<b>", garden_name, "</b><br>Market Value: $", avg_rev_value)) %>% 
+  leaflet() %>%
+  addProviderTiles(providers$CartoDB.Positron) %>% 
+  addCircleMarkers(~longitude, ~latitude, radius = .1, color = ~pal2(avg_rev_value), popup = ~click_label) %<>%
+    addLegend("topleft", pal = pal2, values = ~avg_rev_value,
+            title = "Revised Market Value (Biannually)",
+            labFormat = labelFormat(prefix = "$"),
+            opacity = 1)
+
 ```   
 
+> Visualization of the distribution of community gardens in New York City, colored by average revised market value in each community board, which is updated twice a year (most recently, Feb 2020).
 
-### Budget Allocation by Borough
+### Distribution of Gardens by Poverty
     
 ```{r}
-budget_allocation = 
-  property_data_final %>% 
-    drop_na(avg_tot_appropriated) %>% 
-    ggplot(aes(x = borough, y = avg_tot_appropriated, fill = borough)) +
-    geom_boxplot() +
-    labs(
-      title = "Average Budget Allocation",
-      x = "Budget Allocation",
-      y = "Borough"
-    ) +
-    theme(legend.position = "none")
+pal3 <- colorNumeric(
+  palette = "viridis",
+  domain = property_data$poverty)
 
-ggplotly(budget_allocation)
+property_data %>%
+  mutate(
+    click_label =
+      str_c("<b>", garden_name, "</b><br>Percent Poverty: ", poverty, "%")) %>% 
+  leaflet() %>%
+  addProviderTiles(providers$CartoDB.Positron) %>% 
+  addCircleMarkers(~longitude, ~latitude, radius = .1, color = ~pal3(poverty), popup = ~click_label) %>% 
+    addLegend("topleft", pal = pal3, values = ~poverty,
+            title = "Percent Poverty",
+            labFormat = labelFormat(suffix = "%"),
+            opacity = 1)
+
 ```
 
-### Percent Poverty by Borough
+> Visualization of the distribution of community gardens in New York City, colored by average percent poverty in each community board location.
+
+### Distribution of Gardens by Rent Burden
 
 ```{r}
-poverty = 
-  property_data_final %>% 
-    ggplot(aes(x = borough, y = poverty, fill = borough)) +
-    geom_boxplot() +
-    labs(
-      title = "Percent Poverty",
-      x = "Borough",
-      y = "Poverty (%)"
-    ) +
-    theme(legend.position = "none")
+pal4 <- colorNumeric(
+  palette = "viridis",
+  domain = property_data$rent_burden)
 
-ggplotly(poverty)
+property_data %>%
+  mutate(
+    click_label =
+      str_c("<b>", garden_name, "</b><br>Percent of Income Spent on Rent: ", rent_burden, "%")) %>% 
+  leaflet() %>%
+  addProviderTiles(providers$CartoDB.Positron) %>% 
+  addCircleMarkers(~longitude, ~latitude, radius = .1, color = ~pal4(rent_burden), popup = ~click_label) %>% 
+    addLegend("topleft", pal = pal4, values = ~rent_burden,
+            title = "Percent of Income Spent on Rent",
+            labFormat = labelFormat(suffix = "%"),
+            opacity = 1)
+
 ```
 
-### Rent Burden by Borough
-
-```{r}
-rent_burden = 
-  property_data_final %>% 
-    ggplot(aes(x = borough, y = rent_burden, fill = borough)) +
-    geom_boxplot() +
-    labs(
-      title = "Rent Burden",
-      x = "Borough",
-      y = "Percent of Income Spent on Rent"
-    ) +
-    theme(legend.position = "none")
-
-ggplotly(rent_burden)
-```
+> Visualization of the distribution of community gardens in New York City, colored by average percent of monthly income spent on rent in each community board location.
 

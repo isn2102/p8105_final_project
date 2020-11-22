@@ -137,24 +137,7 @@ budgeting amount per location
     screencast, complete peer assessment
   - December 6-10: Prep for in class presentation/discussion\!
 
-### Tasks 11/13
-
-  - Clean and merge data sources (gardens, community board, property
-    value and budgeting) - SMV
-  - Create basic website structure (framework for shiny app) - KL
-  - Start on first part of report (explaining goals, motivation,
-    discussion, methods/analytic steps) - ISN
-
 ### Questions
-
-  - Do we really want to use shiny for anything? I was trying to think
-    where it would fit in and couldn’t really
-  - We may need to narrow down the other variables we look at in
-    relation to the gardens
-  - Need to flesh out how to operationalize the gardens, property
-    values, and participatory budgeting since these are the data
-    elements where we have multiple entries per community district (all
-    other ones just have one data point)
 
 ### Planned Analyses / Visualizations / Coding Challenges - remove section??
 

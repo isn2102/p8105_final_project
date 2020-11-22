@@ -2,15 +2,23 @@ name: "Community Gardens"
 output_dir: "."
 navbar:
   title: "Home"
-  right:
-    - text: "Garden Map"
-      href: main.html
-    - text: "Report"
-      href: report.html
+  left:
+  - text: "Garden Map"
+    href: main.html
+  - text: "Exposure Visualizations"
+    menu:
     - text: "Health Conditions"
       href: health.html
-    - text: "Property Values"
+    - text: "Economic Investment"
       href: property_values.html
+  right:
+  - text: "Report"
+    href: report.html
+  - icon: fa-youtube fa-lg
+    href: https://www.youtube.com/
+  - icon: fa-github fa-lg
+    href: https://github.com/isn2102/p8105_final_project
+    
 output:
   html_document:
     theme: paper
