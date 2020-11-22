@@ -22,6 +22,7 @@ https://hansjoerg.me/2019/05/10/regression-modeling-with-proportion-data-part-1/
   
   
 ```{r}
+
 library(tidyverse)
 library(sandwich)
 library(spdep)

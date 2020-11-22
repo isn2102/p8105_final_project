@@ -1,17 +1,20 @@
 ---
-title: "Community Gardens Map"
+title: "Community Gardens"
 output: 
-  html_document:
-    toc: true
-    toc_float: true
+  flexdashboard::flex_dashboard:
+    orientation: columns
+    vertical_layout: fill
+runtime: shiny
 ---
 
 ```{r setup, include=FALSE}
-
+library(flexdashboard)
 library(tidyverse)
 library(plotly)
 library(leaflet)
-library(ggridges)
+library(rgdal)
+library(sp)
+library(reactable)
 
 #Set global theme for plots
 theme_set(theme_minimal() + 
@@ -24,10 +27,10 @@ options(
 )
 scale_colour_discrete = scale_colour_viridis_d
 scale_fill_discrete = scale_fill_viridis_d
+
 ```
 
-
-```{r include=FALSE}
+```{r, include = FALSE}
 garden =
   read_csv("./data/final_df.csv") %>%
   group_by(community_board) %>%
@@ -45,15 +48,18 @@ garden_tidy =
 ```
 
 
-### Garden Locations around NYC 
+Column {.tabset .tabset-fade data-width=500}
+-----------------------------------------------------------------------
 
-```{r, echo = FALSE, warning = FALSE}
+### Garden locations aroud New York
+
+```{r}
 leafIcons <- icons(
   iconUrl = ifelse(garden_tidy$size > 0.55,
-    "http://leafletjs.com/examples/custom-icons/leaf-orange.png",
+    "http://leafletjs.com/examples/custom-icons/leaf-green.png",
     "http://leafletjs.com/examples/custom-icons/leaf-green.png"
   ),
-  iconWidth = 20, iconHeight = 30,
+  iconWidth = 10, iconHeight = 20,
   iconAnchorX = 22, iconAnchorY = 94,
 )
 
@@ -64,122 +70,180 @@ garden_tidy %>%
   leaflet() %>%
   addProviderTiles(providers$CartoDB.Positron) %>% 
   addMarkers(~longitude, ~latitude, icon = leafIcons, popup = ~click_label)
-
 ```
 
 
-### Number of gardens by Community Board
+### Gardens by Community Board
 
-```{r, echo = FALSE, warning = FALSE}
-number_borough = 
-  garden_tidy %>% 
-  select(community_board, garden_num, borough) %>% 
-  distinct() %>% 
+```{r, include = FALSE}
+## Preparing spacial map of garden distribution
+health_data <-
+  read_csv("./data/final_df.csv") %>% 
+  select(community_board, garden_name, obesity, hypertension, life_expectancy, self_rep_health) %>% 
+  mutate(duplicate = community_board, 
+         spatial_id = community_board, 
+         spatial_id = str_replace(spatial_id, "^M", "1"),
+         spatial_id = str_replace(spatial_id, "^X", "2"),
+         spatial_id = str_replace(spatial_id, "^B", "3"),
+         spatial_id = str_replace(spatial_id, "^Q", "4"),
+         spatial_id = str_replace(spatial_id, "^R", "5")
+         ) %>% 
+  separate(duplicate, c("boro", NA), sep = 1) %>% 
   mutate(
-    community_board = as.factor(community_board)
+    spatial_id = as.numeric(spatial_id)
   )
 
-
-number_borough[is.na(number_borough)] <- 0 
-
-number_borough %>%
-  mutate(text_label = str_c("Number of Gardens: ", garden_num, "\nBorough: ", borough)
-         ) %>% 
-    plot_ly(
-      x = ~community_board, y = ~garden_num, text = ~text_label, color = ~borough, 
-      type = "bar", colors = "viridis"
-            ) %>% 
-        layout(autosize = F, width = 900, xaxis = list(
-          title = "Community Board", tickmode = "linear"), yaxis = list(title = "Number of Community Gardens", dtick = 5))
-```
-
-### Proportion of different Age Groups by Community Board
-
-```{r, echo = FALSE, warning = FALSE}
-
-garden_tidy %>% 
-  select(community_board,age0to17:age65plus) %>% 
-  distinct() %>% 
+num_gardens <-
+  health_data %>% 
+  drop_na(garden_name) %>% 
   group_by(community_board) %>% 
-  drop_na() %>% 
-  knitr::kable()
+  summarize(garden_num = n())
 
-age_borough = subset(garden, select = c(borough, age0to17:age65plus))
+unique_comboard <-
+  health_data %>% 
+  distinct(community_board, .keep_all = TRUE)
 
-age_borough %>% 
-  group_by(borough) %>% 
-  summarize(
-    avg_017 = mean(age0to17),
-    avg_1824 = mean(age18to24),
-    avg_2544 = mean(age25to44),
-    avg_4564 = mean(age45to64),
-    avg_65pl = mean(age65plus)
-  ) %>% 
-  knitr::kable()
+health_data_final <-
+  left_join(unique_comboard, num_gardens, by = "community_board") %>% 
+  select(-garden_name) %>% 
+  replace_na(list(garden_num = 0)) %>% 
+  mutate(
+    boro_name = case_when(
+      boro == "M" ~ "Manhattan",
+      boro == "X" ~ "Bronx",
+      boro == "B" ~ "Brooklyn",
+      boro == "Q" ~ "Queens",
+      boro == "R" ~ "Staten Island"
+    ))
+  
+working <- getwd()
+com_board_spdf <- readOGR(dsn = working, layer = "community_board_new")
+names(com_board_spdf)
+health_data_spatial <- merge(com_board_spdf, health_data_final, by.x = "boro_cd", by.y = "spatial_id")
+```
+
+```{r}
+
+# Create a color palette for the map:
+pal <- colorNumeric("YlGn", health_data_spatial@data$garden_num)
+
+# Prepare the text for labels:
+mytext <- paste(
+    "Borough: ", health_data_spatial@data$boro_name,"<br/>",
+    "Community Board: ", health_data_spatial@data$community_board,"<br/>", 
+    "Number of Gardens: ", health_data_spatial@data$garden_num, "<br/>", 
+    sep = "") %>%
+  lapply(htmltools::HTML)
+ 
+# Final Map with shaded colors by number of gardens in the community district
+leaflet(health_data_spatial) %>% 
+  addProviderTiles(providers$CartoDB.Positron) %>%  
+  setView( lat = 40.7, lng = -74 , zoom = 10) %>%
+  addPolygons( 
+    fillOpacity = 0.8, 
+    smoothFactor = 0.5, 
+    fillColor = ~colorQuantile("YlGn", garden_num)(garden_num), 
+    stroke = TRUE, 
+    color = "black", 
+    weight = 0.3,
+    label = mytext,
+    labelOptions = labelOptions( 
+      style = list("font-weight" = "normal", padding = "3px 8px"), 
+      textsize = "13px", 
+      direction = "auto"
+    )
+  ) %>%
+  addLegend( pal = pal, values = ~garden_num, opacity = 0.9, title = "Number of Gardens", position = "topleft" )
+
+```
+
+Column {.tabset .tabset-fade data-width=500}
+-----------------------------------------------------------------------
+
+### Age Distributions
+
+
+```{r}
+
+age_tables =
+  garden_tidy %>% 
+  select(borough, community_board, age0to17:age65plus) %>% 
+  distinct()
+
+colnames(age_tables) = c("Borough", "Community Board", "0 to 17 years", "18 to 24 years", "25 to 44 years", "45 to 64 years", "64 plus")
+
+reactable(age_tables, groupBy = "Borough",highlight = TRUE, searchable = TRUE, striped = FALSE, fullWidth = FALSE, showSortIcon = FALSE, 
+          theme = reactableTheme(
+    borderColor = "#DBF0E6",
+    highlightColor = "#D1E9DE"), 
+    defaultColDef = colDef(
+      align = "center",
+      minWidth = 100),
+    columns = list(
+  'Community Board' = colDef(),
+  "0 to 17 years" = colDef(aggregate = "mean", format = colFormat(digits = 2, suffix = "%")),
+  "18 to 24 years" = colDef(aggregate = "mean", format = colFormat(digits = 2, suffix = "%")),
+  "25 to 44 years" = colDef(aggregate = "mean", format = colFormat(digits = 2, suffix = "%")),
+  "45 to 64 years" = colDef(aggregate = "mean", format = colFormat(digits = 2, suffix = "%")),
+  "64 plus" = colDef(aggregate = "mean", format = colFormat(digits = 2, suffix = "%"))))
+
 ```
 
 
+### Education Distribution
 
-### Proportion of different Education level Groups by Community Board
+```{r}
 
+edu_tables =
+  garden_tidy %>% 
+  select(borough, community_board, on_time_hs_grad:college_higher) %>% 
+  distinct()
 
-```{r, echo = FALSE, warning = FALSE, include = FALSE}
+edu_tables = 
+  edu_tables %>% 
+ relocate(not_complete_hs, .after = community_board)
 
-garden_tidy %>% 
-  select(community_board, on_time_hs_grad:college_higher) %>% 
-  distinct() %>% 
-  group_by(community_board) %>% 
-  drop_na() %>% 
-  knitr::kable()
+colnames(edu_tables) = c("Borough", "Community Board", "Less than High School", "High School", "Some College", "College or higher")
 
-edu_borough = subset(garden, select = c(borough, on_time_hs_grad:college_higher))
-
-edu_borough %>% 
-  group_by(borough) %>% 
-  summarize(
-    hs_grad = mean(on_time_hs_grad),
-    no_hs = mean(not_complete_hs),
-    some_college = mean(hs_some_college),
-    college_high = mean(college_higher)
-  ) %>% 
-  knitr::kable()
+reactable(edu_tables, groupBy = "Borough", highlight = TRUE, searchable = TRUE, striped = FALSE, fullWidth = FALSE, showSortIcon = FALSE,
+          theme = reactableTheme(
+    borderColor = "#DBF0E6",
+    highlightColor = "#D1E9DE"), defaultColDef = colDef(
+      align = "center",
+      minWidth = 100),
+    columns = list(
+  'Community Board' = colDef(),
+  "Less than High School" = colDef(aggregate = "mean", format = colFormat(digits = 2, suffix = "%")),
+  "High School" = colDef(aggregate = "mean", format = colFormat(digits = 2, suffix = "%")),
+  "Some College" = colDef(aggregate = "mean", format = colFormat(digits = 2, suffix = "%")),
+  "College or higher" = colDef(aggregate = "mean", format = colFormat(digits = 2, suffix = "%"))))
 ```
 
 
-### Proportion of different Races Groups by Community Board
+### Race Distributions
 
+```{r}
 
-```{r, echo = FALSE, warning = FALSE, include = FALSE}
+race_tables =
+  garden_tidy %>% 
+  select(borough, community_board, race_white:race_other) %>% 
+  distinct()
 
-garden_tidy %>% 
-  select(community_board, race_white:race_other) %>% 
-  distinct() %>% 
-  group_by(community_board) %>% 
-  drop_na() %>% 
-  knitr::kable()
+colnames(race_tables) = c("Borough", "Community Board", "White", "Black", "Asian", "Latino", "Other")
 
-race_borough = subset(garden, select = c(borough, race_white:race_other))
+reactable(race_tables, highlight = TRUE, searchable = TRUE, striped = FALSE, fullWidth = FALSE, showSortIcon = FALSE, 
+          theme = reactableTheme(
+    borderColor = "#DBF0E6",
+    highlightColor = "#D1E9DE"),
+          groupBy = "Borough", defaultColDef = colDef(
+      align = "center",
+      minWidth = 100),
+    columns = list(
+  "Community Board" = colDef(),
+  White = colDef(aggregate = "mean", format = colFormat(digits = 2, suffix = "%")),
+  Black = colDef(aggregate = "mean", format = colFormat(digits = 2, suffix = "%")),
+  Asian = colDef(aggregate = "mean", format = colFormat(digits = 2, suffix = "%")),
+  Latino = colDef(aggregate = "mean", format = colFormat(digits = 2, suffix = "%")),
+  Other = colDef(aggregate = "mean", format = colFormat(digits = 2, suffix = "%"))))
 
-race_borough %>% 
-  group_by(borough) %>% 
-  summarize(
-    avg_white = mean(race_white),
-    avg_black = mean(race_black),
-    avg_asian = mean(race_asian),
-    avg_latino = mean(race_latino),
-    avg_other = mean(race_other)
-  ) %>% 
-  knitr::kable()
 ```
-
-
-
-
-
-
-
-
-
-
-
-
