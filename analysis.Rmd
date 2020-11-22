@@ -68,12 +68,14 @@ health_data_final <-
       boro == "B" ~ "Brooklyn",
       boro == "Q" ~ "Queens",
       boro == "R" ~ "Staten Island"
-    ))
+    )) %>% 
+  filter(spatial_id != '414')
   
 working <- getwd()
 com_board_spdf <- readOGR(dsn = working, layer = "community_board_new")
+com_board_spdf2 <- com_board_spdf[com_board_spdf@data$boro_cd != "414", ]
 names(com_board_spdf)
-health_data_spatial <- merge(com_board_spdf, health_data_final, by.x = "boro_cd", by.y = "spatial_id")
+health_data_spatial <- merge(com_board_spdf2, health_data_final, by.x = "boro_cd", by.y = "spatial_id")
 ```
 
 Trying out binomial distribution glm:
@@ -115,7 +117,7 @@ plot(health_nbq, coords, add = T)
 
 ###convert the neighborhood matrix into a list so that the connections between counties can be used in Moran's I test.
 summary(health_nbq)
-health_nbq_w <- nb2listw(health_nbq, zero.policy = TRUE)
+health_nbq_w <- nb2listw(health_nbq)
 
 ###Convert Exposure variable to z-form and then create the lag of that variable.
 health_data_spatial@data$hypertension <- scale(health_data_spatial@data$hypertension)
@@ -137,14 +139,13 @@ moran.plot(as.vector(health_data_spatial@data$hypertension), listw = health_nbq_
 ```
 
 Spatial regression 
+Notes - had to remove one community garden that didn't have any neighbors because was getting error when running the spatial regression. This is using linear regression. Need to confirm if this is an appropriate one to use. Also need to confirm which exact spatial model to use, and whether any assumptions violated. Have not done anything with GWR yet. 
 ```{r, eval = FALSE}
 ###Test baseline linear model.
 hypertension.lm <- lm(hypertension ~ garden_num + poverty, data = health_data_spatial)
 summary(hypertension.lm)
 
 ###Run Langrane Multiplier tests to identify the type of spatial regression model to run.
-###Getting warning: NAs in lagged values
-###Getting error: out-of-range p-value: reconsider test arguments, and p-values are NA
 htn.lagrange <- lm.LMtests(hypertension.lm,health_nbq_w, test = c("LMerr","RLMerr","LMlag","RLMlag","SARMA"))
 print(htn.lagrange)
 

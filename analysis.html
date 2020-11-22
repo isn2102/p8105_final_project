@@ -584,7 +584,7 @@ plot(health_nbq, coords, add = T)
 
 ###convert the neighborhood matrix into a list so that the connections between counties can be used in Moran&#39;s I test.
 summary(health_nbq)
-health_nbq_w &lt;- nb2listw(health_nbq, zero.policy = TRUE)
+health_nbq_w &lt;- nb2listw(health_nbq)
 
 ###Convert Exposure variable to z-form and then create the lag of that variable.
 health_data_spatial@data$hypertension &lt;- scale(health_data_spatial@data$hypertension)
@@ -603,14 +603,12 @@ moran.plot(as.vector(health_data_spatial@data$hypertension), listw = health_nbq_
            xlim = c(-2,4),ylim = c(-2,2),
                  main = &quot;Moran&#39;s I = 0.5729, p-value &lt; 0.0001&quot;, 
            xlab = &quot;Hypertension&quot;,ylab = &quot;Spatial Lag Number of Gardens&quot;,pch = 19)</code></pre>
-<p>Spatial regression</p>
+<p>Spatial regression Notes - had to remove one community garden that didn’t have any neighbors because was getting error when running the spatial regression. This is using linear regression. Need to confirm if this is an appropriate one to use. Also need to confirm which exact spatial model to use, and whether any assumptions violated. Have not done anything with GWR yet.</p>
 <pre class="r"><code>###Test baseline linear model.
 hypertension.lm &lt;- lm(hypertension ~ garden_num + poverty, data = health_data_spatial)
 summary(hypertension.lm)
 
 ###Run Langrane Multiplier tests to identify the type of spatial regression model to run.
-###Getting warning: NAs in lagged values
-###Getting error: out-of-range p-value: reconsider test arguments, and p-values are NA
 htn.lagrange &lt;- lm.LMtests(hypertension.lm,health_nbq_w, test = c(&quot;LMerr&quot;,&quot;RLMerr&quot;,&quot;LMlag&quot;,&quot;RLMlag&quot;,&quot;SARMA&quot;))
 print(htn.lagrange)
 
