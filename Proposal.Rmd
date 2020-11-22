@@ -83,17 +83,8 @@ This project aims to further explore the relationship between community gardens 
 * November 21-27: Work on the webpage and screencast
 * November 28-December 5: Edit and finalize report, webpage and screencast, complete peer assessment
 * December 6-10: Prep for in class presentation/discussion!
-
-### Tasks 11/13
-
-  - Clean and merge data sources (gardens, community board, property value and budgeting) - SMV
-  - Create basic website structure (framework for shiny app) - KL
-  - Start on first part of report (explaining goals, motivation, discussion, methods/analytic steps) - ISN
   
 ### Questions
-* Do we really want to use shiny for anything? I was trying to think where it would fit in and couldn't really
-* We may need to narrow down the other variables we look at in relation to the gardens
-* Need to flesh out how to operationalize the gardens, property values, and participatory budgeting since these are the data elements where we have multiple entries per community district (all other ones just have one data point)
 
 ### Planned Analyses / Visualizations / Coding Challenges - remove section?? 
 
@@ -106,49 +97,28 @@ We anticipate there may be coding challenges when we merge datasets. If the data
 Clean up stuff: 
 
 - play around with theme for dashboards
-
 - Make sure the global graph settings are all the same
-
 - How to get back to main page from dashboards? 
-
 - Names at bottom of site
-
 - Icons for menu
-
 - Remove floating menu
-
 - Change color theme
-
 - Home page stuff
 
 
-
 Main page: 
-
 images of gardens + motivation + what you’ll find here (short)
-
 menu: 
-
 home
-
 garden distribution - shiny (two visual views, one showing either map of garden points or map of garden number by community board and the other one showing demographic characteristics with drop down)
-
 drop down visualization 
-
 analysis 
 
-
-
 right: 
-
 project report (move main garden map code to report)
-
 youtube
-
 git / drop down contact
 
 
-
 health & dashboard: 
-
 only maps, no graphs

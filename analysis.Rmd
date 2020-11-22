@@ -5,3 +5,21 @@ output:
     toc: true
     toc_float: true
 ---
+
+1. Spatial dependence of gardens (clusters statistically significant / not normally distributed)  
+2. Spatial regression model for economic indicators (choose one or two)  
+  - Can use property values by interpolating and summarizing at community board level, or median income/gentrification value for each community board, or create a composite variable for average participatory budgeting amount per location  
+  - Adjust for covariates: race, age  
+3. Spatial regression model for health indicators (choose one or two)  
+  - Can use the value for each community board  
+  - Adjust for covariates: race, age, income  
+  
+  
+```{r}
+library(tidyverse)
+```
+
+```{r}
+ggplot(health_data_final, aes(x = garden_num, y = life_expectancy)) + geom_point()
+```
+

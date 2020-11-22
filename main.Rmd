@@ -90,8 +90,7 @@ number_borough %>%
       type = "bar", colors = "viridis"
             ) %>% 
         layout(autosize = F, width = 900, xaxis = list(
-          title = "Community Board", tickmode = "linear"), yaxis = list(title = "Number of Community Gardens",
-                                                                        dtick = 5))
+          title = "Community Board", tickmode = "linear"), yaxis = list(title = "Number of Community Gardens", dtick = 5))
 ```
 
 ### Proportion of different Age Groups by Community Board

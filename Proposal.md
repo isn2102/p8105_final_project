@@ -186,45 +186,21 @@ the in data cleaning/tidying phase of the project.
 Clean up stuff:
 
   - play around with theme for dashboards
-
   - Make sure the global graph settings are all the same
-
   - How to get back to main page from dashboards?
-
   - Names at bottom of site
-
   - Icons for menu
-
   - Remove floating menu
-
   - Change color theme
-
   - Home page stuff
 
-Main page:
+Main page: images of gardens + motivation + what you’ll find here
+(short) menu: home garden distribution - shiny (two visual views, one
+showing either map of garden points or map of garden number by community
+board and the other one showing demographic characteristics with drop
+down) drop down visualization analysis
 
-images of gardens + motivation + what you’ll find here (short)
+right: project report (move main garden map code to report) youtube git
+/ drop down contact
 
-menu:
-
-home
-
-garden distribution - shiny (two visual views, one showing either map of
-garden points or map of garden number by community board and the other
-one showing demographic characteristics with drop down)
-
-drop down visualization
-
-analysis
-
-right:
-
-project report (move main garden map code to report)
-
-youtube
-
-git / drop down contact
-
-health & dashboard:
-
-only maps, no graphs
+health & dashboard: only maps, no graphs
