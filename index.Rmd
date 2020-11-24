@@ -1,7 +1,33 @@
 ---
-title: "Community Gardens in New York City: planting the seed of urban growth"
+title: <center>Community Gardens in New York City
+subtitle: <center>Planting the Seed of Urban Growth
+header-includes:
+    - \usepackage{sectsty}
+    - \allsectionsfont{\color{cyan}}
 output: 
   html_document
 ---
 
+<center>
+![](images/nyc_garden.jpg){width=250px}
 
+</center>
+#### Project Motivation 
+
+With its reputation as the "concrete jungle," New York City is known for its towering skyscrapers and bustling streets. However it also has a long and vibrant history of urban agriculture and green space cultivation. After the economic crisis and disinvestment in the 1970s, many areas of the city saw a surge in abandoned buildings and vacant lots that were turned over to the city through foreclosure. The activist group Green Guerillas saw the opportunity to reinvest in their neighborhood and reclaim these lots as green spaces for the community. This grew into a larger movement of community gardeners, with the city leasing lots to community gardens and providing support through the creation of the GreenThumb program in 1978. Despite the gardens' successes as important cultural and community institutions, there was continual pressure from the city to turn gardens into housing developments. Over the years, community members and organizations have come together to fight for, preserve, and develop new gardens for the wider community despite these pressures. 
+
+#### About the Gardens
+
+There are now over 500 community gardens throughout New York City. These gardens provide a sense of ownership and stability in the rapidly changing city. They offer residents a calm escape, a space to come together with community members to solve local problems, and a connection to local food production. In addition to the value they bring to individuals, community gardens have embedded themselves in the fabric of New York City neighborhoods and have impacted areas as diverse as property values, community activism, and health. 
+
+#### What you'll find here
+
+This project aims to further explore the relationship between community gardens and the people and fabric of NYC neighborhoods by asking four main questions: 
+
+1. How are community gardens distributed throughout the city?
+
+2. How are the locations of gardens related to certain demographic characteristics? 
+
+3. What is the relationship between community gardens and economic investment? 
+
+4. What is the relationship between community gardens and select health conditions? 

@@ -175,7 +175,7 @@ colnames(age_tables) = c("Borough", "Community Board", "0 to 17 years", "18 to 2
 reactable(age_tables, groupBy = "Borough",highlight = TRUE, searchable = TRUE, striped = FALSE, fullWidth = FALSE, showSortIcon = FALSE, 
           theme = reactableTheme(
     borderColor = "#DBF0E6",
-    highlightColor = "#D1E9DE"), 
+    highlightColor = "#C0DCBC"), 
     defaultColDef = colDef(
       align = "center",
       minWidth = 100),
@@ -208,7 +208,7 @@ colnames(edu_tables) = c("Borough", "Community Board", "Less than High School", 
 reactable(edu_tables, groupBy = "Borough", highlight = TRUE, searchable = TRUE, striped = FALSE, fullWidth = FALSE, showSortIcon = FALSE,
           theme = reactableTheme(
     borderColor = "#DBF0E6",
-    highlightColor = "#D1E9DE"), defaultColDef = colDef(
+    highlightColor = "#C0DCBC"), defaultColDef = colDef(
       align = "center",
       minWidth = 100),
     columns = list(
@@ -234,7 +234,7 @@ colnames(race_tables) = c("Borough", "Community Board", "White", "Black", "Asian
 reactable(race_tables, highlight = TRUE, searchable = TRUE, striped = FALSE, fullWidth = FALSE, showSortIcon = FALSE, 
           theme = reactableTheme(
     borderColor = "#DBF0E6",
-    highlightColor = "#D1E9DE"),
+    highlightColor = "#C0DCBC"),
           groupBy = "Borough", defaultColDef = colDef(
       align = "center",
       minWidth = 100),
