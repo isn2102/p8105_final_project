@@ -5,24 +5,8 @@ output:
     toc: true
     toc_float: true
 ---
-
-1. Spatial dependence of gardens (clusters statistically significant / not normally distributed)  
-2. Spatial regression model for economic indicators (choose one or two)  
-  - Can use property values by interpolating and summarizing at community board level, or median income/gentrification value for each community board, or create a composite variable for average participatory budgeting amount per location  
-  - Adjust for covariates: race, age  
-3. Spatial regression model for health indicators (choose one or two)  
-  - Can use the value for each community board  
-  - Adjust for covariates: race, age, income  
-  
-Notes: 
-"Proportion data has values that fall between zero and one. Naturally, it would be nice to have the predicted values also fall between zero and one. One way to accomplish this is to use a generalized linear model (glm) with a logit link and the binomial family. We will include the robust option in the glm model to obtain robust standard errors which will be particularly useful if we have misspecified the distribution family."
-- https://stats.idre.ucla.edu/stata/faq/how-does-one-do-regression-when-the-dependent-variable-is-a-proportion/
-
-https://hansjoerg.me/2019/05/10/regression-modeling-with-proportion-data-part-1/ 
-  
   
 ```{r}
-
 library(tidyverse)
 library(sandwich)
 library(spdep)
@@ -31,10 +15,11 @@ library(rgdal)
 library(spatialreg)
 ```
 
+Load data and clean. Had to remove one community garden that didn't have any neighbors because was getting error when running the spatial regression.
 ```{r, message = FALSE, warning = FALSE, include = FALSE}
-health_data <-
+analysis_data <-
   read_csv("./data/final_df.csv") %>% 
-  select(community_board, garden_name, obesity, hypertension, life_expectancy, self_rep_health, poverty) %>% 
+  select(community_board, garden_name, obesity, hypertension, life_expectancy, self_rep_health, poverty, avg_rev_value, avg_tot_appropriated) %>% 
   mutate(duplicate = community_board, 
          spatial_id = community_board, 
          spatial_id = str_replace(spatial_id, "^M", "1"),
@@ -49,20 +34,21 @@ health_data <-
   )
 
 num_gardens <-
-  health_data %>% 
+  analysis_data %>% 
   drop_na(garden_name) %>% 
   group_by(community_board) %>% 
   summarize(garden_num = n())
 
 unique_comboard <-
-  health_data %>% 
+  analysis_data %>% 
   distinct(community_board, .keep_all = TRUE)
 
-health_data_final <-
+analysis_data_final <-
   left_join(unique_comboard, num_gardens, by = "community_board") %>% 
   select(-garden_name) %>% 
   replace_na(list(garden_num = 0)) %>% 
   mutate(
+    log_garden_num = log(garden_num),
     boro_name = case_when(
       boro == "M" ~ "Manhattan",
       boro == "X" ~ "Bronx",
@@ -70,122 +56,192 @@ health_data_final <-
       boro == "Q" ~ "Queens",
       boro == "R" ~ "Staten Island"
     )) %>% 
-  filter(spatial_id != '414')
-  
+  filter(!spatial_id %in% c('414', '105', '106', '310', '315', '502'))
+         
 working <- getwd()
 com_board_spdf <- readOGR(dsn = working, layer = "community_board_new")
-com_board_spdf2 <- com_board_spdf[com_board_spdf@data$boro_cd != "414", ]
+com_board_spdf2 <- com_board_spdf[!com_board_spdf@data$boro_cd %in% c("414", "105", "106", "310", "315", "502"), ]
 names(com_board_spdf)
-health_data_spatial <- merge(com_board_spdf2, health_data_final, by.x = "boro_cd", by.y = "spatial_id")
+analysis_data_spatial <- merge(com_board_spdf2, analysis_data_final, by.x = "boro_cd", by.y = "spatial_id")
 ```
 
-Trying out binomial distribution glm:
-```{r, eval = FALSE}
-health_glm <-
-  health_data_final %>% 
-  mutate(
-    hypertension = hypertension / 100, 
-    poverty = poverty / 100
-  )
+### Building a model
+Check linearity of predictor with outcome
+Poverty, obesity, hypertension, life expectancy, and self-reported health are generally linearly associated with log of garden number. Transformed to log to see linear relationship but with assumed normal error and constant variance. 
+```{r}
+analysis_data_final %>% 
+  ggplot(aes(x = log_garden_num, y = poverty)) +
+  geom_point()
 
-fitglm <- glm(hypertension ~ garden_num + poverty, family = binomial(logit), data = health_glm)
-summary(fitglm)
+analysis_data_final %>% 
+  ggplot(aes(x = log_garden_num, y = obesity)) +
+  geom_point()
 
-# Calculate robust standard errors
-cov.m1 <- vcovHC(fitglm, type = "HC0")
-std.err <- sqrt(diag(cov.m1))
-q.val <- qnorm(0.975)
-r.est <- cbind(
-  Estimate = coef(fitglm)
-  , "Robust SE" = std.err
-  , z = (coef(fitglm)/std.err)
-  , "Pr(>|z|) " = 2 * pnorm(abs(coef(fitglm)/std.err), lower.tail = FALSE)
-  , LL = coef(fitglm) - q.val  * std.err
-  , UL = coef(fitglm) + q.val  * std.err
-)
-r.est
+analysis_data_final %>% 
+  ggplot(aes(x = log_garden_num, y = hypertension)) +
+  geom_point()
+
+analysis_data_final %>% 
+  ggplot(aes(x = log_garden_num, y = life_expectancy)) +
+  geom_point()
+
+analysis_data_final %>% 
+  ggplot(aes(x = log_garden_num, y = self_rep_health)) +
+  geom_point()
+
+analysis_data_final %>% 
+  ggplot(aes(x = garden_num, y = avg_rev_value)) +
+  geom_point()
+
+analysis_data_final %>% 
+  ggplot(aes(x = garden_num, y = avg_tot_appropriated)) +
+  geom_point()
 ```
 
-Detecting non-random distribution: gardens
+Check normal ish distribution of outcome - poverty, obesity, life expectancy, self-rep health I think ok to use because generally normal distribution. Hypertension is bimodal.
+```{r}
+analysis_data_final %>% 
+  ggplot(aes(x = poverty)) +
+  geom_density()
+
+analysis_data_final %>% 
+  ggplot(aes(x = obesity)) +
+  geom_density()
+
+analysis_data_final %>% 
+  ggplot(aes(x = hypertension)) +
+  geom_density()
+
+analysis_data_final %>% 
+  ggplot(aes(x = life_expectancy)) +
+  geom_density()
+
+analysis_data_final %>% 
+  ggplot(aes(x = self_rep_health)) +
+  geom_density()
+```
+
+Pick theoretical predictors: poverty as confounder, obesity and life expectancy as outcomes. 
+
+Check spatial dependence (non-random distribution) of variables using Moran's I. All have significant Moran's I indicating spatial dependence which we should include in our model.  
 ```{r, eval = FALSE}
+
 ###Create a queen's neighborhood weight matrix using the poly2nb command.
-health_nbq <- poly2nb(health_data_spatial)
+analysis_nbq <- poly2nb(analysis_data_spatial)
 
 ###extract coordinates to plot the connectivity matrix for visualization.
-coords <- coordinates(health_data_spatial)
-plot(health_data_spatial)
-plot(health_nbq, coords, add = T)
+coords <- coordinates(analysis_data_spatial)
 
 ###convert the neighborhood matrix into a list so that the connections between counties can be used in Moran's I test.
-summary(health_nbq)
-health_nbq_w <- nb2listw(health_nbq)
+analysis_nbq_w <- nb2listw(analysis_nbq)
 
+###Garden number
 ###Convert Exposure variable to z-form and then create the lag of that variable.
-health_data_spatial@data$hypertension <- scale(health_data_spatial@data$hypertension)
-health_data_spatial@data$lag_sQL <- lag.listw(health_nbq_w,health_data_spatial@data$hypertension)
-summary(health_data_spatial@data$hypertension)
-summary(health_data_spatial@data$lag_sQL)
+analysis_data_spatial@data$log_garden_num <- scale(analysis_data_spatial@data$log_garden_num)
+analysis_data_spatial@data$lag_sQL <- lag.listw(analysis_nbq_w,analysis_data_spatial@data$log_garden_num)
 
 ### Lose spatial properties when we turn into data frame for analysis
-health_sp_data <- as.data.frame(health_data_spatial)
-head(health_sp_data)
+analysis_sp_data <- as.data.frame(analysis_data_spatial)
 
-###Run the morans I test and plot the results. Use the values from the summary of quali_life
-###and lag_sql to set the x and y axis range
-moran.test(health_data_spatial@data$hypertension, listw = health_nbq_w, zero.policy = TRUE)
-moran.plot(as.vector(health_data_spatial@data$hypertension), listw = health_nbq_w, 
+###Run morans I test and plot the results.
+moran.test(analysis_data_spatial@data$log_garden_num, listw = analysis_nbq_w, zero.policy = TRUE)
+moran.plot(as.vector(analysis_data_spatial@data$log_garden_num), listw = analysis_nbq_w, 
            xlim = c(-2,4),ylim = c(-2,2),
-                 main = "Moran's I = 0.5729, p-value < 0.0001", 
-           xlab = "Hypertension",ylab = "Spatial Lag Number of Gardens",pch = 19)
+                 main = "Moran's I = 0.1899, p-value = 0.0138", 
+           xlab = "Garden Number", ylab = "Spatial Lag Number of Gardens", pch = 19)
+
+###Poverty
+###Convert Exposure variable to z-form and then create the lag of that variable.
+analysis_data_spatial@data$poverty <- scale(analysis_data_spatial@data$poverty)
+analysis_data_spatial@data$lag_sQL_p <- lag.listw(analysis_nbq_w,analysis_data_spatial@data$poverty)
+
+### Lose spatial properties when we turn into data frame for analysis
+analysis_sp_data <- as.data.frame(analysis_data_spatial)
+
+###Run morans I test and plot the results.
+moran.test(analysis_data_spatial@data$poverty, listw = analysis_nbq_w, zero.policy = TRUE)
+moran.plot(as.vector(analysis_data_spatial@data$poverty), listw = analysis_nbq_w, 
+           xlim = c(-2,4),ylim = c(-2,2),
+                 main = "Moran's I = 0.4787, p-value < 0.0001", 
+           xlab = "Poverty", ylab = "Spatial Lag Poverty", pch = 19)
+
+###Obesity
+###Convert outcome variable to z-form and then create the lag of that variable.
+analysis_data_spatial@data$obesity <- scale(analysis_data_spatial@data$obesity)
+analysis_data_spatial@data$lag_sQL_o <- lag.listw(analysis_nbq_w,analysis_data_spatial@data$obesity)
+
+### Lose spatial properties when we turn into data frame for analysis
+analysis_sp_data <- as.data.frame(analysis_data_spatial)
+
+###Run morans I test and plot the results.
+moran.test(analysis_data_spatial@data$obesity, listw = analysis_nbq_w, zero.policy = TRUE)
+moran.plot(as.vector(analysis_data_spatial@data$obesity), listw = analysis_nbq_w, 
+           xlim = c(-2,4),ylim = c(-2,2),
+                 main = "Moran's I = 0.7075, p-value < 0.0001", 
+           xlab = "Obesity", ylab = "Spatial Lag Obesity", pch = 19)
+
+###Life Expectancy
+###Convert outcome variable to z-form and then create the lag of that variable.
+analysis_data_spatial@data$life_expectancy <- scale(analysis_data_spatial@data$life_expectancy)
+analysis_data_spatial@data$lag_sQL_l <- lag.listw(analysis_nbq_w,analysis_data_spatial@data$life_expectancy)
+
+### Lose spatial properties when we turn into data frame for analysis
+analysis_sp_data <- as.data.frame(analysis_data_spatial)
+
+###Run morans I test and plot the results.
+moran.test(analysis_data_spatial@data$life_expectancy, listw = analysis_nbq_w, zero.policy = TRUE)
+moran.plot(as.vector(analysis_data_spatial@data$life_expectancy), listw = analysis_nbq_w, 
+           xlim = c(-2,4),ylim = c(-2,2),
+                 main = "Moran's I = 0.5354, p-value < 0.0001", 
+           xlab = "Life Expectancy", ylab = "Spatial Lag Life Expectancy", pch = 19)
 ```
 
-Spatial regression 
-Notes - had to remove one community garden that didn't have any neighbors because was getting error when running the spatial regression. This is using linear regression. Need to confirm if this is an appropriate one to use. Also need to confirm which exact spatial model to use, and whether any assumptions violated. Have not done anything with GWR yet. 
+Fit Preliminary Models: 
+1. Life expectancy = log(garden_num) + poverty
+2. Obesity = log(garden_num) + poverty
+
+Test baseline linear models and do spatial diagnostics to choose appropriate spatial model. Need to confirm which exact spatial model to use, and whether any spatial related assumptions violated.
 ```{r, eval = FALSE}
 ###Test baseline linear model.
-hypertension.lm <- lm(hypertension ~ garden_num + poverty, data = health_data_spatial)
-summary(hypertension.lm)
+obesity_lm <- lm(obesity ~ garden_num + poverty, data = analysis_data_spatial)
+summary(obesity_lm)
+life_expectancy_lm <- lm(life_expectancy ~ log(garden_num) + poverty, data = analysis_data_spatial)
+summary(life_expectancy_lm)
 
 ###Run Langrane Multiplier tests to identify the type of spatial regression model to run.
-htn.lagrange <- lm.LMtests(hypertension.lm,health_nbq_w, test = c("LMerr","RLMerr","LMlag","RLMlag","SARMA"))
-print(htn.lagrange)
+obesity.lagrange <- lm.LMtests(obesity_lm, analysis_nbq_w, test = c("LMerr","RLMerr","LMlag","RLMlag","SARMA"))
+print(obesity.lagrange)
+life_expectancy.lagrange <- lm.LMtests(life_expectancy_lm,analysis_nbq_w, test = c("LMerr","RLMerr","LMlag","RLMlag","SARMA"))
+print(life_expectancy.lagrange)
 
 ### GLOBAL MODELS ###
 
 ###Specify Spatial Lag Model
-htn.lag <- spatialreg::lagsarlm(hypertension ~ garden_num + poverty, data = health_data_spatial, health_nbq_w, tol.solve = 1.0e-15)
+htn.lag <- spatialreg::lagsarlm(hypertension ~ garden_num + poverty, data = analysis_data_spatial, health_nbq_w, tol.solve = 1.0e-15)
 ###Spatial error model 
-htn.err <- spatialreg::errorsarlm(hypertension ~ garden_num + poverty, data = health_data_spatial, health_nbq_w, tol.solve = 1.0e-15)
+htn.err <- spatialreg::errorsarlm(hypertension ~ garden_num + poverty, data = analysis_data_spatial, health_nbq_w, tol.solve = 1.0e-15)
 ###Mixed model (SARMA significant)
-htn.sar <- spatialreg::lagsarlm(hypertension ~ garden_num + poverty, data = health_data_spatial, health_nbq_w, type = "mixed", tol.solve = 1.0e-15)
+htn.sar <- spatialreg::lagsarlm(hypertension ~ garden_num + poverty, data = analysis_data_spatial, health_nbq_w, type = "mixed", tol.solve = 1.0e-15)
 
 summary(htn.lag)
 summary(htn.err)
 summary(htn.sar)
-
-
-##### GWR MODEL (GEOGRAPHICALLY WEIGHTED / LOCAL REGRESSION)#################################
-library(spgwr)
-
-bwG <- gwr.sel(Quali_Life~TRImean + POV + PBLK, data = health_data_spatial, gweight = gwr.Gauss, verbose = TRUE)
-### Run model
-gwrG <- gwr(Quali_Life~TRImean + POV + PBLK, data = health_data_spatial, bandwidth = bwG, gweight = gwr.Gauss)
-
-gwrG
-
-names(gwrG)
-
-### Dataframe column with the output from the model 
-names(gwrG$SDF)
-
-### Percent of variance explained by the model, plotted
-spplot(gwrG$SDF, "localR2")
-
-### Plot relationship between toxic release emissions and quality of life:
-spplot(gwrG$SDF, "TRImean")
-
-### Poverty as it relates to quality of life
-spplot(gwrG$SDF, "POV")
 ```
+
+Issues: All of our outcomes are not really linear with garden_num. They are more linear with log(garden_num), but when we do that there are a bunch of errors with the locations that have zero gardens, because log(0) is not a real number. But when I remove the districts with no gardens there are other errors because then not all the districts tough each other, which is necessary for the spatial model. Thoughts? 
+
+### To do: 
+
+Check spatial diagnostics & regular diagnostics of our models: 
+-check residuals 
+  - normally distributed  
+  - equal variance  
+  - not spatially correlated  
+-check r^2 for model fit 
+- Could make 2 model options & do cross validation, but not sure if possible b/c only have poverty as a possible confounder, none of the other variables make much sense.
+
+Model output to visualize: 
+- Table of betas and se
+- plot the actual linear model over data points 
 
 
