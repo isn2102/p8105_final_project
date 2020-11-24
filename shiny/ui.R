@@ -1,4 +1,6 @@
 library(leaflet)
+library("shiny")
+library(shinyWidgets)
 
 navbarPage("NYC Garden Distribution", id = "nav",
            
@@ -19,8 +21,7 @@ navbarPage("NYC Garden Distribution", id = "nav",
                                       
                                       h2("Select Location"),
                                       
-                                      selectInput("borough", "Select Borough:", borough_choices, selected = "Manhattan"),
-                                      selectInput("community_board", "Select Community Board:", board_choices)
+                                      pickerInput("borough", "Select Borough:", choices = c("Manhattan", "Bronx", "Brooklyn", "Queens", "Staten Island"), selected = "Manhattan", multiple = TRUE, options = list(placeholder = 'select borough')),
                         ),
                         
                         tags$div(id = "cite",

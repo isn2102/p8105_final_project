@@ -17,10 +17,6 @@ garden_num =
 garden_tidy = 
   left_join(garden, garden_num, by = "community_board")
 
-# Choice options
-borough_choices = c("All", "Manhattan", "Bronx", "Brooklyn", "Queens", "Staten Island")
-board_choices = garden_tidy %>% distinct(community_board) %>% pull()
-
 # Leaf icons
 leafIcons <- icons(
   iconUrl = ifelse(garden_tidy$size > 0.55,

@@ -4,7 +4,7 @@ library(leaflet)
 library(tidyverse)
 library(plotly)
 
-shinyServer(function(input, output){
+shinyServer(function(input, output, session){
   
   ####
   output$table <- renderReactable({
@@ -26,21 +26,34 @@ shinyServer(function(input, output){
   
   ### MAPS
   
+  # Set base map
   output$map = renderLeaflet({
-    
+  
+    garden_tidy %>% 
       leaflet() %>% 
-        addProviderTiles(providers$CartoDB.Positron) %>% 
-        addMarkers(data = garden_tidy,
-                  lng = ~longitude, 
-                  lat = ~latitude, 
-                  group = "Manhattan",
+      addProviderTiles(providers$CartoDB.Positron) %>% 
+      setView( lat = 40.7, lng = -74 , zoom = 10)
+  })
+  
+  # Select borough
+  selectedborough = reactive({
+    garden_tidy[garden_tidy$borough %in% input$borough, ]
+  })
+    
+   observe({
+     
+     leafletProxy("map", data = selectedborough()) %>% 
+       addMarkers(lng = selectedborough() %>% pull(longitude), 
+                  lat = selectedborough() %>% pull(latitude), 
                   icon = leafIcons,
                   clusterOptions = markerClusterOptions(),
-                  popup = paste("<b>", garden_tidy$garden_name, "</b><br>",
-                                 garden_tidy$borough, "</b><br>",
-                                 garden_tidy$size, " acres"))
-  })
+                  popup = paste("<b>", selectedborough() %>% pull(garden_name), "</b><br>",
+                                selectedborough() %>% pull(borough), "</b><br>",
+                                selectedborough() %>% pull(size), " acres")
+       )
+   })
 })
-  
+    
+
   
   
