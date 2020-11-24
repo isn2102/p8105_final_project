@@ -4,7 +4,6 @@ output:
   flexdashboard::flex_dashboard:
     orientation: columns
     vertical_layout: fill
-runtime: shiny
 ---
 
 ```{r setup, include=FALSE}
@@ -59,8 +58,7 @@ leafIcons <- icons(
     "http://leafletjs.com/examples/custom-icons/leaf-green.png",
     "http://leafletjs.com/examples/custom-icons/leaf-green.png"
   ),
-  iconWidth = 10, iconHeight = 20,
-  iconAnchorX = 22, iconAnchorY = 94,
+  iconWidth = 10, iconHeight = 20
 )
 
 garden_tidy %>%

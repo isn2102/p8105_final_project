@@ -70,23 +70,23 @@ Check linearity of predictor with outcome
 Poverty, obesity, hypertension, life expectancy, and self-reported health are generally linearly associated with log of garden number. Transformed to log to see linear relationship but with assumed normal error and constant variance. 
 ```{r}
 analysis_data_final %>% 
-  ggplot(aes(x = log_garden_num, y = poverty)) +
+  ggplot(aes(x = garden_num, y = poverty)) +
   geom_point()
 
 analysis_data_final %>% 
-  ggplot(aes(x = log_garden_num, y = obesity)) +
+  ggplot(aes(x = garden_num, y = obesity)) +
   geom_point()
 
 analysis_data_final %>% 
-  ggplot(aes(x = log_garden_num, y = hypertension)) +
+  ggplot(aes(x = garden_num, y = hypertension)) +
   geom_point()
 
 analysis_data_final %>% 
-  ggplot(aes(x = log_garden_num, y = life_expectancy)) +
+  ggplot(aes(x = garden_num, y = life_expectancy)) +
   geom_point()
 
 analysis_data_final %>% 
-  ggplot(aes(x = log_garden_num, y = self_rep_health)) +
+  ggplot(aes(x = garden_num, y = self_rep_health)) +
   geom_point()
 
 analysis_data_final %>% 
