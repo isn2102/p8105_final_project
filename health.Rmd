@@ -3,6 +3,10 @@ title: "Health Conditions"
 output: 
   flexdashboard::flex_dashboard:
     orientation: columns
+    theme: bootstrap
+    navbar:
+       - { title: "Back to Home", href: index.html, align: right }
+
 ---
 
 ```{r}
@@ -88,6 +92,7 @@ pal <- colorNumeric("YlGn", health_data_spatial@data$garden_num)
 
 # Prepare the text for labels:
 mytext <- paste(
+    "Borough: ", health_data_spatial@data$boro_name,"<br/>",
     "Community Board: ", health_data_spatial@data$community_board,"<br/>", 
     "Number of Gardens: ", health_data_spatial@data$garden_num, "<br/>", 
     sep = "") %>%

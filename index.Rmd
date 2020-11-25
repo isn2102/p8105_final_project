@@ -5,7 +5,7 @@ output:
   html_document
 ---
 
-<h6 style="text-align: center;" markdown="1">By: Sushupta Vijapur  |  Kelley Lou |  Isabel Nelson </h6>
+<h6 style="text-align: center;" markdown="1">By: Sushupta Vijapur  ||  Kelley Lou ||  Isabel Nelson </h6>
 
 <center>
 ![](images/nyc_garden.jpg){ height="300px" width="300px" }
