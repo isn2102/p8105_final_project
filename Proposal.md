@@ -173,13 +173,6 @@ Small things:
   - Add to health and garden map dashboard the theme and back to home
     page link, also map subtitles
 
-  - Change to 65 + for age
-
-  - Add borough to map labels
-
-  - Add community district outlines and pop up labels to the garden
-    distribution map, remove second garden tab
-
   - Add tabs for visual explorations to garden page, and both dashboards
     (also analysis for the health/econ dashboards)
 
@@ -188,8 +181,6 @@ Small things:
   - Make left graph not a tab on health dashboard
 
   - Make graph titles larger
-
-  - Make home icon
 
   - Change market value map to quantile to get more color variation
 

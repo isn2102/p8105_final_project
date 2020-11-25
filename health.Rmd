@@ -75,14 +75,13 @@ working <- getwd()
 com_board_spdf <- readOGR(dsn = working, layer = "community_board_new")
 names(com_board_spdf)
 health_data_spatial <- merge(com_board_spdf, health_data_final, by.x = "boro_cd", by.y = "id_spatial")
-```
-Results from spatial regression or cluster identification to assess the relationship between these variables and community gardens  
-obesity: Percentage of adults ages 18 and older who have obesity (Body Mass Index of 30 or greater) based on self-reported height and weight
-hypertension: Percentage of adults ages 18 and older who report ever being told by a healthcare professional that they have hypertension, also known as high blood pressure
-life_expectancy: Life expectancy at birth
-self_rep_health: Percentage of adults ages 18 and older who report their overall health is “excellent,” "very good" or “good” on a scale of excellent, very good, good, fair or poor
 
-Column {.tabset .tabset-fade data-width=400}
+# Results from spatial regression or cluster identification to assess the relationship between these variables and community gardens
+```
+
+
+
+Column {data-width=400}
 -----------------------------------------------------------------------
 
 ### Community Gardens
@@ -118,6 +117,8 @@ leaflet(health_data_spatial) %>%
   ) %>%
   addLegend( pal = pal, values = ~garden_num, opacity = 0.9, title = "Number of Gardens", position = "topleft" )
 ```
+
+> Distribution of number of gardens across community boards.
 
 Column {.tabset .tabset-fade data-width=400}
 -----------------------------------------------------------------------
@@ -157,6 +158,8 @@ leaflet(health_data_spatial) %>%
   addLegend( pal = pal2, values = ~obesity, opacity = 0.9, title = "Percent Obesity", position = "topleft" )
 ```
 
+> Obesity: Percentage of adults ages 18 and older who have obesity (Body Mass Index of 30 or greater) based on self-reported height and weight.
+
 ### Hypertension
 
 ```{r}
@@ -191,6 +194,9 @@ leaflet(health_data_spatial) %>%
   ) %>%
   addLegend( pal = pal3, values = ~hypertension, opacity = 0.9, title = "Percent Hypertension", position = "topleft" )
 ```
+
+> Hypertension: Percentage of adults ages 18 and older who report ever being told by a healthcare professional that they have hypertension, also known as high blood pressure.
+
 
 ### Life Expectancy
 
@@ -227,6 +233,9 @@ leaflet(health_data_spatial) %>%
   addLegend( pal = pal4, values = ~life_expectancy, opacity = 0.9, title = "Life Expectancy", position = "topleft" )
 ```
 
+> Life_expectancy: Life expectancy at birth.
+
+
 ### Self Reported Health
 
 ```{r}
@@ -261,6 +270,8 @@ leaflet(health_data_spatial) %>%
   ) %>%
   addLegend( pal = pal5, values = ~self_rep_health, opacity = 0.9, title = "Self Reported Health", position = "topleft" )
 ```
+
+> Self Reported Health: Percentage of adults ages 18 and older who report their overall health is “excellent,” "very good" or “good” on a scale of excellent, very good, good, fair or poor.
 
 EXTRA - REMOVE LATER
 ```{r}
