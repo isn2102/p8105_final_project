@@ -166,24 +166,54 @@ the in data cleaning/tidying phase of the project.
 
 ### To Do’s
 
-Clean up stuff:
+Small things:
 
-  - play around with theme for dashboards
-  - Make sure the global graph settings are all the same
-  - How to get back to main page from dashboards?
-  - Names at bottom of site
-  - Icons for menu
-  - Remove floating menu
-  - Change color theme
-  - Home page stuff
+  - Add photos to home page
 
-Main page: images of gardens + motivation + what you’ll find here
-(short) menu: home garden distribution - shiny (two visual views, one
-showing either map of garden points or map of garden number by community
-board and the other one showing demographic characteristics with drop
-down) drop down visualization analysis
+  - Add to health and garden map dashboard the theme and back to home
+    page link, also map subtitles
 
-right: project report (move main garden map code to report) youtube git
-/ drop down contact
+  - Change to 65 + for age
 
-health & dashboard: only maps, no graphs
+  - Add borough to map labels
+
+  - Add community district outlines and pop up labels to the garden
+    distribution map, remove second garden tab
+
+  - Add tabs for visual explorations to garden page, and both dashboards
+    (also analysis for the health/econ dashboards)
+
+  - change exposure variable name in drop down
+
+  - Make left graph not a tab on health dashboard
+
+  - Make graph titles larger
+
+  - Make home icon
+
+  - Change market value map to quantile to get more color variation
+
+  - Add borough and community board to the economic dashboard pop up
+    labels
+
+  - Make titles bigger and captions bigger (move to top) for economic
+    dashboard
+
+  - Make name for distribution of gardens by budget allocation more
+    informative
+
+  - Change legends to bottom left
+
+  - Make analysis page pretty
+
+  - Consolidate data cleaning code
+
+Big thing:
+
+  - Write up report
+
+  - Make screen cast
+
+  - Figure out analysis: Meet with Prof Porter again to ask about
+    possibility of GEE and how to do linear models with not exactly
+    linear data

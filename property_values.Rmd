@@ -29,24 +29,23 @@ scale_fill_discrete = scale_fill_viridis_d
   
   
 ```{r}
-property_data =
-  read_csv("./data/final_df.csv") %>%
-  select(community_board, borough, overall_pop, poverty, rent_burden, garden_name, avg_org_value, avg_rev_value, avg_tot_appropriated, latitude, longitude) %>% 
+property_data1 =
+  read_csv("./data/final_df_main.csv") %>%
+  select(community_board, borough, overall_pop, poverty, rent_burden, avg_org_value, avg_rev_value, avg_tot_appropriated, latitude, longitude, garden_name) %>% 
   mutate(value_diff = avg_rev_value - avg_org_value)
 
 num_gardens = 
-  property_data %>% 
+  property_data1 %>% 
   drop_na(garden_name) %>% 
   group_by(community_board) %>% 
   summarize(garden_num = n())
 
-unique_comboard =
-  property_data %>% 
-  distinct(community_board, .keep_all = TRUE)
+#unique_comboard =
+#  property_data1 %>% 
+#  distinct(community_board, .keep_all = TRUE)
 
-property_data_final =
-  left_join(unique_comboard, num_gardens, by = "community_board") %>% 
-  select(-garden_name)
+property_data =
+  left_join(property_data1, num_gardens, by = "community_board")
   
 ```
 

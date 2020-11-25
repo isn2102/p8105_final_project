@@ -15,54 +15,19 @@ library(rgdal)
 library(spatialreg)
 ```
 
-Load data and clean. Had to remove one community garden that didn't have any neighbors because was getting error when running the spatial regression.
+Load data and select variables. Had to remove one community garden that didn't have any neighbors because was getting error when running the spatial regression.
 ```{r, message = FALSE, warning = FALSE, include = FALSE}
-analysis_data <-
-  read_csv("./data/final_df.csv") %>% 
-  select(community_board, garden_name, obesity, hypertension, life_expectancy, self_rep_health, poverty, avg_rev_value, avg_tot_appropriated) %>% 
-  mutate(duplicate = community_board, 
-         spatial_id = community_board, 
-         spatial_id = str_replace(spatial_id, "^M", "1"),
-         spatial_id = str_replace(spatial_id, "^X", "2"),
-         spatial_id = str_replace(spatial_id, "^B", "3"),
-         spatial_id = str_replace(spatial_id, "^Q", "4"),
-         spatial_id = str_replace(spatial_id, "^R", "5")
-         ) %>% 
-  separate(duplicate, c("boro", NA), sep = 1) %>% 
-  mutate(
-    spatial_id = as.numeric(spatial_id)
-  )
-
-num_gardens <-
-  analysis_data %>% 
-  drop_na(garden_name) %>% 
-  group_by(community_board) %>% 
-  summarize(garden_num = n())
-
-unique_comboard <-
-  analysis_data %>% 
-  distinct(community_board, .keep_all = TRUE)
-
 analysis_data_final <-
-  left_join(unique_comboard, num_gardens, by = "community_board") %>% 
-  select(-garden_name) %>% 
-  replace_na(list(garden_num = 0)) %>% 
-  mutate(
-    log_garden_num = log(garden_num),
-    boro_name = case_when(
-      boro == "M" ~ "Manhattan",
-      boro == "X" ~ "Bronx",
-      boro == "B" ~ "Brooklyn",
-      boro == "Q" ~ "Queens",
-      boro == "R" ~ "Staten Island"
-    )) %>% 
-  filter(!spatial_id %in% c('414', '105', '106', '310', '315', '502'))
+  read_csv("./data/final_df.csv") %>% 
+  select(id_spatial, community_board, obesity, hypertension, life_expectancy, self_rep_health, poverty, avg_rev_value, avg_tot_appropriated, borough, garden_num)
+
+#filter(!spatial_id %in% c('414', '105', '106', '310', '315', '502'))
          
 working <- getwd()
 com_board_spdf <- readOGR(dsn = working, layer = "community_board_new")
 com_board_spdf2 <- com_board_spdf[!com_board_spdf@data$boro_cd %in% c("414", "105", "106", "310", "315", "502"), ]
 names(com_board_spdf)
-analysis_data_spatial <- merge(com_board_spdf2, analysis_data_final, by.x = "boro_cd", by.y = "spatial_id")
+analysis_data_spatial <- merge(com_board_spdf2, analysis_data_final, by.x = "boro_cd", by.y = "id_spatial")
 ```
 
 ### Building a model

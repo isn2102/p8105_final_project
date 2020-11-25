@@ -64,6 +64,7 @@ demo =
   slice(-(1:6)) %>% 
   slice_head(n = 59) %>% 
   mutate(
+    id_spatial = id, 
     id = str_replace(id, "^1", "M"),
     id = str_replace(id, "^2", "X"),
     id = str_replace(id, "^3", "B"),
@@ -74,7 +75,7 @@ demo =
     avertable_death = replace(avertable_death, avertable_death == "^", NA)
   ) %>% 
   rename(community_board = id, not_complete_hs = edu_did_not_complete_hs, hs_some_college = edu_hs_grad_some_college, college_higher = edu_college_degree_and_higher) %>% 
-  select(community_board:age65plus, on_time_hs_grad, not_complete_hs, hs_some_college, college_higher, poverty, rent_burden, obesity, hypertension, life_expectancy, self_rep_health)
+  select(id_spatial, community_board:age65plus, on_time_hs_grad, not_complete_hs, hs_some_college, college_higher, poverty, rent_burden, obesity, hypertension, life_expectancy, self_rep_health)
 ```
 
     ## New names:
@@ -205,21 +206,42 @@ budget_tidy =
 
     ## `summarise()` ungrouping output (override with `.groups` argument)
 
-### Merging method 1:
+### Merging 1:
 
 ``` r
-final_tidy =
-  left_join(gardens, demo, by = "community_board") %>% 
-  left_join(., property_tidy, by = "community_board") %>% 
-  left_join(., budget_tidy, by = "community_board")
-
-final_tidy =
+final_tidy1 =
   left_join(demo, gardens, by = "community_board") %>% 
   left_join(., property_tidy, by = "community_board") %>% 
   left_join(., budget_tidy, by = "community_board")
+```
 
+### Calculate number of gardens per community board
+
+``` r
+num_gardens <-
+  final_tidy1 %>% 
+  drop_na(garden_name) %>% 
+  group_by(community_board) %>% 
+  summarize(garden_num = n())
+```
+
+    ## `summarise()` ungrouping output (override with `.groups` argument)
+
+``` r
+unique_comboard <-
+  final_tidy1 %>% 
+  distinct(community_board, .keep_all = TRUE)
+```
+
+### Merging 2:
+
+``` r
+final_tidy <-
+  left_join(unique_comboard, num_gardens, by = "community_board") %>% 
+  replace_na(list(garden_num = 0)) 
 
 write_csv(final_tidy, "./data/final_df.csv")
+write_csv(final_tidy1, "./data/final_df_main.csv")
 ```
 
 **Notes:**
