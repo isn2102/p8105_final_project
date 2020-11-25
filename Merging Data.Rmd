@@ -170,6 +170,11 @@ final_tidy <-
   left_join(unique_comboard, num_gardens, by = "community_board") %>% 
   replace_na(list(garden_num = 0)) 
 
+final_extra <-
+  left_join(final_tidy1, num_gardens, by = "community_board") %>% 
+  replace_na(list(garden_num = 0))
+
+write_csv(final_extra, "./data/final_extra.csv")
 write_csv(final_tidy, "./data/final_df.csv")
 write_csv(final_tidy1, "./data/final_df_main.csv")
 ```

@@ -525,6 +525,11 @@ library(readxl)</code></pre>
   left_join(unique_comboard, num_gardens, by = &quot;community_board&quot;) %&gt;% 
   replace_na(list(garden_num = 0)) 
 
+final_extra &lt;-
+  left_join(final_tidy1, num_gardens, by = &quot;community_board&quot;) %&gt;% 
+  replace_na(list(garden_num = 0))
+
+write_csv(final_extra, &quot;./data/final_extra.csv&quot;)
 write_csv(final_tidy, &quot;./data/final_df.csv&quot;)
 write_csv(final_tidy1, &quot;./data/final_df_main.csv&quot;)</code></pre>
 <p><strong>Notes:</strong></p>
