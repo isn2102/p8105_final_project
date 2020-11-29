@@ -19,6 +19,14 @@ library(rgdal)
 library(sp)
 library(reactable)
 library(plotly)
+library(magrittr)
+library(sandwich)
+library(spdep)
+library(maptools)
+library(spatialreg)
+library(patchwork)
+library(modelr)
+library(tmap)
 
 #Set global theme for plots
 theme_set(theme_minimal() + 
@@ -31,6 +39,8 @@ options(
 )
 scale_colour_discrete = scale_colour_viridis_d
 scale_fill_discrete = scale_fill_viridis_d
+
+set.seed(1)
 ```
 
 
@@ -258,7 +268,7 @@ The final tidied dataset contains 59 observations (the number of community board
 
 Our exploratory analysis is divided into 3 main parts. *Garden distribution* focuses on the geographic location of the gardens, the number of gardens in each community board, and also includes demographic information (age, education, race) for each board and borough. *Health conditions* provides a visual comparing number of gardens to percent obesity, hypertension, life expectancy, and self reported health. *Economic investment* shows a visual comparison between budget allocated to each board and market value, poverty percent and rent burden percent. 
 
-#### **Garden Distribution**
+### **Garden Distribution**
 
 To explore the distribution of gardens in NYC, we first created a leaflet showing each garden as well as the outline of each community board. 
 
@@ -364,7 +374,7 @@ number_borough %>%
 
 We then created tables showing an overview of demographic information allows the reader to gain a better understanding of the landscape of New York City.
 
-#### *Age*
+#### **Age Distribution**
 
 ```{r, message = FALSE, warning = FALSE}
 # Creating age tables
@@ -394,7 +404,7 @@ reactable(age_tables, groupBy = "Borough",highlight = TRUE, searchable = TRUE, s
 
 ```
 
-#### *Education*
+#### **Education Distribution**
 
 ```{r, message = FALSE, warning = FALSE}
 # Creating education table
@@ -426,7 +436,7 @@ reactable(edu_tables, groupBy = "Borough", highlight = TRUE, searchable = TRUE, 
   "College or higher" = colDef(aggregate = "mean", format = colFormat(digits = 2, suffix = "%"))))
 ```
 
-#### *Race*
+#### **Race Distribution**
 
 ```{r, message = FALSE, warning = FALSE}
 # Creating race table
@@ -461,7 +471,7 @@ The age table shows that the distribution in age across the five boroughs are si
 
 This information serves as a foundation for the other analyses to build off of. 
 
-#### **Health Conditions**
+### **Health Conditions**
 
 For health conditions, we selected a few diseases and other measures of health that have been associated with green spaces, being outdoors and have shorter term effects. As a result, we focused on obesity, hypertension, life expectancy and self-reported health. In order to allow for comparisons with number of gardens, we created choropleths for each health condition to allow for side by side comparisons. 
 
@@ -608,13 +618,169 @@ leaflet(health_data_spatial) %>%
 
 We can see that obesity and hypertension are highly correlated, with a higher percentage of adults being obese and having hypertension in the Bronx and parts of Brooklyn. On the other hand, Manhattan has a much lower percentage of adults being obese and having hypertension. This relationship is further confirmed with life expectancy and self-reported health. Life expectancy at birth is highest for those in Manhattan and parts of Queens. Further, the highest percentage of adults rating their health as "excellent", "very good" or "good" lies in Manhattan and parts of Brooklyn. Therefore, it appears that adults living in Manhattan are the "healthiest". 
 
-#### **Economic Conditions**
+### **Economic Conditions**
 
 To explore economic conditions, we sought to select variables that allowed for an understanding of economic conditions of the people as well as the monetary support the neighborhoods received for project investments. From the demographic dataset, property value dataset and the budget tracker, we looked at budget allocation for each community board, average market value, poverty, and rent burden.
+
+In order to visually analyze the budget each community board receives from the city, we created a leaflet map showing the location of gardens and the money the community board receives as a budget for projects. Many of the boards do not receive any budget or do not have available data. 
+```{r, message = FALSE, warning = FALSE}
+# Creating dataset for property values with applicable info
+property_data1 =
+  read_csv("./data/final_df_main.csv") %>%
+  select(community_board, borough, overall_pop, poverty, rent_burden, avg_org_value, avg_rev_value, avg_tot_appropriated, latitude, longitude, garden_name) %>% 
+  mutate(value_diff = avg_rev_value - avg_org_value)
+
+# Calculating number of gardens
+num_gardens = 
+  property_data1 %>% 
+  drop_na(garden_name) %>% 
+  group_by(community_board) %>% 
+  summarize(garden_num = n())
+
+# Final economic dataset
+property_data =
+  left_join(property_data1, num_gardens, by = "community_board")
+
+css_fix <- "div.info.legend.leaflet-control br {clear: both;}" # CSS to correct spacing
+html_fix <- htmltools::tags$style(type = "text/css", css_fix)  # Convert CSS to HTML
+
+# Creating color palette for map
+pal <- colorNumeric(
+  palette = "viridis",
+  domain = property_data$avg_tot_appropriated)
+
+# Creating leaflet
+property_data %>%
+  mutate(
+    click_label =
+      str_c("<b>", garden_name, "</b><br>Borough: ", borough,"</b><br>Community Borad: ", community_board, "</b><br>Budget: $", avg_tot_appropriated)) %>% 
+  leaflet() %>%
+  addProviderTiles(providers$CartoDB.Positron) %>% 
+  addCircleMarkers(~longitude, ~latitude, radius = .1, color = ~pal(avg_tot_appropriated), popup = ~click_label) %>% 
+  addLegend("topleft", pal = pal, values = ~avg_tot_appropriated,
+            title = "Budget Allocation",
+            labFormat = labelFormat(prefix = "$"),
+            opacity = 1) %<>% htmlwidgets::prependContent(html_fix)
+```
+
+To see how funding compares to the average market value, percentage poverty and rent burden, we created another set of leaflet maps to allow for further visual comparisons.
+
+```{r, message = FALSE, warning = FALSE}
+# Creating color palette for market value map
+pal2 <- colorQuantile(
+  palette = "viridis",
+  domain = property_data$avg_rev_value)
+
+# Creating quantiles for market value map (data is skewed)
+property_data$quantile <- with(property_data, cut(avg_rev_value, 
+                                breaks = quantile(avg_rev_value, probs = seq(0, 1, by = 0.25), na.rm = TRUE), 
+                                include.lowest = TRUE))
+
+# Creating market value map
+property_data %>%
+  mutate(
+    click_label =
+      str_c("<b>", garden_name, "</b><br>Borough: ", borough,"</b><br>Community Board: ", community_board, "</b><br>Market Value: $", avg_rev_value)) %>% 
+  leaflet() %>%
+  addProviderTiles(providers$CartoDB.Positron) %>% 
+  addCircleMarkers(~longitude, ~latitude, radius = .1, color = ~pal2(avg_rev_value), popup = ~click_label) %<>%
+    addLegend("topleft", pal = pal2, values = ~avg_rev_value, 
+               title = "Revised Market Value (Biannually)",
+              opacity = 1,
+              labFormat = function(type, cuts, p) {
+      n = length(cuts)
+      p = paste0(round(p * 100), '%')
+      cuts = paste0(formatC(cuts[-n]), " - ", formatC(cuts[-1]))
+      # mouse over the legend labels to see the percentile ranges
+      paste0(
+        '<span title="', p[-n], " - ", p[-1], '">', cuts,
+        '</span>'
+      )
+    })
+
+# Creating color palette for poverty map
+pal3 <- colorNumeric(
+  palette = "viridis",
+  domain = property_data$poverty)
+
+# Creating poverty map
+property_data %>%
+  mutate(
+    click_label =
+      str_c("<b>", garden_name, "</b><br>Borough: ", borough,"</b><br>Community Borad: ", community_board, "</b><br>Percent Poverty: ", poverty, "%")) %>% 
+  leaflet() %>%
+  addProviderTiles(providers$CartoDB.Positron) %>% 
+  addCircleMarkers(~longitude, ~latitude, radius = .1, color = ~pal3(poverty), popup = ~click_label) %>% 
+    addLegend("topleft", pal = pal3, values = ~poverty,
+            title = "Percent Poverty",
+            labFormat = labelFormat(suffix = "%"),
+            opacity = 1)
+
+# Creating color palette for rent burden map
+pal4 <- colorNumeric(
+  palette = "viridis",
+  domain = property_data$rent_burden)
+
+# Creating rent burden map
+property_data %>%
+  mutate(
+    click_label =
+      str_c("<b>", garden_name, "</b><br>Borough: ", borough,"</b><br>Community Borad: ", community_board, "</b><br>Percent of Income Spent on Rent: ", rent_burden, "%")) %>% 
+  leaflet() %>%
+  addProviderTiles(providers$CartoDB.Positron) %>% 
+  addCircleMarkers(~longitude, ~latitude, radius = .1, color = ~pal4(rent_burden), popup = ~click_label) %>% 
+    addLegend("topleft", pal = pal4, values = ~rent_burden,
+            title = "Percent of Income Spent on Rent",
+            labFormat = labelFormat(suffix = "%"),
+            opacity = 1)
+```
+
+Looking at the budget and funding allocation map, we can see that most community boards receive around 150,000 to 350,000 dollars. Additionally, many areas with gardens do not receive any funding/lack available information. Simply looking at this distribution does not provide any clear association.
+
+The market value map shows that average market value is highest in Manhattan, with other scattered areas in the Bronx and Brooklyn. The market value is much lower in areas further out from Manhattan. Percentage of adults in poverty is also highest in areas further from Manhattan, with highest percentages in the Bronx. Lastly, rent burden mimics the same pattern. People are spending more of their income on rent in the Bronx, Brooklyn and Queens. 
 
 ***
 
 ## Additional Analysis
+
+To further analyze association with garden number and a variety of our health, demographic and economic variables, we created baseline linear models and then did spatial diagnostics to choose an appropriate spatial model.
+
+First, we loaded the data and selected variables. We had to remove one community district that didn't have any neighbors because in order to successfully run the spatial regression all community districts have to have neighbors.
+
+```{r, message = FALSE, warning = FALSE}
+analysis_data_final <-
+  read_csv("./data/final_df.csv") %>% 
+  select(id_spatial, community_board, obesity, hypertension, life_expectancy, self_rep_health, poverty, avg_rev_value, avg_tot_appropriated, borough, garden_num) %>% 
+filter(!id_spatial %in% c('414'))
+         
+working <- getwd()
+com_board_spdf <- readOGR(dsn = working, layer = "community_board_new", verbose = FALSE)
+com_board_spdf2 <- com_board_spdf[!com_board_spdf@data$boro_cd %in% c("414"), ]
+invisible(names(com_board_spdf))
+analysis_data_spatial <- merge(com_board_spdf2, analysis_data_final, by.x = "boro_cd", by.y = "id_spatial")
+```
+
+### *Choosing Dependent Variables*
+
+To choose our dependent variables, we checked linearity of the relationship between garden number and potential outcomes. All outcomes have a somewhat linear association, however seems like the variance is not constant, which may lead to issues later. We tried transforming x (garden num) to log to see linear relationship but this resulted in an eventual error doing the spatial regression. 
+
+**Predictor:** Garden number
+
+**Confounder:** Poverty
+
+**Outcomes:** Average total appropriated, hypertension, life expectancy, obesity, self-reported health 
+
+### *Testing Spatial Autocorrelation*
+
+Check spatial dependence (non-random distribution) of variables using Moran's I. A significant Moran's I indicates the values are clustered and not spatially independent - therefore we should adjust for spatial parameter in our model. 
+
+### *Fiting Preliminary Models*
+
+1. Life expectancy = garden_num + poverty
+2. Obesity = garden_num + poverty
+
+### *Fitting Spatial Regression Model*
+
 
 ***
 

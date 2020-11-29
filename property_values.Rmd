@@ -85,7 +85,7 @@ property_data %>%
 ```
 
 > Visualization of the distribution of community gardens in New York City, colored by budget allocated to each community board. 
-> Budget allocation: total amount of funding for projects in that community borad.
+> Budget allocation: total amount of funding for projects in that community board.
 
 Column {.tabset .tabset-fade data-width=500}
 -----------------------------------------------------------------------
