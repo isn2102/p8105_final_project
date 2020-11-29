@@ -60,7 +60,15 @@ data_spatial <- merge(com_board_spdf, garden, by.x = "boro_cd", by.y = "id_spati
 Column {data-width=500}
 -----------------------------------------------------------------------
 
-### Garden locations aroud New York
+### Garden locations around New York
+
+<style type="text/css">
+
+.chart-title {  /* Garden locations around New York  */
+   font-size: 20px;
+
+</style>
+
 
 ```{r,  message = FALSE, warning = FALSE}
 
@@ -69,7 +77,7 @@ garden_all =
   garden_all %>%
      mutate(
       click_label =
-        str_c("<b>", garden_name, "</b><br>", borough, "</b><br>", size, " acres"))
+        str_c("<b>", garden_name, "</b><br>", size, " acres"))
 
 
 # Prepare the text for labels:
@@ -104,7 +112,7 @@ leaflet() %>%
 > Outlined community board regions and individual garden locations.
 > 111 gardens were missing longitude and latitude values and are therefore missing individual data points for their location.
 
-Column {.tabset .tabset-fade data-width=500}
+Column {.tabset .tabset-fade data-width=300}
 -----------------------------------------------------------------------
 
 ### Age Distributions
@@ -123,7 +131,7 @@ reactable(age_tables, groupBy = "Borough",highlight = TRUE, searchable = TRUE, s
     borderColor = "#89C281",
     highlightColor = "#C0DCBC"), 
     defaultColDef = colDef(
-      align = "center",
+      align = "left",
       minWidth = 100),
     columns = list(
   'Community Board' = colDef(),
@@ -131,7 +139,7 @@ reactable(age_tables, groupBy = "Borough",highlight = TRUE, searchable = TRUE, s
   "18 to 24 years" = colDef(aggregate = "mean", format = colFormat(digits = 2, suffix = "%")),
   "25 to 44 years" = colDef(aggregate = "mean", format = colFormat(digits = 2, suffix = "%")),
   "45 to 64 years" = colDef(aggregate = "mean", format = colFormat(digits = 2, suffix = "%")),
-  "64 plus" = colDef(aggregate = "mean", format = colFormat(digits = 2, suffix = "%"))))
+  "65 plus" = colDef(aggregate = "mean", format = colFormat(digits = 2, suffix = "%"))))
 
 ```
 
@@ -156,7 +164,7 @@ reactable(edu_tables, groupBy = "Borough", highlight = TRUE, searchable = TRUE, 
           theme = reactableTheme(
     borderColor = "#89C281",
     highlightColor = "#C0DCBC"), defaultColDef = colDef(
-      align = "center",
+      align = "left",
       minWidth = 100),
     columns = list(
   'Community Board' = colDef(),
@@ -184,7 +192,7 @@ reactable(race_tables, highlight = TRUE, searchable = TRUE, striped = FALSE, ful
     borderColor = "#89C281",
     highlightColor = "#C0DCBC"),
           groupBy = "Borough", defaultColDef = colDef(
-      align = "center",
+      align = "left",
       minWidth = 100),
     columns = list(
   "Community Board" = colDef(),

@@ -52,7 +52,15 @@ property_data =
 Column {data-width=500}
 -----------------------------------------------------------------------
     
-### Distribution of Gardens by Budget Allocation
+### Gardens by Budget/Funding Allocation
+
+<style type="text/css">
+
+.chart-title {  /* Gardens by Budget/Funding Allocation  */
+   font-size: 20px;
+
+</style>
+
     
 ```{r}
 
@@ -66,7 +74,7 @@ pal <- colorNumeric(
 property_data %>%
   mutate(
     click_label =
-      str_c("<b>", garden_name, "</b><br>Budget: $", avg_tot_appropriated)) %>% 
+      str_c("<b>", garden_name, "</b><br>Borough: ", borough,"</b><br>Community Borad: ", community_board, "</b><br>Budget: $", avg_tot_appropriated)) %>% 
   leaflet() %>%
   addProviderTiles(providers$CartoDB.Positron) %>% 
   addCircleMarkers(~longitude, ~latitude, radius = .1, color = ~pal(avg_tot_appropriated), popup = ~click_label) %>% 
@@ -76,12 +84,21 @@ property_data %>%
             opacity = 1) %<>% htmlwidgets::prependContent(html_fix)
 ```
 
-> Visualization of the distribution of community gardens in New York City, colored by budget allocated to each community board.
+> Visualization of the distribution of community gardens in New York City, colored by budget allocated to each community board. 
+> Budget allocation: total amount of funding for projects in that community borad.
 
 Column {.tabset .tabset-fade data-width=500}
 -----------------------------------------------------------------------
    
-### Distribution of Gardens by Market Value
+### Market Value
+
+<style type="text/css">
+
+.chart-title {  /* Market Value  */
+   font-size: 20px;
+
+</style>
+
 
 ```{r}
 pal2 <- colorNumeric(
@@ -91,7 +108,7 @@ pal2 <- colorNumeric(
 property_data %>%
   mutate(
     click_label =
-      str_c("<b>", garden_name, "</b><br>Market Value: $", avg_rev_value)) %>% 
+      str_c("<b>", garden_name, "</b><br>Borough: ", borough,"</b><br>Community Borad: ", community_board, "</b><br>Market Value: $", avg_rev_value)) %>% 
   leaflet() %>%
   addProviderTiles(providers$CartoDB.Positron) %>% 
   addCircleMarkers(~longitude, ~latitude, radius = .1, color = ~pal2(avg_rev_value), popup = ~click_label) %<>%
@@ -103,9 +120,17 @@ property_data %>%
 ```   
 
 > Visualization of the distribution of community gardens in New York City, colored by average revised market value in each community board, which is updated twice a year (most recently, Feb 2020).
+> Average revised market value: updated original market value.
 
-### Distribution of Gardens by Poverty
-    
+### Poverty
+  
+<style type="text/css">
+
+.chart-title {  /* Poverty  */
+   font-size: 20px;
+
+</style>
+
 ```{r}
 pal3 <- colorNumeric(
   palette = "viridis",
@@ -114,7 +139,7 @@ pal3 <- colorNumeric(
 property_data %>%
   mutate(
     click_label =
-      str_c("<b>", garden_name, "</b><br>Percent Poverty: ", poverty, "%")) %>% 
+      str_c("<b>", garden_name, "</b><br>Borough: ", borough,"</b><br>Community Borad: ", community_board, "</b><br>Percent Poverty: ", poverty, "%")) %>% 
   leaflet() %>%
   addProviderTiles(providers$CartoDB.Positron) %>% 
   addCircleMarkers(~longitude, ~latitude, radius = .1, color = ~pal3(poverty), popup = ~click_label) %>% 
@@ -126,8 +151,16 @@ property_data %>%
 ```
 
 > Visualization of the distribution of community gardens in New York City, colored by average percent poverty in each community board location.
+> Poverty: percentage of residents living below 100% of NYC's calculated poverty threshold, based on income and necessary expenses.
 
-### Distribution of Gardens by Rent Burden
+### Rent Burden
+
+<style type="text/css">
+
+.chart-title {  /* Rent Burden  */
+   font-size: 20px;
+
+</style>
 
 ```{r}
 pal4 <- colorNumeric(
@@ -137,7 +170,7 @@ pal4 <- colorNumeric(
 property_data %>%
   mutate(
     click_label =
-      str_c("<b>", garden_name, "</b><br>Percent of Income Spent on Rent: ", rent_burden, "%")) %>% 
+      str_c("<b>", garden_name, "</b><br>Borough: ", borough,"</b><br>Community Borad: ", community_board, "</b><br>Percent of Income Spent on Rent: ", rent_burden, "%")) %>% 
   leaflet() %>%
   addProviderTiles(providers$CartoDB.Positron) %>% 
   addCircleMarkers(~longitude, ~latitude, radius = .1, color = ~pal4(rent_burden), popup = ~click_label) %>% 
@@ -149,4 +182,5 @@ property_data %>%
 ```
 
 > Visualization of the distribution of community gardens in New York City, colored by average percent of monthly income spent on rent in each community board location.
+> Rent burden: percentage of renter-occupied homes whose gross rent is greater than or equal to 30% of the household income in the past 12 months.
 

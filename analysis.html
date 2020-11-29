@@ -509,7 +509,7 @@ broom::tidy(garden_moran)</code></pre>
 <pre><code>## # A tibble: 1 x 7
 ##   estimate1 estimate2 estimate3 statistic p.value method             alternative
 ##       &lt;dbl&gt;     &lt;dbl&gt;     &lt;dbl&gt;     &lt;dbl&gt;   &lt;dbl&gt; &lt;chr&gt;              &lt;chr&gt;      
-## 1     0.190   -0.0175   0.00887      2.20  0.0138 Moran I test unde… greater</code></pre>
+## 1     0.190   -0.0175   0.00887      2.20  0.0138 Moran I test unde~ greater</code></pre>
 <pre class="r"><code>moran.plot(as.vector(analysis_data_spatial@data$garden_num), listw = analysis_nbq_w, 
            xlim = c(-2,4),ylim = c(-2,2),
                  main = &quot;Moran&#39;s I = 0.1899, p-value = 0.0138&quot;, 
@@ -609,7 +609,7 @@ broom::tidy(obesity_lm)</code></pre>
 ##   r.squared adj.r.squared sigma statistic p.value    df logLik   AIC   BIC
 ##       &lt;dbl&gt;         &lt;dbl&gt; &lt;dbl&gt;     &lt;dbl&gt;   &lt;dbl&gt; &lt;dbl&gt;  &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt;
 ## 1     0.468         0.448 0.743      24.2 2.95e-8     2  -63.5  135.  143.
-## # … with 3 more variables: deviance &lt;dbl&gt;, df.residual &lt;int&gt;, nobs &lt;int&gt;</code></pre>
+## # ... with 3 more variables: deviance &lt;dbl&gt;, df.residual &lt;int&gt;, nobs &lt;int&gt;</code></pre>
 <pre class="r"><code>summary(obesity_lm)</code></pre>
 <pre><code>## 
 ## Call:

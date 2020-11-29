@@ -8,9 +8,9 @@ output:
 <h6 style="text-align: center;" markdown="1">By: Sushupta Vijapur  ||  Kelley Lou ||  Isabel Nelson </h6>
 
 <center>
-![](images/nyc_garden.jpg){ height="300px" width="300px" }
+![](images/nyc_garden.jpg){ height="300px" width="400px" }  ![](images/garden2.jpg){ height="300px" width="400px" } 
 </center>
-<center>Image from [Curbed NY](https://ny.curbed.com/2019/10/7/20887684/nyc-agriculture-urban-farming-community-gardens)</center>
+<center>Images from [Curbed NY](https://ny.curbed.com/2019/10/7/20887684/nyc-agriculture-urban-farming-community-gardens)</center>
 
 #### Project Motivation
 
@@ -39,7 +39,7 @@ The final project report can be found [here](report.html).
 <small>
   
 <p style="text-align: center;">
-  Sushupta Vijapur (smv2138)  |  Kelley Lou (kl3181)  |  Isabel Nelson (isn2102)
+  Sushupta Vijapur (smv2138)  ||  Kelley Lou (kl3181)  ||  Isabel Nelson (isn2102)
 <p style="text-align: center;">
 2020
 </p>

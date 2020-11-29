@@ -168,32 +168,32 @@ the in data cleaning/tidying phase of the project.
 
 Small things:
 
-  - Add photos to home page
+  - Add photos to home page -
 
   - Add to health and garden map dashboard the theme and back to home
-    page link, also map subtitles
+    page link, also map subtitles -
 
   - Add tabs for visual explorations to garden page, and both dashboards
-    (also analysis for the health/econ dashboards)
+    (also analysis for the health/econ dashboards) -
 
   - change exposure variable name in drop down
 
-  - Make left graph not a tab on health dashboard
+  - Make left graph not a tab on health dashboard -
 
-  - Make graph titles larger
+  - Make graph titles larger -
 
   - Change market value map to quantile to get more color variation
 
   - Add borough and community board to the economic dashboard pop up
-    labels
+    labels -
 
   - Make titles bigger and captions bigger (move to top) for economic
-    dashboard
+    dashboard -
 
   - Make name for distribution of gardens by budget allocation more
-    informative
+    informative -
 
-  - Change legends to bottom left
+  - Change legends to bottom left -
 
   - Make analysis page pretty
 

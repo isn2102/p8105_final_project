@@ -29,12 +29,15 @@ options(
 )
 scale_colour_discrete = scale_colour_viridis_d
 scale_fill_discrete = scale_fill_viridis_d
+
+
 ```
+
 
 ```{r, message = FALSE, warning = FALSE, include = FALSE}
 health_data_final <-
   read_csv("./data/final_df.csv") %>% 
-  select(community_board, obesity, hypertension, life_expectancy, self_rep_health, garden_num, id_spatial) #%>% 
+  select(community_board, borough, obesity, hypertension, life_expectancy, self_rep_health, garden_num, id_spatial) #%>% 
 #  mutate(duplicate = community_board, 
 #         spatial_id = community_board, 
 #         spatial_id = str_replace(spatial_id, "^M", "1"),
@@ -79,19 +82,84 @@ health_data_spatial <- merge(com_board_spdf, health_data_final, by.x = "boro_cd"
 # Results from spatial regression or cluster identification to assess the relationship between these variables and community gardens
 ```
 
+```{r, include = FALSE}
+
+# EXTRA - REMOVE LATER
+
+#health_data_final %>% 
+#ggplot(aes(x = community_board, y = garden_num, color = boro_name)) +
+#geom_point() + 
+#geom_segment( aes(x = community_board, xend = community_board, y = 0, yend = garden_num)) #+
+#labs(
+#  title = "Garden Number",
+#  x = "Community Board",
+#  y = "Number of Community Gardens"
+#)
+
+#health_data_final %>% 
+#ggplot(aes(x = community_board, y = obesity, color = boro_name)) +
+#geom_point() + 
+#geom_segment( aes(x = community_board, xend = community_board, y = 0, yend = obesity)) +
+#labs(
+#  title = "Obesity",
+#  x = "Community Board",
+#  y = "Percent of Adults with Obesity"
+#)
+
+#health_data_final %>% 
+#ggplot(aes(x = community_board, y = life_expectancy, color = boro_name)) +
+#geom_point() + 
+#geom_segment( aes(x = community_board, xend = community_board, y = 0, yend = #life_expectancy)) +
+#labs(
+#  title = "Life Expectancy",
+#  x = "Community Board",
+#  y = "Life Expectancy in Years"
+#)
+
+#health_data_final %>% 
+#ggplot(aes(x = community_board, y = hypertension, color = boro_name)) +
+#geom_point() + 
+#geom_segment( aes(x = community_board, xend = community_board, y = 0, yend = #hypertension)) +
+#labs(
+#  title = "Hypertension",
+#  x = "Community Board",
+#  y = "Percent of Adults with Hypertension"
+#)
+
+#health_data_final %>% 
+#ggplot(aes(x = community_board, y = self_rep_health, color = boro_name)) +
+#geom_point() + 
+#geom_segment( aes(x = community_board, xend = community_board, y = 0, yend = #self_rep_health)) +
+#labs(
+#  title = "Self Reported Health",
+#  x = "Community Board",
+#  y = "Percent of Adults with Self Reported Good Health"
+#)
+```
+
+
 
 
 Column {data-width=400}
 -----------------------------------------------------------------------
 
 ### Community Gardens
+
+<style type="text/css">
+
+.chart-title {  /* Community Gardens  */
+   font-size: 20px;
+
+</style>
+
+
 ```{r}
 # Create a color palette for the map:
 pal <- colorNumeric("YlGn", health_data_spatial@data$garden_num)
 
 # Prepare the text for labels:
 mytext <- paste(
-    "Borough: ", health_data_spatial@data$boro_name,"<br/>",
+    "Borough: ", health_data_spatial@data$borough,"<br/>",
     "Community Board: ", health_data_spatial@data$community_board,"<br/>", 
     "Number of Gardens: ", health_data_spatial@data$garden_num, "<br/>", 
     sep = "") %>%
@@ -118,12 +186,21 @@ leaflet(health_data_spatial) %>%
   addLegend( pal = pal, values = ~garden_num, opacity = 0.9, title = "Number of Gardens", position = "topleft" )
 ```
 
-> Distribution of number of gardens across community boards.
+> Visualization of the distribution of number of gardens across community boards.
 
 Column {.tabset .tabset-fade data-width=400}
 -----------------------------------------------------------------------
 
 ### Obesity
+
+<style type="text/css">
+
+.chart-title {  /* Obesity  */
+   font-size: 20px;
+
+</style>
+
+
 
 ```{r}
 # Create a color palette for the map:
@@ -131,6 +208,7 @@ pal2 <- colorNumeric("BuPu", health_data_spatial@data$obesity)
 
 # Prepare the text for labels:
 mytext2 <- paste(
+  "Borough: ", health_data_spatial@data$borough,"<br/>",
     "Community Board: ", health_data_spatial@data$community_board,"<br/>", 
     "Percent Obesity: ", health_data_spatial@data$obesity, "<br/>", 
     "Number of Gardens: ", health_data_spatial@data$garden_num, "<br/>",
@@ -158,9 +236,17 @@ leaflet(health_data_spatial) %>%
   addLegend( pal = pal2, values = ~obesity, opacity = 0.9, title = "Percent Obesity", position = "topleft" )
 ```
 
+> Visualization of the distribution of obesity across community boards. 
 > Obesity: Percentage of adults ages 18 and older who have obesity (Body Mass Index of 30 or greater) based on self-reported height and weight.
 
 ### Hypertension
+
+<style type="text/css">
+
+.chart-title {  /* Hypertension  */
+   font-size: 20px;
+
+</style>
 
 ```{r}
 # Create a color palette for the map:
@@ -168,6 +254,7 @@ pal3 <- colorNumeric("BuPu", health_data_spatial@data$hypertension)
 
 # Prepare the text for labels:
 mytext3 <- paste(
+    "Borough: ", health_data_spatial@data$borough,"<br/>",
     "Community Board: ", health_data_spatial@data$community_board,"<br/>", 
     "Percent Hypertension: ", health_data_spatial@data$hypertension, "<br/>", 
     "Number of Gardens: ", health_data_spatial@data$garden_num, "<br/>",
@@ -195,10 +282,18 @@ leaflet(health_data_spatial) %>%
   addLegend( pal = pal3, values = ~hypertension, opacity = 0.9, title = "Percent Hypertension", position = "topleft" )
 ```
 
+> Visualization of the distribution of hypertensio across community boards. 
 > Hypertension: Percentage of adults ages 18 and older who report ever being told by a healthcare professional that they have hypertension, also known as high blood pressure.
 
 
 ### Life Expectancy
+
+<style type="text/css">
+
+.chart-title {  /* Life Expectancy  */
+   font-size: 20px;
+
+</style>
 
 ```{r}
 # Create a color palette for the map:
@@ -206,6 +301,7 @@ pal4 <- colorNumeric("BuPu", health_data_spatial@data$life_expectancy)
 
 # Prepare the text for labels:
 mytext4 <- paste(
+    "Borough: ", health_data_spatial@data$borough,"<br/>",
     "Community Board: ", health_data_spatial@data$community_board,"<br/>", 
     "Life Expectancy: ", health_data_spatial@data$life_expectancy, "<br/>", 
     "Number of Gardens: ", health_data_spatial@data$garden_num, "<br/>",
@@ -233,10 +329,18 @@ leaflet(health_data_spatial) %>%
   addLegend( pal = pal4, values = ~life_expectancy, opacity = 0.9, title = "Life Expectancy", position = "topleft" )
 ```
 
-> Life_expectancy: Life expectancy at birth.
+> Visualization of the distribution of life expectancy across community boards. 
+> Life expectancy: Life expectancy at birth.
 
 
 ### Self Reported Health
+
+<style type="text/css">
+
+.chart-title {  /* Self Reported Health  */
+   font-size: 20px;
+
+</style>
 
 ```{r}
 # Create a color palette for the map:
@@ -244,6 +348,7 @@ pal5 <- colorNumeric("BuPu", health_data_spatial@data$self_rep_health)
 
 # Prepare the text for labels:
 mytext5 <- paste(
+    "Borough: ", health_data_spatial@data$borough,"<br/>",
     "Community Board: ", health_data_spatial@data$community_board,"<br/>", 
     "Self Reported Health: ", health_data_spatial@data$self_rep_health, "<br/>",
     "Number of Gardens: ", health_data_spatial@data$garden_num, "<br/>",
@@ -271,70 +376,9 @@ leaflet(health_data_spatial) %>%
   addLegend( pal = pal5, values = ~self_rep_health, opacity = 0.9, title = "Self Reported Health", position = "topleft" )
 ```
 
+> Visualization of the distribution of self reported health across community boards. 
 > Self Reported Health: Percentage of adults ages 18 and older who report their overall health is “excellent,” "very good" or “good” on a scale of excellent, very good, good, fair or poor.
 
-EXTRA - REMOVE LATER
-```{r}
-#health_data_final %>% 
-#ggplot(aes(x = community_board, y = garden_num, color = boro_name)) +
-#geom_point() + 
-#geom_segment( aes(x = community_board, xend = community_board, y = 0, yend = garden_num)) #+
-#labs(
-#  title = "Garden Number",
-#  x = "Community Board",
-#  y = "Number of Community Gardens"
-#)
-```
-
-```{r}
-#health_data_final %>% 
-#ggplot(aes(x = community_board, y = obesity, color = boro_name)) +
-#geom_point() + 
-#geom_segment( aes(x = community_board, xend = community_board, y = 0, yend = obesity)) +
-#labs(
-#  title = "Obesity",
-#  x = "Community Board",
-#  y = "Percent of Adults with Obesity"
-#)
-```
-
-```{r}
-#health_data_final %>% 
-#ggplot(aes(x = community_board, y = life_expectancy, color = boro_name)) +
-#geom_point() + 
-#geom_segment( aes(x = community_board, xend = community_board, y = 0, yend = #life_expectancy)) +
-#labs(
-#  title = "Life Expectancy",
-#  x = "Community Board",
-#  y = "Life Expectancy in Years"
-#)
-```
-
-```{r}
-#health_data_final %>% 
-#ggplot(aes(x = community_board, y = hypertension, color = boro_name)) +
-#geom_point() + 
-#geom_segment( aes(x = community_board, xend = community_board, y = 0, yend = #hypertension)) +
-#labs(
-#  title = "Hypertension",
-#  x = "Community Board",
-#  y = "Percent of Adults with Hypertension"
-#)
-```
-
-```{r}
-#health_data_final %>% 
-#ggplot(aes(x = community_board, y = self_rep_health, color = boro_name)) +
-#geom_point() + 
-#geom_segment( aes(x = community_board, xend = community_board, y = 0, yend = #self_rep_health)) +
-#labs(
-#  title = "Self Reported Health",
-#  x = "Community Board",
-#  y = "Percent of Adults with Self Reported Good Health"
-#)
-```
 
 
 
-
-  
