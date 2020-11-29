@@ -101,21 +101,34 @@ Column {.tabset .tabset-fade data-width=500}
 
 
 ```{r}
-pal2 <- colorNumeric(
+pal2 <- colorQuantile(
   palette = "viridis",
   domain = property_data$avg_rev_value)
+
+property_data$quantile <- with(property_data, cut(avg_rev_value, 
+                                breaks = quantile(avg_rev_value, probs = seq(0, 1, by = 0.25), na.rm = TRUE), 
+                                include.lowest = TRUE))
 
 property_data %>%
   mutate(
     click_label =
-      str_c("<b>", garden_name, "</b><br>Borough: ", borough,"</b><br>Community Borad: ", community_board, "</b><br>Market Value: $", avg_rev_value)) %>% 
+      str_c("<b>", garden_name, "</b><br>Borough: ", borough,"</b><br>Community Board: ", community_board, "</b><br>Market Value: $", avg_rev_value)) %>% 
   leaflet() %>%
   addProviderTiles(providers$CartoDB.Positron) %>% 
   addCircleMarkers(~longitude, ~latitude, radius = .1, color = ~pal2(avg_rev_value), popup = ~click_label) %<>%
-    addLegend("topleft", pal = pal2, values = ~avg_rev_value,
-            title = "Revised Market Value (Biannually)",
-            labFormat = labelFormat(prefix = "$"),
-            opacity = 1)
+    addLegend("topleft", pal = pal2, values = ~avg_rev_value, 
+               title = "Revised Market Value (Biannually)",
+              opacity = 1,
+              labFormat = function(type, cuts, p) {
+      n = length(cuts)
+      p = paste0(round(p * 100), '%')
+      cuts = paste0(formatC(cuts[-n]), " - ", formatC(cuts[-1]))
+      # mouse over the legend labels to see the percentile ranges
+      paste0(
+        '<span title="', p[-n], " - ", p[-1], '">', cuts,
+        '</span>'
+      )
+    })
 
 ```   
 

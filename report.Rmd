@@ -33,6 +33,16 @@ scale_colour_discrete = scale_colour_viridis_d
 scale_fill_discrete = scale_fill_viridis_d
 ```
 
+
+<style type="text/css">
+
+h1.title {
+  text-align: center;
+}
+
+</style>
+
+
 ## Motivation
 
 * New York City is known for its concrete jungle, but there is much more to explore regarding green spaces.
@@ -310,41 +320,26 @@ leaflet() %>%
     addMarkers(data = garden_all, ~longitude, ~latitude, icon = leafIcons, popup = ~click_label)
 ```
 
+We also created a graph showing the distribution of gardens by number.
 
-#### **Health Conditions**
-
-#### **Economic Conditions**
-
-***
-
-## Additional Analysis
-
-***
-
-## Discussion
-
-
-```{r include=FALSE}
+```{r, echo = FALSE, message = FALSE, warning = FALSE}
+# Selecting necessary columns from main dataset
 garden =
-  read_csv("./data/final_df.csv") %>%
+  read_csv("./data/final_df_main.csv") %>%
   group_by(community_board) %>%
   select(community_board, borough, overall_pop, race_white:college_higher, garden_name:longitude)
 
+# Calculating the number of gardens
 garden_num = 
   garden %>% 
   drop_na(garden_name) %>% 
   group_by(community_board) %>% 
   summarize(garden_num = n())
 
+# Joining number of gardens with dataset 
 garden_tidy = 
   left_join(garden, garden_num, by = "community_board")
 
-```
-
-
-### Number of gardens by Community Board
-
-```{r, echo = FALSE, warning = FALSE}
 number_borough = 
   garden_tidy %>% 
   select(community_board, garden_num, borough) %>% 
@@ -353,9 +348,9 @@ number_borough =
     community_board = as.factor(community_board)
   )
 
-
 number_borough[is.na(number_borough)] <- 0 
 
+# Creating plot 
 number_borough %>%
   mutate(text_label = str_c("Number of Gardens: ", garden_num, "\nBorough: ", borough)
          ) %>% 
@@ -366,6 +361,269 @@ number_borough %>%
         layout(autosize = F, width = 900, xaxis = list(
           title = "Community Board", tickmode = "linear"), yaxis = list(title = "Number of Community Gardens", dtick = 5))
 ```
+
+We then created tables showing an overview of demographic information allows the reader to gain a better understanding of the landscape of New York City.
+
+#### *Age*
+
+```{r, message = FALSE, warning = FALSE}
+# Creating age tables
+age_tables =
+  garden_all %>% 
+  select(borough, community_board, age0to17:age65plus) %>% 
+  distinct()
+
+# Formatting column names
+colnames(age_tables) = c("Borough", "Community Board", "0 to 17 years", "18 to 24 years", "25 to 44 years", "45 to 64 years", "65 plus")
+
+# Interactive table including averages
+reactable(age_tables, groupBy = "Borough",highlight = TRUE, searchable = TRUE, striped = FALSE, fullWidth = FALSE, showSortIcon = FALSE, 
+          theme = reactableTheme(
+    borderColor = "#89C281",
+    highlightColor = "#C0DCBC"), 
+    defaultColDef = colDef(
+      align = "left",
+      minWidth = 100),
+    columns = list(
+  'Community Board' = colDef(),
+  "0 to 17 years" = colDef(aggregate = "mean", format = colFormat(digits = 2, suffix = "%")),
+  "18 to 24 years" = colDef(aggregate = "mean", format = colFormat(digits = 2, suffix = "%")),
+  "25 to 44 years" = colDef(aggregate = "mean", format = colFormat(digits = 2, suffix = "%")),
+  "45 to 64 years" = colDef(aggregate = "mean", format = colFormat(digits = 2, suffix = "%")),
+  "65 plus" = colDef(aggregate = "mean", format = colFormat(digits = 2, suffix = "%"))))
+
+```
+
+#### *Education*
+
+```{r, message = FALSE, warning = FALSE}
+# Creating education table
+edu_tables =
+  garden_all %>% 
+  select(borough, community_board, on_time_hs_grad:college_higher) %>% 
+  distinct()
+
+# Additional order formatting
+edu_tables = 
+  edu_tables %>% 
+ relocate(not_complete_hs, .after = community_board)
+
+# Creating column names
+colnames(edu_tables) = c("Borough", "Community Board", "Less than High School", "High School", "Some College", "College or higher")
+
+# Creating interactive table and averages
+reactable(edu_tables, groupBy = "Borough", highlight = TRUE, searchable = TRUE, striped = FALSE, fullWidth = FALSE, showSortIcon = FALSE,
+          theme = reactableTheme(
+    borderColor = "#89C281",
+    highlightColor = "#C0DCBC"), defaultColDef = colDef(
+      align = "left",
+      minWidth = 100),
+    columns = list(
+  'Community Board' = colDef(),
+  "Less than High School" = colDef(aggregate = "mean", format = colFormat(digits = 2, suffix = "%")),
+  "High School" = colDef(aggregate = "mean", format = colFormat(digits = 2, suffix = "%")),
+  "Some College" = colDef(aggregate = "mean", format = colFormat(digits = 2, suffix = "%")),
+  "College or higher" = colDef(aggregate = "mean", format = colFormat(digits = 2, suffix = "%"))))
+```
+
+#### *Race*
+
+```{r, message = FALSE, warning = FALSE}
+# Creating race table
+race_tables =
+  garden_all %>% 
+  select(borough, community_board, race_white:race_other) %>% 
+  distinct()
+
+# Formatting column names
+colnames(race_tables) = c("Borough", "Community Board", "White", "Black", "Asian", "Latino", "Other")
+
+# Creating interactive table and averages
+reactable(race_tables, highlight = TRUE, searchable = TRUE, striped = FALSE, fullWidth = FALSE, showSortIcon = FALSE, 
+          theme = reactableTheme(
+    borderColor = "#89C281",
+    highlightColor = "#C0DCBC"),
+          groupBy = "Borough", defaultColDef = colDef(
+      align = "left",
+      minWidth = 100),
+    columns = list(
+  "Community Board" = colDef(),
+  White = colDef(aggregate = "mean", format = colFormat(digits = 2, suffix = "%")),
+  Black = colDef(aggregate = "mean", format = colFormat(digits = 2, suffix = "%")),
+  Asian = colDef(aggregate = "mean", format = colFormat(digits = 2, suffix = "%")),
+  Latino = colDef(aggregate = "mean", format = colFormat(digits = 2, suffix = "%")),
+  Other = colDef(aggregate = "mean", format = colFormat(digits = 2, suffix = "%"))))
+```
+
+The map illustrates that there are many gardens distributed around the city, with more gardens in Brooklyn, Queens and the Bronx. Additionally, we can see that the community boards are sectioned in fairly similar sizes. 
+
+The age table shows that the distribution in age across the five boroughs are similar, with the majority of people being 25 to 44 years old. However, there seems to be less children living in Manhattan when compared to the other boroughs. In terms of education, there is a larger difference. It appears that most people living in New York City have a high school education, with percentages tapering quickly moving towards college. Manhattan has the highest percentage of a college education or higher (65%), which is much higher than all other boroughs, more than doubling the percentage in the Bronx. Race also appears to be highly divided. While the majority of people in Staten Island are white, the majority of people in the Bronx are Latino. Manhattan looks to be most evenly distributed, showing the difference in racial makeup for each geographical location.
+
+This information serves as a foundation for the other analyses to build off of. 
+
+#### **Health Conditions**
+
+For health conditions, we selected a few diseases and other measures of health that have been associated with green spaces, being outdoors and have shorter term effects. As a result, we focused on obesity, hypertension, life expectancy and self-reported health. In order to allow for comparisons with number of gardens, we created choropleths for each health condition to allow for side by side comparisons. 
+
+```{r, message = FALSE, warning = FALSE}
+# Creating subset of tidied data for health exploration
+health_data_final <-
+  read_csv("./data/final_df.csv") %>% 
+  select(community_board, borough, obesity, hypertension, life_expectancy, self_rep_health, garden_num, id_spatial) 
+
+working <- getwd()
+com_board_spdf <- readOGR(dsn = working, layer = "community_board_new", verbose = FALSE)
+invisible(names(com_board_spdf))
+health_data_spatial <- merge(com_board_spdf, health_data_final, by.x = "boro_cd", by.y = "id_spatial")
+# Results from spatial regression or cluster identification to assess the relationship between these variables and community gardens
+
+# Create a color palette for the obesity map:
+pal2 <- colorNumeric("BuPu", health_data_spatial@data$obesity)
+
+# Prepare the text for obesity labels:
+mytext2 <- paste(
+  "Borough: ", health_data_spatial@data$borough,"<br/>",
+    "Community Board: ", health_data_spatial@data$community_board,"<br/>", 
+    "Percent Obesity: ", health_data_spatial@data$obesity, "<br/>", 
+    "Number of Gardens: ", health_data_spatial@data$garden_num, "<br/>",
+    sep = "") %>%
+  lapply(htmltools::HTML)
+ 
+# Final Map with shaded colors by percent obesity in the community district
+leaflet(health_data_spatial) %>% 
+  addProviderTiles(providers$CartoDB.Positron) %>%  
+  setView( lat = 40.7, lng = -74 , zoom = 10) %>%
+  addPolygons( 
+    fillOpacity = 0.8, 
+    smoothFactor = 0.5, 
+    fillColor = ~colorQuantile("BuPu", obesity)(obesity), 
+    stroke = TRUE, 
+    color = "black", 
+    weight = 0.3,
+    label = mytext2,
+    labelOptions = labelOptions( 
+      style = list("font-weight" = "normal", padding = "3px 8px"), 
+      textsize = "13px", 
+      direction = "auto"
+    )
+  ) %>%
+  addLegend( pal = pal2, values = ~obesity, opacity = 0.9, title = "Percent Obesity", position = "topleft" )
+
+# Create a color palette for the hypertension map:
+pal3 <- colorNumeric("BuPu", health_data_spatial@data$hypertension)
+
+# Prepare the text for hypertension labels:
+mytext3 <- paste(
+    "Borough: ", health_data_spatial@data$borough,"<br/>",
+    "Community Board: ", health_data_spatial@data$community_board,"<br/>", 
+    "Percent Hypertension: ", health_data_spatial@data$hypertension, "<br/>", 
+    "Number of Gardens: ", health_data_spatial@data$garden_num, "<br/>",
+    sep = "") %>%
+  lapply(htmltools::HTML)
+ 
+# Final Map with shaded colors by percent hypertension in the community district
+leaflet(health_data_spatial) %>% 
+  addProviderTiles(providers$CartoDB.Positron) %>%  
+  setView( lat = 40.7, lng = -74 , zoom = 10) %>%
+  addPolygons( 
+    fillOpacity = 0.8, 
+    smoothFactor = 0.5, 
+    fillColor = ~colorQuantile("BuPu", hypertension)(hypertension), 
+    stroke = TRUE, 
+    color = "black", 
+    weight = 0.3,
+    label = mytext3,
+    labelOptions = labelOptions( 
+      style = list("font-weight" = "normal", padding = "3px 8px"), 
+      textsize = "13px", 
+      direction = "auto"
+    )
+  ) %>%
+  addLegend( pal = pal3, values = ~hypertension, opacity = 0.9, title = "Percent Hypertension", position = "topleft" )
+
+# Create a color palette for the life expectancy map:
+pal4 <- colorNumeric("BuPu", health_data_spatial@data$life_expectancy)
+
+# Prepare the text for life expectancy labels:
+mytext4 <- paste(
+    "Borough: ", health_data_spatial@data$borough,"<br/>",
+    "Community Board: ", health_data_spatial@data$community_board,"<br/>", 
+    "Life Expectancy: ", health_data_spatial@data$life_expectancy, "<br/>", 
+    "Number of Gardens: ", health_data_spatial@data$garden_num, "<br/>",
+    sep = "") %>%
+  lapply(htmltools::HTML)
+ 
+# Final Map with shaded colors by life expectancy in the community district
+leaflet(health_data_spatial) %>% 
+  addProviderTiles(providers$CartoDB.Positron) %>%  
+  setView( lat = 40.7, lng = -74 , zoom = 10) %>%
+  addPolygons( 
+    fillOpacity = 0.8, 
+    smoothFactor = 0.5, 
+    fillColor = ~colorQuantile("BuPu", life_expectancy)(life_expectancy), 
+    stroke = TRUE, 
+    color = "black", 
+    weight = 0.3,
+    label = mytext4,
+    labelOptions = labelOptions( 
+      style = list("font-weight" = "normal", padding = "3px 8px"), 
+      textsize = "13px", 
+      direction = "auto"
+    )
+  ) %>%
+  addLegend( pal = pal4, values = ~life_expectancy, opacity = 0.9, title = "Life Expectancy", position = "topleft" )
+
+# Create a color palette for the self reported health map:
+pal5 <- colorNumeric("BuPu", health_data_spatial@data$self_rep_health)
+
+# Prepare the text for self reported health labels:
+mytext5 <- paste(
+    "Borough: ", health_data_spatial@data$borough,"<br/>",
+    "Community Board: ", health_data_spatial@data$community_board,"<br/>", 
+    "Self Reported Health: ", health_data_spatial@data$self_rep_health, "<br/>",
+    "Number of Gardens: ", health_data_spatial@data$garden_num, "<br/>",
+    sep = "") %>%
+  lapply(htmltools::HTML)
+ 
+# Final Map with shaded colors by self reported health in the community district
+leaflet(health_data_spatial) %>% 
+  addProviderTiles(providers$CartoDB.Positron) %>%  
+  setView( lat = 40.7, lng = -74 , zoom = 10) %>%
+  addPolygons( 
+    fillOpacity = 0.8, 
+    smoothFactor = 0.5, 
+    fillColor = ~colorQuantile("BuPu", self_rep_health)(self_rep_health), 
+    stroke = TRUE, 
+    color = "black", 
+    weight = 0.3,
+    label = mytext5,
+    labelOptions = labelOptions( 
+      style = list("font-weight" = "normal", padding = "3px 8px"), 
+      textsize = "13px", 
+      direction = "auto"
+    )
+  ) %>%
+  addLegend( pal = pal5, values = ~self_rep_health, opacity = 0.9, title = "Self Reported Health", position = "topleft" )
+```
+
+We can see that obesity and hypertension are highly correlated, with a higher percentage of adults being obese and having hypertension in the Bronx and parts of Brooklyn. On the other hand, Manhattan has a much lower percentage of adults being obese and having hypertension. This relationship is further confirmed with life expectancy and self-reported health. Life expectancy at birth is highest for those in Manhattan and parts of Queens. Further, the highest percentage of adults rating their health as "excellent", "very good" or "good" lies in Manhattan and parts of Brooklyn. Therefore, it appears that adults living in Manhattan are the "healthiest". 
+
+#### **Economic Conditions**
+
+To explore economic conditions, we sought to select variables that allowed for an understanding of economic conditions of the people as well as the monetary support the neighborhoods received for project investments. From the demographic dataset, property value dataset and the budget tracker, we looked at budget allocation for each community board, average market value, poverty, and rent burden.
+
+***
+
+## Additional Analysis
+
+***
+
+## Discussion
+
+
+
+
+
 
 
 
