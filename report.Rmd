@@ -1,18 +1,24 @@
 ---
-title: "Report"
+title: "Final Report"
 output: 
   html_document:
-    toc: true
-    toc_float: true
+    toc: TRUE
+    toc_float: TRUE
+    code_folding: hide
+editor_options: 
+  chunk_output_type: console
 ---
-
 
 ```{r setup, include=FALSE}
 
 library(tidyverse)
+library(readxl)
 library(plotly)
 library(leaflet)
-library(ggridges)
+library(rgdal)
+library(sp)
+library(reactable)
+library(plotly)
 
 #Set global theme for plots
 theme_set(theme_minimal() + 
@@ -26,6 +32,296 @@ options(
 scale_colour_discrete = scale_colour_viridis_d
 scale_fill_discrete = scale_fill_viridis_d
 ```
+
+## Motivation
+
+* New York City is known for its concrete jungle, but there is much more to explore regarding green spaces.
+* Throughout history, many disinvested areas found gardens as a sense of community following the 1970s.
+* Very little has been explored with community gardens and other factors such as economic and health conditions. Our goal was to further understanding these relationships.
+
+***
+
+### **Related Work**
+
+Primarily, the inspiration for this project stemmed from our own individual interests in green spaces in New York City and passions for gardening. We volunteer at community gardens, grow our own food and gain a better understanding of our neighborhoods that we have joined since starting at Columbia. 
+
+The following resources further inspired our motivation and the analyses we sought to explore.
+
+1. History of NYC garden movement. [Link](https://www.nycgovparks.org/about/history/community-gardens/movement)
+2. The Green Guerillas. [Link](http://www.greenguerillas.org/history)
+3. New York City Community Garden Coalition. [Link](https://nyccgc.org/about/history/)
+4. Gardens and the politics of scale. [Link](https://www.jstor.org/stable/30033906)
+5. Conflicting rights to the city in gardens. [Link](https://www.jstor.org/stable/41147766)
+
+***
+
+## Questions
+
+Our initial question was to explore how gardens were distributed throughout the city and how these gardens affect the people in each community. As we moved through the project, we solidified specific questions and this website now answers four main questions. We wanted to group specific related variables by theme, hoping to make the information easier to digest for the reader. For example, information about poverty, budgets and rent burden is all grouped in the economic investment page. 
+
+1. How are [community gardens](main.html) distributed throughout the city?
+2. How are the locations of gardens related to certain [demographic characteristics](main.html)? 
+3. What is the relationship between community gardens and [economic investment](property_values.html)? 
+4. What is the relationship between community gardens and select [health conditions](health.html)? 
+
+***
+
+## Data
+
+### *Data Sources*
+
+* Primary data source: [NYC Greenthumb Community Gardens](https://data.cityofnewyork.us/Environment/NYC-Greenthumb-Community-Gardens/ajxm-kzmj)
+* Demographic & health data from [nyc.gov](https://communityprofiles.planning.nyc.gov/)
+* Property value data from [Revised property value notices](https://data.cityofnewyork.us/City-Government/Revised-Notice-of-Property-Value-RNOPV-/8vgb-zm6e)
+* Participatory budgeting project tracker from [NYC OpenData](https://data.cityofnewyork.us/City-Government/Participatory-Budgeting-Project-Tracker/qm5f-frjb)
+
+### *Data Cleaning*
+
+Each dataset that was obtained was first individually cleaned. Most were already well organized, and unnecessary variables were removed for efficiency and clarity. Average variables were calculated in these steps as well.
+
+```{r, message = FALSE, warning = FALSE}
+
+# Cleaning and tidying primary NYC garden data
+gardens = 
+  read_csv("./data/nyc_community_gardens.csv") %>% 
+  janitor::clean_names() %>% 
+  mutate(
+    community_board = replace(community_board, community_board == "N/A", NA)
+  ) %>% 
+  drop_na(community_board) %>% 
+  relocate(community_board) %>% 
+  select(-prop_id,-census_tract, -bin, -bbl, -nta, -council_district, -cross_streets, -jurisdiction, -postcode)
+
+# Cleaning and tidying demographic data
+demo = 
+  read_xlsx("./data/health_profiles.xlsx",
+  sheet = "CHP_all_data", skip = 1) %>% 
+  janitor::clean_names() %>% 
+  slice(-(1:6)) %>% 
+  slice_head(n = 59) %>% 
+  mutate(
+    id_spatial = id, 
+    id = str_replace(id, "^1", "M"),
+    id = str_replace(id, "^2", "X"),
+    id = str_replace(id, "^3", "B"),
+    id = str_replace(id, "^4", "Q"),
+    id = str_replace(id, "^5", "R"),
+    gentrification = replace(gentrification, gentrification == "n/a", NA),
+    avertable_death = replace(avertable_death, avertable_death == "n/a", NA),
+    avertable_death = replace(avertable_death, avertable_death == "^", NA)
+  ) %>% 
+  rename(community_board = id, not_complete_hs = edu_did_not_complete_hs, hs_some_college = edu_hs_grad_some_college, college_higher = edu_college_degree_and_higher) %>% 
+  select(id_spatial, community_board:age65plus, on_time_hs_grad, not_complete_hs, hs_some_college, college_higher, poverty, rent_burden, obesity, hypertension, life_expectancy, self_rep_health)
+
+# Cleaning and tidying property data
+property = 
+  read_csv("./data/property_values.csv") %>% 
+  janitor::clean_names() %>% drop_na(community_board) %>% 
+  rename(old_community_board = community_board) %>% 
+  mutate(
+    boro_letter = case_when(
+      borough == "MANHATTAN" ~ "M",
+      borough == "BRONX" ~ "X",
+      borough == "BROOKLYN" ~ "B",
+      borough == "QUEENS" ~ "Q",
+      borough == "STATEN IS" ~ "R"
+    ),
+    board_num = ifelse(nchar(old_community_board) == 1, paste0(0, old_community_board), old_community_board)
+  ) %>% 
+  unite("community_board", boro_letter, board_num, sep = "") %>% 
+  relocate(community_board, old_community_board, borough) %>% 
+  select(community_board, original_market_value, revised_market_value)
+
+# Grouping property data by community board to prepare for merging.
+property_tidy = 
+  property %>% 
+  group_by(community_board) %>% 
+  summarize(
+    avg_org_value = mean(original_market_value, na.rm = TRUE),
+    avg_rev_value = mean(revised_market_value, na.rm = TRUE)
+  )
+
+# Cleaning and tidying budget data
+budget = 
+  read_csv("./data/budget_tracker.csv") %>% 
+  janitor::clean_names() %>% drop_na(community_board) %>% 
+  rename(old_community_board = community_board) %>% 
+  mutate(
+    boro_letter = case_when(
+      borough == "MANHATTAN" ~ "M",
+      borough == "BRONX" ~ "X",
+      borough == "BROOKLYN" ~ "B",
+      borough == "QUEENS" ~ "Q",
+      borough == "STATEN IS" ~ "R"
+    ),
+    board_num = ifelse(nchar(old_community_board) == 1, paste0(0, old_community_board), old_community_board)
+  ) %>% 
+  unite("community_board", boro_letter, board_num, sep = "") %>% 
+  relocate(community_board, old_community_board, borough) %>% 
+  select(community_board, vote_year, total_appropriated)
+
+# Grouping budget data by community board to prepare for merging and calculating the average budgets for each community board.
+budget_tidy = 
+  budget %>% 
+  group_by(community_board) %>% 
+  summarize(
+    avg_tot_appropriated = mean(total_appropriated, na.rm = TRUE)
+  )
+```
+
+Afterwards, we merged all datasets into one tidied dataset.
+
+```{r, message = FALSE, warning = FALSE}
+
+final_tidy1 =
+  left_join(demo, gardens, by = "community_board") %>% 
+  left_join(., property_tidy, by = "community_board") %>% 
+  left_join(., budget_tidy, by = "community_board")
+
+# Calculating number of gardens in each community board
+num_gardens <-
+  final_tidy1 %>% 
+  drop_na(garden_name) %>% 
+  group_by(community_board) %>% 
+  summarize(garden_num = n())
+
+unique_comboard <-
+  final_tidy1 %>% 
+  distinct(community_board, .keep_all = TRUE)
+
+# Complete merging
+final_tidy <-
+  left_join(unique_comboard, num_gardens, by = "community_board") %>% 
+  replace_na(list(garden_num = 0)) 
+
+final_extra <-
+  left_join(final_tidy1, num_gardens, by = "community_board") %>% 
+  replace_na(list(garden_num = 0))
+
+write_csv(final_extra, "./data/final_extra.csv")
+write_csv(final_tidy, "./data/final_df.csv")
+write_csv(final_tidy1, "./data/final_df_main.csv")
+```
+
+The final tidied dataset contains 59 observations (the number of community boards in NYC) and consists of the following 36 variables:
+
+  * `id_spatial`. Unique spatial ID for each board.
+  * `community_board`. Community board location of each garden.
+  * `borough`. Borough location of each community board.
+  * `name`. Neighborhood name location of each community board.
+  * `overall_pop`. Overall population number in each community board.
+  * `race_white`. Percent self-reporting non-hispanic white.
+  * `race_black`. Percent self-reporting non-hispanic black.
+  * `race_asian`. Percent self-reporting non-hispanic asian.
+  * `race_latino`. Percent self-reporting hispanic/latino.
+  * `race_other`. Percent self-reporting other (American Indian, Native Hawaiian, Pacific Islander, two or more races).
+  * `age0to17`. Percent age between 0 and 17 years.
+  * `age18to24`. Percent age between 18 and 24 years.
+  * `age25to44`. Percent age between 25 and 44 years.
+  * `age45to64`. Percent age between 45 and 64 years.
+  * `age65plus`. Percent age 65 years and older.
+  * `on_time_hs_grad`. Percentage of public high school freshman from the 2013-2014 school year who graduated in 4 years 
+  * `not_complete_hs`. Percentage of adults ages 25 and older whose highest level of education is less than a high school diploma or GED.
+  * `hs_some_college`. Percentage of adults ages 25 and older who have a high school diploma or a high school diploma and some college.
+  * `college_higher`. Percentage of adults ages 25 and older who obtained an educational degree above a High School diploma (Associate’s, Bachelor’s, or Graduate or professional degree).
+  * `poverty`. Percentage of residents living below 100% of New York City’s calculated poverty threshold based on income and necessary expenses.
+  * `rent_burden`. Percentage of renter-occupied homes whose gross rent (contract rent plus estimated average monthly cost of utilities including electricity, gas, and water and sewer) is equal to or greater than 30 percent of household income in past 12 months.
+  * `obesity`. Percentage of adults ages 18 and older who have obesity (Body Mass Index of 30 or greater) based on self-reported height and weight.
+  * `hypertension`. Percentage of adults ages 18 and older who report ever being told by a healthcare professional that they have hypertension, also known as high blood pressure.
+  * `life_expectancy`. Life expectancy at birth.
+  * `self_rep_health`. Percentage of adults ages 18 and older who report their overall health is “excellent,” "very good" or “good” on a scale of excellent, very good, good, fair or poor.
+  * `boro`. Borough location of each community board.
+  * `garden_name`. Name of garden.
+  * `address`. Address of garden.
+  * `size`. Size of garden in acres.
+  * `neighborhood_name`. Neighborhood name location of each community board
+  * `latitude`. Latitude location of garden.
+  * `longitude`. Longitude location of garden.
+  * `avg_org_value`. Average original market value.
+  * `avg_rev_value`. Average revised market value.
+  * `avg_tot_appropriated`. Average budget allocated to each community board.
+  * `garden_num`. Number of gardens in each community board.
+  
+***
+
+## Exploratory Analysis
+
+Our exploratory analysis is divided into 3 main parts. *Garden distribution* focuses on the geographic location of the gardens, the number of gardens in each community board, and also includes demographic information (age, education, race) for each board and borough. *Health conditions* provides a visual comparing number of gardens to percent obesity, hypertension, life expectancy, and self reported health. *Economic investment* shows a visual comparison between budget allocated to each board and market value, poverty percent and rent burden percent. 
+
+#### **Garden Distribution**
+
+To explore the distribution of gardens in NYC, we first created a leaflet showing each garden as well as the outline of each community board. 
+
+```{r, message = FALSE, warning = FALSE}
+
+# Read in tidied dataset.
+garden =
+  read_csv("./data/final_df.csv") %>%
+  group_by(community_board) %>%
+  select(id_spatial, garden_num, community_board, borough, overall_pop, race_white:college_higher, garden_name:longitude)
+
+garden_all = 
+  read_csv("./data/final_df_main.csv")
+
+# Create leaf icons for leaflet map.
+leafIcons <- icons(
+  iconUrl = "http://leafletjs.com/examples/custom-icons/leaf-green.png",
+  iconWidth = 10, iconHeight = 20
+)
+
+# Prepare for leaflet outline.
+working <- getwd()
+com_board_spdf <- readOGR(dsn = working, layer = "community_board_new", verbose = FALSE)
+invisible(names(com_board_spdf))
+data_spatial <- merge(com_board_spdf, garden, by.x = "boro_cd", by.y = "id_spatial")
+
+# Add popup labels for map.
+garden_all = 
+  garden_all %>%
+     mutate(
+      click_label =
+        str_c("<b>", garden_name, "</b><br>", borough, "</b><br>", size, " acres"))
+
+# Prepare the text for labels:
+mytext <- paste(
+    "Borough: ", data_spatial@data$borough,"<br/>",
+    "Community Board: ", data_spatial@data$community_board,"<br/>", 
+    "Number of Gardens: ", data_spatial@data$garden_num, "<br/>", 
+    sep = "") %>%
+  lapply(htmltools::HTML)
+ 
+# Final Map with shaded colors by number of gardens in the community district
+leaflet() %>% 
+  addProviderTiles(providers$CartoDB.Positron) %>%  
+  setView( lat = 40.7, lng = -74 , zoom = 10) %>%
+  addPolygons(data = data_spatial,
+    fillOpacity = 0, 
+    smoothFactor = 0.5, 
+    stroke = TRUE, 
+    color = "black", 
+    weight = 1,
+    label = mytext,
+    labelOptions = labelOptions( 
+      style = list("font-weight" = "normal", padding = "3px 8px"), 
+      textsize = "13px", 
+      direction = "auto"
+    )
+  ) %>% 
+    addMarkers(data = garden_all, ~longitude, ~latitude, icon = leafIcons, popup = ~click_label)
+```
+
+
+#### **Health Conditions**
+
+#### **Economic Conditions**
+
+***
+
+## Additional Analysis
+
+***
+
+## Discussion
 
 
 ```{r include=FALSE}
