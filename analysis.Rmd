@@ -5,92 +5,137 @@ output:
     toc: true
     toc_float: true
 ---
-  
-```{r}
+
+```{r setup, include = FALSE}
 library(tidyverse)
 library(sandwich)
 library(spdep)
 library(maptools)
 library(rgdal)
 library(spatialreg)
+library(patchwork)
+library(modelr)
+library(tmap)
+
+knitr::opts_chunk$set(
+  fig.width = 6,
+  fig.asp = .6,
+  out.width = "90%"
+)
+theme_set(theme_minimal() + theme(legend.position = "bottom"))
+#options(
+#  ggplot2.continuous.colour = "viridis",
+#  ggplot2.continuous.fill = "viridis"
+#)
+#scale_colour_discrete = scale_color_viridis_d
+#scale_fill_discrete = scale_fill_viridis_d
+set.seed(1)
 ```
 
-Load data and select variables. Had to remove one community garden that didn't have any neighbors because was getting error when running the spatial regression.
+Load data and select variables. We had to remove one community district that didn't have any neighbors because in order to successfully run the spatial regression all community districts have to have neighbors.
 ```{r, message = FALSE, warning = FALSE, include = FALSE}
 analysis_data_final <-
   read_csv("./data/final_df.csv") %>% 
-  select(id_spatial, community_board, obesity, hypertension, life_expectancy, self_rep_health, poverty, avg_rev_value, avg_tot_appropriated, borough, garden_num)
-
-#filter(!spatial_id %in% c('414', '105', '106', '310', '315', '502'))
+  select(id_spatial, community_board, obesity, hypertension, life_expectancy, self_rep_health, poverty, avg_rev_value, avg_tot_appropriated, borough, garden_num) %>% 
+filter(!id_spatial %in% c('414'))
          
 working <- getwd()
 com_board_spdf <- readOGR(dsn = working, layer = "community_board_new")
-com_board_spdf2 <- com_board_spdf[!com_board_spdf@data$boro_cd %in% c("414", "105", "106", "310", "315", "502"), ]
+com_board_spdf2 <- com_board_spdf[!com_board_spdf@data$boro_cd %in% c("414"), ]
 names(com_board_spdf)
 analysis_data_spatial <- merge(com_board_spdf2, analysis_data_final, by.x = "boro_cd", by.y = "id_spatial")
 ```
 
-### Building a model
-Check linearity of predictor with outcome
-Poverty, obesity, hypertension, life expectancy, and self-reported health are generally linearly associated with log of garden number. Transformed to log to see linear relationship but with assumed normal error and constant variance. 
+### Choosing dependent variables
+Check linearity of the relationship between garden number and potential outcome. All outcomes have a somewhat linear association, however seems like the variance is not constant, which may lead to issues later. We tried transforming x (garden num) to log to see linear relationship but this resulted in an eventual error doing the spatial regression. 
 ```{r}
+poverty_plot <-
 analysis_data_final %>% 
   ggplot(aes(x = garden_num, y = poverty)) +
   geom_point()
 
+obesity_plot <-
 analysis_data_final %>% 
   ggplot(aes(x = garden_num, y = obesity)) +
   geom_point()
 
+hypertension_plot <-
 analysis_data_final %>% 
   ggplot(aes(x = garden_num, y = hypertension)) +
   geom_point()
 
+life_plot <-
 analysis_data_final %>% 
   ggplot(aes(x = garden_num, y = life_expectancy)) +
   geom_point()
 
+self_health_plot <-
 analysis_data_final %>% 
   ggplot(aes(x = garden_num, y = self_rep_health)) +
   geom_point()
 
+avg_rev_plot <-
 analysis_data_final %>% 
   ggplot(aes(x = garden_num, y = avg_rev_value)) +
   geom_point()
 
+avg_appr_plot <-
 analysis_data_final %>% 
   ggplot(aes(x = garden_num, y = avg_tot_appropriated)) +
   geom_point()
+
+poverty_plot + avg_appr_plot + avg_rev_plot + life_plot + obesity_plot + hypertension_plot + self_health_plot + plot_layout(ncol = 3)
 ```
 
-Check normal ish distribution of outcome - poverty, obesity, life expectancy, self-rep health I think ok to use because generally normal distribution. Hypertension is bimodal.
+Check normal ish distribution of outcome - all are mostly normally distributed except average revenue value. Hypertension is bimodal, not sure if we can use this moving forward.
 ```{r}
+pov_density <-
 analysis_data_final %>% 
   ggplot(aes(x = poverty)) +
   geom_density()
 
+obes_density <-
 analysis_data_final %>% 
   ggplot(aes(x = obesity)) +
   geom_density()
 
+hypert_density <-
 analysis_data_final %>% 
   ggplot(aes(x = hypertension)) +
   geom_density()
 
+life_exp_density <-
 analysis_data_final %>% 
   ggplot(aes(x = life_expectancy)) +
   geom_density()
 
+self_health_density <-
 analysis_data_final %>% 
   ggplot(aes(x = self_rep_health)) +
   geom_density()
+
+tot_appr_density <-
+analysis_data_final %>% 
+  ggplot(aes(x = avg_tot_appropriated)) +
+  geom_density()
+
+rev_value_density <-
+analysis_data_final %>% 
+  ggplot(aes(x = avg_rev_value)) +
+  geom_density()
+
+pov_density + tot_appr_density + rev_value_density + life_exp_density + obes_density + hypert_density + self_health_density + plot_layout(ncol = 3)
+
 ```
 
-Pick theoretical predictors: poverty as confounder, obesity and life expectancy as outcomes. 
+Predictor: garden number
+Confounder: Poverty
+Outcomes: average total appropriated, hypertension, life expectancy, obesity, self-reported health 
 
-Check spatial dependence (non-random distribution) of variables using Moran's I. All have significant Moran's I indicating spatial dependence which we should include in our model.  
-```{r, eval = FALSE}
+### Test spatial autocorrelation
 
+Check spatial dependence (non-random distribution) of variables using Moran's I. A significant Moran's I indicates the values are clustered and not spatially independent - therefore we should adjust for spatial parameter in our model. 
+```{r}
 ###Create a queen's neighborhood weight matrix using the poly2nb command.
 analysis_nbq <- poly2nb(analysis_data_spatial)
 
@@ -99,22 +144,27 @@ coords <- coordinates(analysis_data_spatial)
 
 ###convert the neighborhood matrix into a list so that the connections between counties can be used in Moran's I test.
 analysis_nbq_w <- nb2listw(analysis_nbq)
+```
 
+```{r}
 ###Garden number
 ###Convert Exposure variable to z-form and then create the lag of that variable.
-analysis_data_spatial@data$log_garden_num <- scale(analysis_data_spatial@data$log_garden_num)
-analysis_data_spatial@data$lag_sQL <- lag.listw(analysis_nbq_w,analysis_data_spatial@data$log_garden_num)
+analysis_data_spatial@data$garden_num <- scale(analysis_data_spatial@data$garden_num)
+analysis_data_spatial@data$lag_sQL <- lag.listw(analysis_nbq_w,analysis_data_spatial@data$garden_num)
 
 ### Lose spatial properties when we turn into data frame for analysis
 analysis_sp_data <- as.data.frame(analysis_data_spatial)
 
 ###Run morans I test and plot the results.
-moran.test(analysis_data_spatial@data$log_garden_num, listw = analysis_nbq_w, zero.policy = TRUE)
-moran.plot(as.vector(analysis_data_spatial@data$log_garden_num), listw = analysis_nbq_w, 
+garden_moran <- moran.test(analysis_data_spatial@data$garden_num, listw = analysis_nbq_w, zero.policy = TRUE)
+broom::tidy(garden_moran)
+moran.plot(as.vector(analysis_data_spatial@data$garden_num), listw = analysis_nbq_w, 
            xlim = c(-2,4),ylim = c(-2,2),
                  main = "Moran's I = 0.1899, p-value = 0.0138", 
            xlab = "Garden Number", ylab = "Spatial Lag Number of Gardens", pch = 19)
+```
 
+```{r}
 ###Poverty
 ###Convert Exposure variable to z-form and then create the lag of that variable.
 analysis_data_spatial@data$poverty <- scale(analysis_data_spatial@data$poverty)
@@ -129,7 +179,9 @@ moran.plot(as.vector(analysis_data_spatial@data$poverty), listw = analysis_nbq_w
            xlim = c(-2,4),ylim = c(-2,2),
                  main = "Moran's I = 0.4787, p-value < 0.0001", 
            xlab = "Poverty", ylab = "Spatial Lag Poverty", pch = 19)
+```
 
+```{r}
 ###Obesity
 ###Convert outcome variable to z-form and then create the lag of that variable.
 analysis_data_spatial@data$obesity <- scale(analysis_data_spatial@data$obesity)
@@ -144,7 +196,9 @@ moran.plot(as.vector(analysis_data_spatial@data$obesity), listw = analysis_nbq_w
            xlim = c(-2,4),ylim = c(-2,2),
                  main = "Moran's I = 0.7075, p-value < 0.0001", 
            xlab = "Obesity", ylab = "Spatial Lag Obesity", pch = 19)
+```
 
+```{r}
 ###Life Expectancy
 ###Convert outcome variable to z-form and then create the lag of that variable.
 analysis_data_spatial@data$life_expectancy <- scale(analysis_data_spatial@data$life_expectancy)
@@ -161,51 +215,93 @@ moran.plot(as.vector(analysis_data_spatial@data$life_expectancy), listw = analys
            xlab = "Life Expectancy", ylab = "Spatial Lag Life Expectancy", pch = 19)
 ```
 
-Fit Preliminary Models: 
-1. Life expectancy = log(garden_num) + poverty
-2. Obesity = log(garden_num) + poverty
 
-Test baseline linear models and do spatial diagnostics to choose appropriate spatial model. Need to confirm which exact spatial model to use, and whether any spatial related assumptions violated.
-```{r, eval = FALSE}
+###Fit Preliminary Models: 
+1. Life expectancy = garden_num + poverty
+2. Obesity = garden_num + poverty
+
+Test baseline linear models and do spatial diagnostics to choose appropriate spatial model.
+```{r}
 ###Test baseline linear model.
 obesity_lm <- lm(obesity ~ garden_num + poverty, data = analysis_data_spatial)
+broom::tidy(obesity_lm)
+broom::glance(obesity_lm)
 summary(obesity_lm)
-life_expectancy_lm <- lm(life_expectancy ~ log(garden_num) + poverty, data = analysis_data_spatial)
+life_expectancy_lm <- lm(life_expectancy ~ garden_num + poverty, data = analysis_data_spatial)
 summary(life_expectancy_lm)
+broom::tidy(life_expectancy_lm)
+```
 
+```{r}
+###Look at residuals for life expectancy: 
+par(mfrow = c(2,2))
+plot(life_expectancy_lm)
+
+```
+
+```{r, eval = FALSE}
+###Map residuals to see spatial dependence for the basic linear model: 
+resids <- residuals(life_expectancy_lm)
+map.resids <- cbind(analysis_data_spatial, resids)
+# we need to rename the column header from the resids file
+# in this case its the 6th column of map.resids
+names(map.resids)[14] <- "resids"
+# maps the residuals using the quickmap function from tmap
+qtm(map.resids, fill = "resids", palette = "div")
+```
+
+```{r}
 ###Run Langrane Multiplier tests to identify the type of spatial regression model to run.
 obesity.lagrange <- lm.LMtests(obesity_lm, analysis_nbq_w, test = c("LMerr","RLMerr","LMlag","RLMlag","SARMA"))
 print(obesity.lagrange)
 life_expectancy.lagrange <- lm.LMtests(life_expectancy_lm,analysis_nbq_w, test = c("LMerr","RLMerr","LMlag","RLMlag","SARMA"))
 print(life_expectancy.lagrange)
-
-### GLOBAL MODELS ###
-
-###Specify Spatial Lag Model
-htn.lag <- spatialreg::lagsarlm(hypertension ~ garden_num + poverty, data = analysis_data_spatial, health_nbq_w, tol.solve = 1.0e-15)
-###Spatial error model 
-htn.err <- spatialreg::errorsarlm(hypertension ~ garden_num + poverty, data = analysis_data_spatial, health_nbq_w, tol.solve = 1.0e-15)
-###Mixed model (SARMA significant)
-htn.sar <- spatialreg::lagsarlm(hypertension ~ garden_num + poverty, data = analysis_data_spatial, health_nbq_w, type = "mixed", tol.solve = 1.0e-15)
-
-summary(htn.lag)
-summary(htn.err)
-summary(htn.sar)
 ```
 
-Issues: All of our outcomes are not really linear with garden_num. They are more linear with log(garden_num), but when we do that there are a bunch of errors with the locations that have zero gardens, because log(0) is not a real number. But when I remove the districts with no gardens there are other errors because then not all the districts tough each other, which is necessary for the spatial model. Thoughts? 
+
+### Fit spatial regression model
+```{r}
+###Specify Spatial Lag Model
+life_exp.lag <- spatialreg::lagsarlm(life_expectancy ~ garden_num + poverty, data = analysis_data_spatial, analysis_nbq_w, tol.solve = 1.0e-15)
+###Spatial error model 
+life_exp.err <- spatialreg::errorsarlm(life_expectancy ~ garden_num + poverty, data = analysis_data_spatial, analysis_nbq_w, tol.solve = 1.0e-15)
+###Mixed model (SARMA significant)
+htn.sar <- spatialreg::lagsarlm(hypertension ~ garden_num + poverty, data = analysis_data_spatial, analysis_nbq_w, type = "mixed", tol.solve = 1.0e-15)
+
+summary(life_exp.lag)
+```
+
+```{r}
+###Look at residuals for life expectancy for spatial lag model: 
+analysis_data_spatial$residuals <- residuals(life_exp.lag)
+moran.mc(analysis_data_spatial$residuals, analysis_nbq_w, 999)
+
+###Map residuals to see spatial dependence for the spatial lag linear model: 
+resids <- residuals(life_exp.lag)
+map.resids_spatial <- cbind(analysis_data_spatial, resids)
+# we need to rename the column header from the resids file
+names(map.resids_spatial)[14] <- "resids"
+# maps the residuals using the quickmap function from tmap
+#qtm(map.resids_spatial, fill = "resids")
+```
+
+```{r}
+###Plot predictions for model
+###???
+```
+
+
+Notes: I decided to just go with garden number not transformed, even though it's not super linear. The model basically works like that, and when I ran the residuals diagnostics it didn't look too bad so maybe it's fine? I'm not exactly sure how to plot the predictions from the spatial model. 
+
+Also how many models should we do? Because if we do a bunch I think we run into the issue of having too high of an alpha 
 
 ### To do: 
 
-Check spatial diagnostics & regular diagnostics of our models: 
--check residuals 
-  - normally distributed  
-  - equal variance  
-  - not spatially correlated  
+Check that we understand the spatial diagnostics & regular diagnostics of our models: 
+-residuals normally distributed / equal variance / not spatially correlated  
 -check r^2 for model fit 
-- Could make 2 model options & do cross validation, but not sure if possible b/c only have poverty as a possible confounder, none of the other variables make much sense.
 
-Model output to visualize: 
+Clean up model output to visualize: 
 - Table of betas and se
 - plot the actual linear model over data points 
 
