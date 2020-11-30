@@ -7,7 +7,7 @@ navbar:
     href: main.html
   - text: "Analysis"
     href: analysis.html
-  - text: "Exposure Visualizations"
+  - text: "Exploratory Visualizations"
     menu:
     - text: "Health Conditions"
       href: health.html

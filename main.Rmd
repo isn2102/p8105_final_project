@@ -57,7 +57,7 @@ data_spatial <- merge(com_board_spdf, garden, by.x = "boro_cd", by.y = "id_spati
 ```
 
 
-Column {data-width=500}
+Column {data-width=400}
 -----------------------------------------------------------------------
 
 ### Garden locations around New York
@@ -112,7 +112,7 @@ leaflet() %>%
 > Outlined community board regions and individual garden locations.
 > 111 gardens were missing longitude and latitude values and are therefore missing individual data points for their location.
 
-Column {.tabset .tabset-fade data-width=300}
+Column {.tabset .tabset-fade data-width=400}
 -----------------------------------------------------------------------
 
 ### Age Distributions

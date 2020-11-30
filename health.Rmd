@@ -82,63 +82,6 @@ health_data_spatial <- merge(com_board_spdf, health_data_final, by.x = "boro_cd"
 # Results from spatial regression or cluster identification to assess the relationship between these variables and community gardens
 ```
 
-```{r, include = FALSE}
-
-# EXTRA - REMOVE LATER
-
-#health_data_final %>% 
-#ggplot(aes(x = community_board, y = garden_num, color = boro_name)) +
-#geom_point() + 
-#geom_segment( aes(x = community_board, xend = community_board, y = 0, yend = garden_num)) #+
-#labs(
-#  title = "Garden Number",
-#  x = "Community Board",
-#  y = "Number of Community Gardens"
-#)
-
-#health_data_final %>% 
-#ggplot(aes(x = community_board, y = obesity, color = boro_name)) +
-#geom_point() + 
-#geom_segment( aes(x = community_board, xend = community_board, y = 0, yend = obesity)) +
-#labs(
-#  title = "Obesity",
-#  x = "Community Board",
-#  y = "Percent of Adults with Obesity"
-#)
-
-#health_data_final %>% 
-#ggplot(aes(x = community_board, y = life_expectancy, color = boro_name)) +
-#geom_point() + 
-#geom_segment( aes(x = community_board, xend = community_board, y = 0, yend = #life_expectancy)) +
-#labs(
-#  title = "Life Expectancy",
-#  x = "Community Board",
-#  y = "Life Expectancy in Years"
-#)
-
-#health_data_final %>% 
-#ggplot(aes(x = community_board, y = hypertension, color = boro_name)) +
-#geom_point() + 
-#geom_segment( aes(x = community_board, xend = community_board, y = 0, yend = #hypertension)) +
-#labs(
-#  title = "Hypertension",
-#  x = "Community Board",
-#  y = "Percent of Adults with Hypertension"
-#)
-
-#health_data_final %>% 
-#ggplot(aes(x = community_board, y = self_rep_health, color = boro_name)) +
-#geom_point() + 
-#geom_segment( aes(x = community_board, xend = community_board, y = 0, yend = #self_rep_health)) +
-#labs(
-#  title = "Self Reported Health",
-#  x = "Community Board",
-#  y = "Percent of Adults with Self Reported Good Health"
-#)
-```
-
-
-
 
 Column {data-width=400}
 -----------------------------------------------------------------------
@@ -193,14 +136,6 @@ Column {.tabset .tabset-fade data-width=400}
 
 ### Obesity
 
-<style type="text/css">
-
-.chart-title {  /* Obesity  */
-   font-size: 20px;
-
-</style>
-
-
 
 ```{r}
 # Create a color palette for the map:
@@ -241,12 +176,6 @@ leaflet(health_data_spatial) %>%
 
 ### Hypertension
 
-<style type="text/css">
-
-.chart-title {  /* Hypertension  */
-   font-size: 20px;
-
-</style>
 
 ```{r}
 # Create a color palette for the map:
@@ -288,12 +217,7 @@ leaflet(health_data_spatial) %>%
 
 ### Life Expectancy
 
-<style type="text/css">
 
-.chart-title {  /* Life Expectancy  */
-   font-size: 20px;
-
-</style>
 
 ```{r}
 # Create a color palette for the map:
@@ -334,13 +258,6 @@ leaflet(health_data_spatial) %>%
 
 
 ### Self Reported Health
-
-<style type="text/css">
-
-.chart-title {  /* Self Reported Health  */
-   font-size: 20px;
-
-</style>
 
 ```{r}
 # Create a color palette for the map:
