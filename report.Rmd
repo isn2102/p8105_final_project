@@ -27,6 +27,7 @@ library(spatialreg)
 library(patchwork)
 library(modelr)
 library(tmap)
+library(kableExtra)
 
 #Set global theme for plots
 theme_set(theme_minimal() + 
@@ -1076,7 +1077,8 @@ lagrange_df <-
     robust_LMlag_pvalue = c(0.000067, 0.001757, 0.008062, 0.7673) 
   )
 lagrange_df %>% 
-  knitr::kable()
+  knitr::kable() %>% 
+  kable_styling()
 ```
 
 We found that the robust Lagrange multiplier lag was significant for the obesity, hypertension, and life expectancy models. None of the Lagrange multipliers were significant for self-reported health. 
@@ -1122,7 +1124,8 @@ self_rep_lm %>%
   relocate(Outcome)
 
 rbind(obesity_lag_df, hypertension_lag_df, life_expect_lag_df, self_rep_lm_df) %>%
-  knitr::kable()
+  knitr::kable() %>% 
+    kable_styling()
 
 ```
 

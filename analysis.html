@@ -26,6 +26,8 @@
 <script src="site_libs/navigation-1.1/codefolding.js"></script>
 <link href="site_libs/highlightjs-9.12.0/default.css" rel="stylesheet" />
 <script src="site_libs/highlightjs-9.12.0/highlight.js"></script>
+<script src="site_libs/kePrint-0.0.1/kePrint.js"></script>
+<link href="site_libs/lightable-0.0.1/lightable.css" rel="stylesheet" />
 <link href="site_libs/font-awesome-5.1.0/css/all.css" rel="stylesheet" />
 <link href="site_libs/font-awesome-5.1.0/css/v4-shims.css" rel="stylesheet" />
 
@@ -413,7 +415,611 @@ div.tocify {
 </div>
 
 
+<pre class="r"><code>analysis_data_final &lt;-
+  read_csv(&quot;./data/final_df.csv&quot;) %&gt;% 
+  select(id_spatial, community_board, obesity, hypertension, life_expectancy, self_rep_health, poverty, avg_rev_value, avg_tot_appropriated, borough, garden_num) %&gt;% 
+filter(!id_spatial %in% c(&#39;414&#39;))
+         
+working &lt;- getwd()
+com_board_spdf &lt;- readOGR(dsn = working, layer = &quot;community_board_new&quot;, verbose = FALSE)
+com_board_spdf2 &lt;- com_board_spdf[!com_board_spdf@data$boro_cd %in% c(&quot;414&quot;), ]
+invisible(names(com_board_spdf))
+analysis_data_spatial &lt;- merge(com_board_spdf2, analysis_data_final, by.x = &quot;boro_cd&quot;, by.y = &quot;id_spatial&quot;)</code></pre>
+<div id="questions" class="section level3">
+<h3><strong>Questions</strong></h3>
+<ol style="list-style-type: decimal">
+<li>How are community gardens distributed throughout the city?</li>
+<li>How are the locations of gardens related to certain demographic characteristics?</li>
+<li>What is the relationship between community gardens and economic investment?</li>
+<li>What is the relationship between community gardens and health conditions?</li>
+</ol>
+</div>
+<div id="exposure-of-interest" class="section level3">
+<h3><strong>Exposure of interest</strong></h3>
+<p>Number of gardens in each community board**</p>
+</div>
+<div id="confounder" class="section level3">
+<h3><strong>Confounder</strong></h3>
+<div id="percent-of-poverty" class="section level4">
+<h4>Percent of Poverty</h4>
+<ul>
+<li>Community gardens are historically formed in empty lots/areas of abandoned buildings</li>
+<li>Poverty impacts health and perceived neighborhood value</li>
+</ul>
+</div>
+</div>
+<div id="outcomes-of-interest" class="section level3">
+<h3><strong>Outcomes of Interest</strong></h3>
+<div id="health-outcomes" class="section level4">
+<h4>Health Outcomes</h4>
+<ul>
+<li>Obesity</li>
+<li>Hypertension</li>
+<li>Life expectancy</li>
+<li>Self reported health</li>
+</ul>
+</div>
+<div id="economic-outcomes" class="section level4">
+<h4>Economic Outcomes</h4>
+<ul>
+<li>Average total appropriated - money allocated through participatory budget processing
+<ul>
+<li>After assessing the distribution of values, we found that there were too many missing values and chose to not move forward in analyzing this variable</li>
+</ul></li>
+<li>Average Market value of buildings</li>
+</ul>
+</div>
+</div>
+<div id="morans-i" class="section level3">
+<h3><strong>Moran’s I</strong></h3>
+<div id="what-is-it" class="section level4">
+<h4>What is it</h4>
+<p>A correlation coefficient that measures the overall spatial auto-correlation among nearby locations in space. It measures how similar on object is to other surrounding it.</p>
+</div>
+<div id="interpretation" class="section level4">
+<h4>Interpretation</h4>
+<ul>
+<li>-1: perfect dispersion (definite pattern)</li>
+<li>0: no auto-correlation (perfect randomness, values are dependent on values of nearby areas)</li>
+<li>+1: perfect clustering of similar values (opposite of dispersion)</li>
+</ul>
+</div>
+<div id="hypothesis" class="section level4">
+<h4>Hypothesis</h4>
+<p>We hypothesized that the community gardens in NYC would not be evenly distributed spatially, indicating that the number of gardens in a specific community board depends on where in NYC you are looking</p>
+</div>
+<div id="what-we-did" class="section level4">
+<h4>What we did</h4>
+<ul>
+<li>We wanted to test if the spatial distribution of the gardens was randomly distributed</li>
+<li>Created a Queen’s neighborhood spatial weight matrix to define spatial neighbors as those community districts which are directly touching</li>
+<li>Used this to calculate Moran’s I using the <code>spdep</code> package</li>
+</ul>
+</div>
+<div id="results" class="section level4">
+<h4>Results</h4>
+<p>We found that <em>Moran’s I = 0.1899 (p=0.0138)</em>. This confirmed our hypothesis that community gardens in NYC are not evenly distributed spatially.</p>
+<pre class="r"><code>analysis_data_final &lt;-
+  read_csv(&quot;./data/final_df.csv&quot;) %&gt;% 
+  select(id_spatial, community_board, obesity, hypertension, life_expectancy, self_rep_health, poverty, avg_rev_value, avg_tot_appropriated, borough, garden_num) %&gt;% 
+filter(!id_spatial %in% c(&#39;414&#39;))
+         
+working &lt;- getwd()
+com_board_spdf &lt;- readOGR(dsn = working, layer = &quot;community_board_new&quot;, verbose = FALSE)
+com_board_spdf2 &lt;- com_board_spdf[!com_board_spdf@data$boro_cd %in% c(&quot;414&quot;), ]
+invisible(names(com_board_spdf))
+analysis_data_spatial &lt;- merge(com_board_spdf2, analysis_data_final, by.x = &quot;boro_cd&quot;, by.y = &quot;id_spatial&quot;)
 
+###Create a queen&#39;s neighborhood weight matrix using the poly2nb command.
+analysis_nbq &lt;- poly2nb(analysis_data_spatial)
+
+###extract coordinates to plot the connectivity matrix for visualization.
+coords &lt;- coordinates(analysis_data_spatial)
+
+###convert the neighborhood matrix into a list so that the connections between counties can be used in Moran&#39;s I test.
+analysis_nbq_w &lt;- nb2listw(analysis_nbq)
+
+###Garden number
+###Convert Exposure variable to z-form and then create the lag of that variable.
+analysis_data_spatial@data$garden_num &lt;- scale(analysis_data_spatial@data$garden_num)
+analysis_data_spatial@data$lag_sQL &lt;- lag.listw(analysis_nbq_w,analysis_data_spatial@data$garden_num)
+
+### Lose spatial properties when we turn into data frame for analysis
+#analysis_sp_data &lt;- as.data.frame(analysis_data_spatial)
+
+###Run morans I test and plot the results.
+garden_moran &lt;- moran.test(analysis_data_spatial@data$garden_num, listw = analysis_nbq_w, zero.policy = TRUE)
+moran.plot(as.vector(analysis_data_spatial@data$garden_num), listw = analysis_nbq_w, 
+           xlim = c(-2,4),ylim = c(-2,2),
+                 main = &quot;Moran&#39;s I = 0.1899, p-value = 0.0138&quot;, 
+           xlab = &quot;Garden Number&quot;, ylab = &quot;Spatial Lag Number of Gardens&quot;, pch = 19)</code></pre>
+<p><img src="analysis_files/figure-html/unnamed-chunk-2-1.png" width="90%" /></p>
+</div>
+</div>
+<div id="choosing-a-model" class="section level3">
+<h3><strong>Choosing a model</strong></h3>
+<div id="linear-regression" class="section level4">
+<h4>Linear Regression</h4>
+<ul>
+<li>Initially we intended to run a linear regression model because of ease of interpretation and flexibility with the model</li>
+<li>Assessing linear model assumptions (see <a href="report.html">report</a> for more information on this)
+<ul>
+<li>Normal distribution
+<ul>
+<li>All variables were generally normally distributed</li>
+</ul></li>
+<li>Linearity and Homoscedasticity
+<ul>
+<li>While most associations appear linear, <em>the variance does not appear constant</em></li>
+<li>We will address lack of constant variance by looking at residuals after fitting our model</li>
+</ul></li>
+<li>Multicollinearity
+<ul>
+<li>We wanted to ensure that the correlation coefficient between garden number and poverty (2 covariates) was not high</li>
+<li>We found that <em>r = 0.32, assuring us that our 2 covariates are not highly correlated</em></li>
+</ul></li>
+<li>Auto-correlation
+<ul>
+<li>We needed to ensure that all observations are independent to meet linear regression assumptions</li>
+<li>Based on our map visualizations, we suspected that there would be substantial auto-correlation as it appears that <a href="main.html">number of gardens</a>, <a href="property_values.html">economic variables</a>, and <a href="health.html">health outcome variables</a> are all clustered in space.</li>
+<li>We used Moran’s I spatial auto-correlation for each outcome</li>
+<li><em>We found Moran’s I was significant for obesity, hypertension, life expectancy and self-reported health (they are not evenly distributed spatially across NYC)</em></li>
+<li><strong>We decided to adjust for a spatial parameter in our linear regression model to account for the significant auto-correlation</strong></li>
+</ul></li>
+</ul></li>
+</ul>
+</div>
+<div id="spatial-diagnostics" class="section level4">
+<h4>Spatial Diagnostics</h4>
+<p>We fit general linear regression modesl and ran Lagrange Multiplier tests on these to identify the appropriate type of spatial regression model to use. See flow chart below for our thought process:</p>
+<p><img src="images/spatial_model.jpeg" width="300" height="400" /> <a href="https://rpubs.com/quarcs-lab/tutorial-spatial-regression">Image source</a></p>
+<pre class="r"><code>###fit baseline linear models.
+obesity_lm &lt;- lm(obesity ~ garden_num + poverty, data = analysis_data_spatial)
+hypertension_lm &lt;- lm(hypertension ~ garden_num + poverty, data = analysis_data_spatial)
+life_expectancy_lm &lt;- lm(life_expectancy ~ garden_num + poverty, data = analysis_data_spatial)
+self_rep_health_lm &lt;- lm(self_rep_health ~ garden_num + poverty, data = analysis_data_spatial)
+
+obesity_lagrange &lt;- lm.LMtests(obesity_lm, analysis_nbq_w, test = c(&quot;LMerr&quot;,&quot;RLMerr&quot;,&quot;LMlag&quot;,&quot;RLMlag&quot;,&quot;SARMA&quot;))
+hypertension_lagrange &lt;- lm.LMtests(hypertension_lm, analysis_nbq_w, test = c(&quot;LMerr&quot;,&quot;RLMerr&quot;,&quot;LMlag&quot;,&quot;RLMlag&quot;,&quot;SARMA&quot;))
+life_expectancy_lagrange &lt;- lm.LMtests(life_expectancy_lm,analysis_nbq_w, test = c(&quot;LMerr&quot;,&quot;RLMerr&quot;,&quot;LMlag&quot;,&quot;RLMlag&quot;,&quot;SARMA&quot;))
+self_rep_lagrange &lt;- lm.LMtests(self_rep_health_lm, analysis_nbq_w, test = c(&quot;LMerr&quot;,&quot;RLMerr&quot;,&quot;LMlag&quot;,&quot;RLMlag&quot;,&quot;SARMA&quot;))
+
+lagrange_df &lt;-
+  tibble(
+    model_outcome = c(&quot;Obesity&quot;, &quot;Hypertension&quot;, &quot;Life Expectancy&quot;, &quot;Self Reported Health&quot;), 
+    LMerror_pvalue = c(0.0000145, 0.0002054, 0.000027, 0.6988), 
+    robust_LMerror_pvalue = c(0.3705, 0.3374, 0.6854, 0.6328), 
+    LMlag_pvalue = c(0.0000000046, 0.0000019, 0.00000075, 0.9243), 
+    robust_LMlag_pvalue = c(0.000067, 0.001757, 0.008062, 0.7673) 
+  )
+lagrange_df %&gt;% 
+  knitr::kable(booktabs = TRUE, align = &#39;c&#39;) %&gt;% 
+  kable_styling() %&gt;% 
+  row_spec(1:3, color = &quot;black&quot;, background = &quot;yellow&quot;) </code></pre>
+<table class="table" style="margin-left: auto; margin-right: auto;">
+<thead>
+<tr>
+<th style="text-align:center;">
+model_outcome
+</th>
+<th style="text-align:center;">
+LMerror_pvalue
+</th>
+<th style="text-align:center;">
+robust_LMerror_pvalue
+</th>
+<th style="text-align:center;">
+LMlag_pvalue
+</th>
+<th style="text-align:center;">
+robust_LMlag_pvalue
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:center;color: black !important;background-color: yellow !important;">
+Obesity
+</td>
+<td style="text-align:center;color: black !important;background-color: yellow !important;">
+0.0000145
+</td>
+<td style="text-align:center;color: black !important;background-color: yellow !important;">
+0.3705
+</td>
+<td style="text-align:center;color: black !important;background-color: yellow !important;">
+0.0000000
+</td>
+<td style="text-align:center;color: black !important;background-color: yellow !important;">
+0.000067
+</td>
+</tr>
+<tr>
+<td style="text-align:center;color: black !important;background-color: yellow !important;">
+Hypertension
+</td>
+<td style="text-align:center;color: black !important;background-color: yellow !important;">
+0.0002054
+</td>
+<td style="text-align:center;color: black !important;background-color: yellow !important;">
+0.3374
+</td>
+<td style="text-align:center;color: black !important;background-color: yellow !important;">
+0.0000019
+</td>
+<td style="text-align:center;color: black !important;background-color: yellow !important;">
+0.001757
+</td>
+</tr>
+<tr>
+<td style="text-align:center;color: black !important;background-color: yellow !important;">
+Life Expectancy
+</td>
+<td style="text-align:center;color: black !important;background-color: yellow !important;">
+0.0000270
+</td>
+<td style="text-align:center;color: black !important;background-color: yellow !important;">
+0.6854
+</td>
+<td style="text-align:center;color: black !important;background-color: yellow !important;">
+0.0000008
+</td>
+<td style="text-align:center;color: black !important;background-color: yellow !important;">
+0.008062
+</td>
+</tr>
+<tr>
+<td style="text-align:center;">
+Self Reported Health
+</td>
+<td style="text-align:center;">
+0.6988000
+</td>
+<td style="text-align:center;">
+0.6328
+</td>
+<td style="text-align:center;">
+0.9243000
+</td>
+<td style="text-align:center;">
+0.767300
+</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Notes:</strong> the Lagrange multiplier lags was significant for regressions modeling, obesity, hypertension and life-expectancy. None of the Lagrange multipliers were significant for self-reported health.</p>
+</div>
+</div>
+<div id="final-model" class="section level3">
+<h3><strong>Final Model</strong></h3>
+<p>Based on the linear regression assumptions and the spatial diagnostic tests, we concluded that we need to run <strong>spatial lag models</strong> for obesity, hypertension, and life-expectancy and a <strong>regular multivariable linear regression</strong> for self-reported health (since none of the Lagrange tests were significant we deduced that there was no need for spatial parameter adjustment)</p>
+<pre class="r"><code>###Specify Spatial Lag Model for obesity
+obesity_lag &lt;- lagsarlm(obesity ~ garden_num + poverty, data = analysis_data_spatial, analysis_nbq_w, tol.solve = 1.0e-15)
+obesity_lag_df &lt;-
+obesity_lag %&gt;% 
+  broom::tidy() 
+
+###Specify Spatial Lag Model for hypertension
+hypertension_lag &lt;- lagsarlm(hypertension ~ garden_num + poverty, data = analysis_data_spatial, analysis_nbq_w, tol.solve = 1.0e-15)
+hypertension_lag_df &lt;-
+hypertension_lag %&gt;% 
+  broom::tidy() 
+
+###Specify Spatial Lag Model for life expectancy
+life_expect_lag &lt;- lagsarlm(life_expectancy ~ garden_num + poverty, data = analysis_data_spatial, analysis_nbq_w, tol.solve = 1.0e-15)
+life_expect_lag_df &lt;-
+life_expect_lag %&gt;% 
+  broom::tidy() 
+
+###Specify regular linear regression model for self-reported health
+self_rep_lm &lt;- lm(self_rep_health ~ garden_num + poverty, data = analysis_data_spatial)
+self_rep_lm_df &lt;-
+self_rep_lm %&gt;% 
+  broom::tidy() 
+
+rbind(obesity_lag_df, hypertension_lag_df, life_expect_lag_df, self_rep_lm_df) %&gt;%
+  knitr::kable() %&gt;% 
+    kable_styling() %&gt;%
+  pack_rows(index = c(&quot;Obesity&quot; = 4, &quot;Hypertension&quot; = 4, &quot;Life Expectancy&quot; = 4, &quot;Self Reported Health&quot; = 3))</code></pre>
+<table class="table" style="margin-left: auto; margin-right: auto;">
+<thead>
+<tr>
+<th style="text-align:left;">
+term
+</th>
+<th style="text-align:right;">
+estimate
+</th>
+<th style="text-align:right;">
+std.error
+</th>
+<th style="text-align:right;">
+statistic
+</th>
+<th style="text-align:right;">
+p.value
+</th>
+</tr>
+</thead>
+<tbody>
+<tr grouplength="4">
+<td colspan="5" style="border-bottom: 1px solid;">
+<strong>Obesity</strong>
+</td>
+</tr>
+<tr>
+<td style="text-align:left; padding-left:  2em;" indentlevel="1">
+rho
+</td>
+<td style="text-align:right;">
+0.6879445
+</td>
+<td style="text-align:right;">
+0.0715935
+</td>
+<td style="text-align:right;">
+9.6090303
+</td>
+<td style="text-align:right;">
+0.0000000
+</td>
+</tr>
+<tr>
+<td style="text-align:left; padding-left:  2em;" indentlevel="1">
+(Intercept)
+</td>
+<td style="text-align:right;">
+-0.2114400
+</td>
+<td style="text-align:right;">
+2.0410727
+</td>
+<td style="text-align:right;">
+-0.1035926
+</td>
+<td style="text-align:right;">
+0.9174927
+</td>
+</tr>
+<tr>
+<td style="text-align:left; padding-left:  2em;" indentlevel="1">
+garden_num
+</td>
+<td style="text-align:right;">
+1.2544384
+</td>
+<td style="text-align:right;">
+0.5856560
+</td>
+<td style="text-align:right;">
+2.1419372
+</td>
+<td style="text-align:right;">
+0.0321985
+</td>
+</tr>
+<tr>
+<td style="text-align:left; padding-left:  2em;" indentlevel="1">
+poverty
+</td>
+<td style="text-align:right;">
+0.3791848
+</td>
+<td style="text-align:right;">
+0.0960894
+</td>
+<td style="text-align:right;">
+3.9461667
+</td>
+<td style="text-align:right;">
+0.0000794
+</td>
+</tr>
+<tr grouplength="4">
+<td colspan="5" style="border-bottom: 1px solid;">
+<strong>Hypertension</strong>
+</td>
+</tr>
+<tr>
+<td style="text-align:left; padding-left:  2em;" indentlevel="1">
+rho
+</td>
+<td style="text-align:right;">
+0.6083155
+</td>
+<td style="text-align:right;">
+0.0899265
+</td>
+<td style="text-align:right;">
+6.7645849
+</td>
+<td style="text-align:right;">
+0.0000000
+</td>
+</tr>
+<tr>
+<td style="text-align:left; padding-left:  2em;" indentlevel="1">
+(Intercept)
+</td>
+<td style="text-align:right;">
+5.2358125
+</td>
+<td style="text-align:right;">
+2.6110811
+</td>
+<td style="text-align:right;">
+2.0052278
+</td>
+<td style="text-align:right;">
+0.0449387
+</td>
+</tr>
+<tr>
+<td style="text-align:left; padding-left:  2em;" indentlevel="1">
+garden_num
+</td>
+<td style="text-align:right;">
+1.1222358
+</td>
+<td style="text-align:right;">
+0.5634011
+</td>
+<td style="text-align:right;">
+1.9918947
+</td>
+<td style="text-align:right;">
+0.0463826
+</td>
+</tr>
+<tr>
+<td style="text-align:left; padding-left:  2em;" indentlevel="1">
+poverty
+</td>
+<td style="text-align:right;">
+0.2947728
+</td>
+<td style="text-align:right;">
+0.0896114
+</td>
+<td style="text-align:right;">
+3.2894556
+</td>
+<td style="text-align:right;">
+0.0010038
+</td>
+</tr>
+<tr grouplength="4">
+<td colspan="5" style="border-bottom: 1px solid;">
+<strong>Life Expectancy</strong>
+</td>
+</tr>
+<tr>
+<td style="text-align:left; padding-left:  2em;" indentlevel="1">
+rho
+</td>
+<td style="text-align:right;">
+0.4921277
+</td>
+<td style="text-align:right;">
+0.0965190
+</td>
+<td style="text-align:right;">
+5.0987675
+</td>
+<td style="text-align:right;">
+0.0000003
+</td>
+</tr>
+<tr>
+<td style="text-align:left; padding-left:  2em;" indentlevel="1">
+(Intercept)
+</td>
+<td style="text-align:right;">
+43.4508221
+</td>
+<td style="text-align:right;">
+8.0771479
+</td>
+<td style="text-align:right;">
+5.3794759
+</td>
+<td style="text-align:right;">
+0.0000001
+</td>
+</tr>
+<tr>
+<td style="text-align:left; padding-left:  2em;" indentlevel="1">
+garden_num
+</td>
+<td style="text-align:right;">
+-1.1920316
+</td>
+<td style="text-align:right;">
+0.2149444
+</td>
+<td style="text-align:right;">
+-5.5457664
+</td>
+<td style="text-align:right;">
+0.0000000
+</td>
+</tr>
+<tr>
+<td style="text-align:left; padding-left:  2em;" indentlevel="1">
+poverty
+</td>
+<td style="text-align:right;">
+-0.0965110
+</td>
+<td style="text-align:right;">
+0.0325297
+</td>
+<td style="text-align:right;">
+-2.9668618
+</td>
+<td style="text-align:right;">
+0.0030086
+</td>
+</tr>
+<tr grouplength="3">
+<td colspan="5" style="border-bottom: 1px solid;">
+<strong>Self Reported Health</strong>
+</td>
+</tr>
+<tr>
+<td style="text-align:left; padding-left:  2em;" indentlevel="1">
+(Intercept)
+</td>
+<td style="text-align:right;">
+94.6331825
+</td>
+<td style="text-align:right;">
+2.0200387
+</td>
+<td style="text-align:right;">
+46.8472129
+</td>
+<td style="text-align:right;">
+0.0000000
+</td>
+</tr>
+<tr>
+<td style="text-align:left; padding-left:  2em;" indentlevel="1">
+garden_num
+</td>
+<td style="text-align:right;">
+0.0617490
+</td>
+<td style="text-align:right;">
+0.6450767
+</td>
+<td style="text-align:right;">
+0.0957235
+</td>
+<td style="text-align:right;">
+0.9240881
+</td>
+</tr>
+<tr>
+<td style="text-align:left; padding-left:  2em;" indentlevel="1">
+poverty
+</td>
+<td style="text-align:right;">
+-0.8269996
+</td>
+<td style="text-align:right;">
+0.0952000
+</td>
+<td style="text-align:right;">
+-8.6869723
+</td>
+<td style="text-align:right;">
+0.0000000
+</td>
+</tr>
+</tbody>
+</table>
+</div>
 
 
 

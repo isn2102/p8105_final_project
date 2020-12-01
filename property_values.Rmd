@@ -148,7 +148,7 @@ pal3 <- colorNumeric(
 property_data %>%
   mutate(
     click_label =
-      str_c("<b>", garden_name, "</b><br>Borough: ", borough,"</b><br>Community Borad: ", community_board, "</b><br>Percent Poverty: ", poverty, "%")) %>% 
+      str_c("<b>", garden_name, "</b><br>Borough: ", borough,"</b><br>Community Board: ", community_board, "</b><br>Percent Poverty: ", poverty, "%")) %>% 
   leaflet() %>%
   addProviderTiles(providers$CartoDB.Positron) %>% 
   addCircleMarkers(~longitude, ~latitude, radius = .1, color = ~pal3(poverty), popup = ~click_label) %>% 
