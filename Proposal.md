@@ -11,9 +11,7 @@ Proposal
 ### Project Title
 
 **Community Gardens in New York City: planting the seed of urban
-growth**  
-**Community Gardens in New York City: cultivating urban activism and
-ownership**
+growth**
 
 ### Background
 
@@ -139,7 +137,7 @@ budgeting amount per location
 
 ### Questions
 
-### Planned Analyses / Visualizations / Coding Challenges - remove section??
+### Planned Analyses / Visualizations / Coding Challenges
 
 We plan to provide a leaflet map overlaying the location of the gardens
 throughout the boroughs in New York. We also hope to show a few other
@@ -163,48 +161,3 @@ difficult to combine the datasets that we need in order to answer our
 research questions. We also anticipate there may be challenges with
 missing data in certain key variables, which we will have to deal with
 the in data cleaning/tidying phase of the project.
-
-### To Do’s
-
-Small things:
-
-  - Add photos to home page -
-
-  - Add to health and garden map dashboard the theme and back to home
-    page link, also map subtitles -
-
-  - Add tabs for visual explorations to garden page, and both dashboards
-    (also analysis for the health/econ dashboards) -
-
-  - change exposure variable name in drop down
-
-  - Make left graph not a tab on health dashboard -
-
-  - Make graph titles larger -
-
-  - Change market value map to quantile to get more color variation
-
-  - Add borough and community board to the economic dashboard pop up
-    labels -
-
-  - Make titles bigger and captions bigger (move to top) for economic
-    dashboard -
-
-  - Make name for distribution of gardens by budget allocation more
-    informative -
-
-  - Change legends to bottom left -
-
-  - Make analysis page pretty
-
-  - Consolidate data cleaning code
-
-Big thing:
-
-  - Write up report
-
-  - Make screen cast
-
-  - Figure out analysis: Meet with Prof Porter again to ask about
-    possibility of GEE and how to do linear models with not exactly
-    linear data

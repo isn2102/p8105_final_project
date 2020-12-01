@@ -1,609 +1,332 @@
 <!DOCTYPE html>
 
-<html xmlns="http://www.w3.org/1999/xhtml">
+<html>
 
 <head>
 
-<meta charset="utf-8">
-<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta charset="utf-8" />
 <meta name="generator" content="pandoc" />
-<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta http-equiv="X-UA-Compatible" content="IE=EDGE" />
+
+
+
+
+<title>Merging-Data.utf8</title>
+
+<script src="site_libs/jquery-1.11.3/jquery.min.js"></script>
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<link href="site_libs/bootstrap-3.3.5/css/paper.min.css" rel="stylesheet" />
+<script src="site_libs/bootstrap-3.3.5/js/bootstrap.min.js"></script>
+<script src="site_libs/bootstrap-3.3.5/shim/html5shiv.min.js"></script>
+<script src="site_libs/bootstrap-3.3.5/shim/respond.min.js"></script>
+<script src="site_libs/navigation-1.1/tabsets.js"></script>
+<link href="site_libs/highlightjs-9.12.0/default.css" rel="stylesheet" />
+<script src="site_libs/highlightjs-9.12.0/highlight.js"></script>
+
+<style type="text/css">code{white-space: pre;}</style>
+<style type="text/css">
+  pre:not([class]) {
+    background-color: white;
+  }
+</style>
+<script type="text/javascript">
+if (window.hljs) {
+  hljs.configure({languages: []});
+  hljs.initHighlightingOnLoad();
+  if (document.readyState && document.readyState === "complete") {
+    window.setTimeout(function() { hljs.initHighlighting(); }, 0);
+  }
+}
+</script>
+
+
 
 <style type="text/css">
-@font-face {
-font-family: octicons-link;
-src: url(data:font/woff;charset=utf-8;base64,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) format('woff');
-}
-body {
--webkit-text-size-adjust: 100%;
-text-size-adjust: 100%;
-color: #333;
-font-family: "Helvetica Neue", Helvetica, "Segoe UI", Arial, freesans, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol";
-font-size: 16px;
-line-height: 1.6;
-word-wrap: break-word;
-}
-a {
-background-color: transparent;
-}
-a:active,
-a:hover {
-outline: 0;
-}
-strong {
-font-weight: bold;
-}
 h1 {
-font-size: 2em;
-margin: 0.67em 0;
+  font-size: 34px;
 }
-img {
-border: 0;
-}
-hr {
-box-sizing: content-box;
-height: 0;
-}
-pre {
-overflow: auto;
-}
-code,
-kbd,
-pre {
-font-family: monospace, monospace;
-font-size: 1em;
-}
-input {
-color: inherit;
-font: inherit;
-margin: 0;
-}
-html input[disabled] {
-cursor: default;
-}
-input {
-line-height: normal;
-}
-input[type="checkbox"] {
-box-sizing: border-box;
-padding: 0;
-}
-table {
-border-collapse: collapse;
-border-spacing: 0;
-}
-td,
-th {
-padding: 0;
-}
-* {
-box-sizing: border-box;
-}
-input {
-font: 13px / 1.4 Helvetica, arial, nimbussansl, liberationsans, freesans, clean, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol";
-}
-a {
-color: #4078c0;
-text-decoration: none;
-}
-a:hover,
-a:active {
-text-decoration: underline;
-}
-hr {
-height: 0;
-margin: 15px 0;
-overflow: hidden;
-background: transparent;
-border: 0;
-border-bottom: 1px solid #ddd;
-}
-hr:before {
-display: table;
-content: "";
-}
-hr:after {
-display: table;
-clear: both;
-content: "";
-}
-h1,
-h2,
-h3,
-h4,
-h5,
-h6 {
-margin-top: 15px;
-margin-bottom: 15px;
-line-height: 1.1;
-}
-h1 {
-font-size: 30px;
+h1.title {
+  font-size: 38px;
 }
 h2 {
-font-size: 21px;
+  font-size: 30px;
 }
 h3 {
-font-size: 16px;
+  font-size: 24px;
 }
 h4 {
-font-size: 14px;
+  font-size: 18px;
 }
 h5 {
-font-size: 12px;
+  font-size: 16px;
 }
 h6 {
-font-size: 11px;
+  font-size: 12px;
 }
-blockquote {
-margin: 0;
+.table th:not([align]) {
+  text-align: left;
 }
-ul,
-ol {
-padding: 0;
-margin-top: 0;
-margin-bottom: 0;
-}
-ol ol,
-ul ol {
-list-style-type: lower-roman;
-}
-ul ul ol,
-ul ol ol,
-ol ul ol,
-ol ol ol {
-list-style-type: lower-alpha;
-}
-dd {
-margin-left: 0;
+</style>
+
+
+
+
+<style type = "text/css">
+.main-container {
+  max-width: 940px;
+  margin-left: auto;
+  margin-right: auto;
 }
 code {
-font-family: Consolas, "Liberation Mono", Menlo, Courier, monospace;
-font-size: 12px;
-}
-pre {
-margin-top: 0;
-margin-bottom: 0;
-font: 12px Consolas, "Liberation Mono", Menlo, Courier, monospace;
-}
-.select::-ms-expand {
-opacity: 0;
-}
-.octicon {
-font: normal normal normal 16px/1 octicons-link;
-display: inline-block;
-text-decoration: none;
-text-rendering: auto;
--webkit-font-smoothing: antialiased;
--moz-osx-font-smoothing: grayscale;
--webkit-user-select: none;
--moz-user-select: none;
--ms-user-select: none;
-user-select: none;
-}
-.octicon-link:before {
-content: '\f05c';
-}
-.markdown-body:before {
-display: table;
-content: "";
-}
-.markdown-body:after {
-display: table;
-clear: both;
-content: "";
-}
-.markdown-body>*:first-child {
-margin-top: 0 !important;
-}
-.markdown-body>*:last-child {
-margin-bottom: 0 !important;
-}
-a:not([href]) {
-color: inherit;
-text-decoration: none;
-}
-.anchor {
-display: inline-block;
-padding-right: 2px;
-margin-left: -18px;
-}
-.anchor:focus {
-outline: none;
-}
-h1,
-h2,
-h3,
-h4,
-h5,
-h6 {
-margin-top: 1em;
-margin-bottom: 16px;
-font-weight: bold;
-line-height: 1.4;
-}
-h1 .octicon-link,
-h2 .octicon-link,
-h3 .octicon-link,
-h4 .octicon-link,
-h5 .octicon-link,
-h6 .octicon-link {
-color: #000;
-vertical-align: middle;
-visibility: hidden;
-}
-h1:hover .anchor,
-h2:hover .anchor,
-h3:hover .anchor,
-h4:hover .anchor,
-h5:hover .anchor,
-h6:hover .anchor {
-text-decoration: none;
-}
-h1:hover .anchor .octicon-link,
-h2:hover .anchor .octicon-link,
-h3:hover .anchor .octicon-link,
-h4:hover .anchor .octicon-link,
-h5:hover .anchor .octicon-link,
-h6:hover .anchor .octicon-link {
-visibility: visible;
-}
-h1 {
-padding-bottom: 0.3em;
-font-size: 2.25em;
-line-height: 1.2;
-border-bottom: 1px solid #eee;
-}
-h1 .anchor {
-line-height: 1;
-}
-h2 {
-padding-bottom: 0.3em;
-font-size: 1.75em;
-line-height: 1.225;
-border-bottom: 1px solid #eee;
-}
-h2 .anchor {
-line-height: 1;
-}
-h3 {
-font-size: 1.5em;
-line-height: 1.43;
-}
-h3 .anchor {
-line-height: 1.2;
-}
-h4 {
-font-size: 1.25em;
-}
-h4 .anchor {
-line-height: 1.2;
-}
-h5 {
-font-size: 1em;
-}
-h5 .anchor {
-line-height: 1.1;
-}
-h6 {
-font-size: 1em;
-color: #777;
-}
-h6 .anchor {
-line-height: 1.1;
-}
-p,
-blockquote,
-ul,
-ol,
-dl,
-table,
-pre {
-margin-top: 0;
-margin-bottom: 16px;
-}
-hr {
-height: 4px;
-padding: 0;
-margin: 16px 0;
-background-color: #e7e7e7;
-border: 0 none;
-}
-ul,
-ol {
-padding-left: 2em;
-}
-ul ul,
-ul ol,
-ol ol,
-ol ul {
-margin-top: 0;
-margin-bottom: 0;
-}
-li>p {
-margin-top: 16px;
-}
-dl {
-padding: 0;
-}
-dl dt {
-padding: 0;
-margin-top: 16px;
-font-size: 1em;
-font-style: italic;
-font-weight: bold;
-}
-dl dd {
-padding: 0 16px;
-margin-bottom: 16px;
-}
-blockquote {
-padding: 0 15px;
-color: #777;
-border-left: 4px solid #ddd;
-}
-blockquote>:first-child {
-margin-top: 0;
-}
-blockquote>:last-child {
-margin-bottom: 0;
-}
-table {
-display: block;
-width: 100%;
-overflow: auto;
-word-break: normal;
-word-break: keep-all;
-}
-table th {
-font-weight: bold;
-}
-table th,
-table td {
-padding: 6px 13px;
-border: 1px solid #ddd;
-}
-table tr {
-background-color: #fff;
-border-top: 1px solid #ccc;
-}
-table tr:nth-child(2n) {
-background-color: #f8f8f8;
+  color: inherit;
+  background-color: rgba(0, 0, 0, 0.04);
 }
 img {
-max-width: 100%;
-box-sizing: content-box;
-background-color: #fff;
+  max-width:100%;
 }
-code {
-padding: 0;
-padding-top: 0.2em;
-padding-bottom: 0.2em;
-margin: 0;
-font-size: 85%;
-background-color: rgba(0,0,0,0.04);
-border-radius: 3px;
+.tabbed-pane {
+  padding-top: 12px;
 }
-code:before,
-code:after {
-letter-spacing: -0.2em;
-content: "\00a0";
+.html-widget {
+  margin-bottom: 20px;
 }
-pre>code {
-padding: 0;
-margin: 0;
-font-size: 100%;
-word-break: normal;
-white-space: pre;
-background: transparent;
-border: 0;
+button.code-folding-btn:focus {
+  outline: none;
 }
-.highlight {
-margin-bottom: 16px;
+summary {
+  display: list-item;
 }
-.highlight pre,
-pre {
-padding: 16px;
-overflow: auto;
-font-size: 85%;
-line-height: 1.45;
-background-color: #f7f7f7;
-border-radius: 3px;
-}
-.highlight pre {
-margin-bottom: 0;
-word-break: normal;
-}
-pre {
-word-wrap: normal;
-}
-pre code {
-display: inline;
-max-width: initial;
-padding: 0;
-margin: 0;
-overflow: initial;
-line-height: inherit;
-word-wrap: normal;
-background-color: transparent;
-border: 0;
-}
-pre code:before,
-pre code:after {
-content: normal;
-}
-kbd {
-display: inline-block;
-padding: 3px 5px;
-font-size: 11px;
-line-height: 10px;
-color: #555;
-vertical-align: middle;
-background-color: #fcfcfc;
-border: solid 1px #ccc;
-border-bottom-color: #bbb;
-border-radius: 3px;
-box-shadow: inset 0 -1px 0 #bbb;
-}
-.pl-c {
-color: #969896;
-}
-.pl-c1,
-.pl-s .pl-v {
-color: #0086b3;
-}
-.pl-e,
-.pl-en {
-color: #795da3;
-}
-.pl-s .pl-s1,
-.pl-smi {
-color: #333;
-}
-.pl-ent {
-color: #63a35c;
-}
-.pl-k {
-color: #a71d5d;
-}
-.pl-pds,
-.pl-s,
-.pl-s .pl-pse .pl-s1,
-.pl-sr,
-.pl-sr .pl-cce,
-.pl-sr .pl-sra,
-.pl-sr .pl-sre {
-color: #183691;
-}
-.pl-v {
-color: #ed6a43;
-}
-.pl-id {
-color: #b52a1d;
-}
-.pl-ii {
-background-color: #b52a1d;
-color: #f8f8f8;
-}
-.pl-sr .pl-cce {
-color: #63a35c;
-font-weight: bold;
-}
-.pl-ml {
-color: #693a17;
-}
-.pl-mh,
-.pl-mh .pl-en,
-.pl-ms {
-color: #1d3e81;
-font-weight: bold;
-}
-.pl-mq {
-color: #008080;
-}
-.pl-mi {
-color: #333;
-font-style: italic;
-}
-.pl-mb {
-color: #333;
-font-weight: bold;
-}
-.pl-md {
-background-color: #ffecec;
-color: #bd2c00;
-}
-.pl-mi1 {
-background-color: #eaffea;
-color: #55a532;
-}
-.pl-mdr {
-color: #795da3;
-font-weight: bold;
-}
-.pl-mo {
-color: #1d3e81;
-}
-kbd {
-display: inline-block;
-padding: 3px 5px;
-font: 11px Consolas, "Liberation Mono", Menlo, Courier, monospace;
-line-height: 10px;
-color: #555;
-vertical-align: middle;
-background-color: #fcfcfc;
-border: solid 1px #ccc;
-border-bottom-color: #bbb;
-border-radius: 3px;
-box-shadow: inset 0 -1px 0 #bbb;
-}
-.task-list-item {
-list-style-type: none;
-}
-.task-list-item+.task-list-item {
-margin-top: 3px;
-}
-.task-list-item input {
-margin: 0 0.35em 0.25em -1.6em;
-vertical-align: middle;
-}
-:checked+.radio-label {
-z-index: 1;
-position: relative;
-border-color: #4078c0;
-}
-.sourceLine {
-display: inline-block;
-}
-code .kw { color: #000000; }
-code .dt { color: #ed6a43; }
-code .dv { color: #009999; }
-code .bn { color: #009999; }
-code .fl { color: #009999; }
-code .ch { color: #009999; }
-code .st { color: #183691; }
-code .co { color: #969896; }
-code .ot { color: #0086b3; }
-code .al { color: #a61717; }
-code .fu { color: #63a35c; }
-code .er { color: #a61717; background-color: #e3d2d2; }
-code .wa { color: #000000; }
-code .cn { color: #008080; }
-code .sc { color: #008080; }
-code .vs { color: #183691; }
-code .ss { color: #183691; }
-code .im { color: #000000; }
-code .va {color: #008080; }
-code .cf { color: #000000; }
-code .op { color: #000000; }
-code .bu { color: #000000; }
-code .ex { color: #000000; }
-code .pp { color: #999999; }
-code .at { color: #008080; }
-code .do { color: #969896; }
-code .an { color: #008080; }
-code .cv { color: #008080; }
-code .in { color: #008080; }
 </style>
-<style>
+
+
+<style type="text/css">
+/* padding for bootstrap navbar */
 body {
-  box-sizing: border-box;
-  min-width: 200px;
-  max-width: 980px;
-  margin: 0 auto;
-  padding: 45px;
-  padding-top: 0px;
+  padding-top: 64px;
+  padding-bottom: 40px;
+}
+/* offset scroll position for anchor links (for fixed navbar)  */
+.section h1 {
+  padding-top: 69px;
+  margin-top: -69px;
+}
+.section h2 {
+  padding-top: 69px;
+  margin-top: -69px;
+}
+.section h3 {
+  padding-top: 69px;
+  margin-top: -69px;
+}
+.section h4 {
+  padding-top: 69px;
+  margin-top: -69px;
+}
+.section h5 {
+  padding-top: 69px;
+  margin-top: -69px;
+}
+.section h6 {
+  padding-top: 69px;
+  margin-top: -69px;
+}
+.dropdown-submenu {
+  position: relative;
+}
+.dropdown-submenu>.dropdown-menu {
+  top: 0;
+  left: 100%;
+  margin-top: -6px;
+  margin-left: -1px;
+  border-radius: 0 6px 6px 6px;
+}
+.dropdown-submenu:hover>.dropdown-menu {
+  display: block;
+}
+.dropdown-submenu>a:after {
+  display: block;
+  content: " ";
+  float: right;
+  width: 0;
+  height: 0;
+  border-color: transparent;
+  border-style: solid;
+  border-width: 5px 0 5px 5px;
+  border-left-color: #cccccc;
+  margin-top: 5px;
+  margin-right: -10px;
+}
+.dropdown-submenu:hover>a:after {
+  border-left-color: #ffffff;
+}
+.dropdown-submenu.pull-left {
+  float: none;
+}
+.dropdown-submenu.pull-left>.dropdown-menu {
+  left: -100%;
+  margin-left: 10px;
+  border-radius: 6px 0 6px 6px;
 }
 </style>
+
+<script>
+// manage active state of menu based on current page
+$(document).ready(function () {
+  // active menu anchor
+  href = window.location.pathname
+  href = href.substr(href.lastIndexOf('/') + 1)
+  if (href === "")
+    href = "index.html";
+  var menuAnchor = $('a[href="' + href + '"]');
+
+  // mark it active
+  menuAnchor.parent().addClass('active');
+
+  // if it's got a parent navbar menu mark it active as well
+  menuAnchor.closest('li.dropdown').addClass('active');
+});
+</script>
+
+<!-- tabsets -->
+
+<style type="text/css">
+.tabset-dropdown > .nav-tabs {
+  display: inline-table;
+  max-height: 500px;
+  min-height: 44px;
+  overflow-y: auto;
+  background: white;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+}
+
+.tabset-dropdown > .nav-tabs > li.active:before {
+  content: "";
+  font-family: 'Glyphicons Halflings';
+  display: inline-block;
+  padding: 10px;
+  border-right: 1px solid #ddd;
+}
+
+.tabset-dropdown > .nav-tabs.nav-tabs-open > li.active:before {
+  content: "&#xe258;";
+  border: none;
+}
+
+.tabset-dropdown > .nav-tabs.nav-tabs-open:before {
+  content: "";
+  font-family: 'Glyphicons Halflings';
+  display: inline-block;
+  padding: 10px;
+  border-right: 1px solid #ddd;
+}
+
+.tabset-dropdown > .nav-tabs > li.active {
+  display: block;
+}
+
+.tabset-dropdown > .nav-tabs > li > a,
+.tabset-dropdown > .nav-tabs > li > a:focus,
+.tabset-dropdown > .nav-tabs > li > a:hover {
+  border: none;
+  display: inline-block;
+  border-radius: 4px;
+  background-color: transparent;
+}
+
+.tabset-dropdown > .nav-tabs.nav-tabs-open > li {
+  display: block;
+  float: none;
+}
+
+.tabset-dropdown > .nav-tabs > li {
+  display: none;
+}
+</style>
+
+<!-- code folding -->
+
+
+
 
 </head>
 
 <body>
 
-<h1 id="data-cleaning-and-merging">Data Cleaning and Merging</h1>
+
+<div class="container-fluid main-container">
+
+
+
+
+<div class="navbar navbar-default  navbar-fixed-top" role="navigation">
+  <div class="container">
+    <div class="navbar-header">
+      <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar">
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+      </button>
+      <a class="navbar-brand" href="index.html">Home</a>
+    </div>
+    <div id="navbar" class="navbar-collapse collapse">
+      <ul class="nav navbar-nav">
+        <li>
+  <a href="main.html">Garden Map</a>
+</li>
+<li>
+  <a href="analysis.html">Analysis</a>
+</li>
+<li class="dropdown">
+  <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">
+    Exploratory Visualizations
+     
+    <span class="caret"></span>
+  </a>
+  <ul class="dropdown-menu" role="menu">
+    <li>
+      <a href="health.html">Health Conditions</a>
+    </li>
+    <li>
+      <a href="property_values.html">Economic Investment</a>
+    </li>
+  </ul>
+</li>
+      </ul>
+      <ul class="nav navbar-nav navbar-right">
+        <li>
+  <a href="report.html">Report</a>
+</li>
+<li>
+  <a href="https://www.youtube.com/">
+    <span class="fa fa-youtube fa-lg"></span>
+     
+  </a>
+</li>
+<li>
+  <a href="https://github.com/isn2102/p8105_final_project">
+    <span class="fa fa-github fa-lg"></span>
+     
+  </a>
+</li>
+      </ul>
+    </div><!--/.nav-collapse -->
+  </div><!--/.container -->
+</div><!--/.navbar -->
+
+<div class="fluid-row" id="header">
+
+
+
+
+</div>
+
+
+<div id="data-cleaning-and-merging" class="section level1">
+<h1>Data Cleaning and Merging</h1>
 <p>11/13/20</p>
-<div class="sourceCode" id="cb1"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1"></a><span class="kw">library</span>(tidyverse)</span>
-<span id="cb1-2"><a href="#cb1-2"></a><span class="kw">library</span>(readxl)</span></code></pre></div>
+<pre class="r"><code>library(tidyverse)
+library(readxl)</code></pre>
 <p><strong>Borough Codes</strong></p>
 <ul>
 <li>1 - Manhattan (M)</li>
@@ -612,17 +335,18 @@ body {
 <li>4 - Queens (Q)</li>
 <li>5 - Staten Island (R)</li>
 </ul>
-<h3 id="nyc-greenthumb-community-gardens"><a href="https://data.cityofnewyork.us/Environment/NYC-Greenthumb-Community-Gardens/ajxm-kzmj">NYC Greenthumb Community Gardens</a></h3>
+<div id="nyc-greenthumb-community-gardens" class="section level3">
+<h3><a href="https://data.cityofnewyork.us/Environment/NYC-Greenthumb-Community-Gardens/ajxm-kzmj">NYC Greenthumb Community Gardens</a></h3>
 <p><strong>Cleaning and tidying garden data</strong></p>
-<div class="sourceCode" id="cb2"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1"></a>gardens =<span class="st"> </span></span>
-<span id="cb2-2"><a href="#cb2-2"></a><span class="st">  </span><span class="kw">read_csv</span>(<span class="st">&quot;./data/nyc_community_gardens.csv&quot;</span>) <span class="op">%&gt;%</span><span class="st"> </span></span>
-<span id="cb2-3"><a href="#cb2-3"></a><span class="st">  </span>janitor<span class="op">::</span><span class="kw">clean_names</span>() <span class="op">%&gt;%</span><span class="st"> </span></span>
-<span id="cb2-4"><a href="#cb2-4"></a><span class="st">  </span><span class="kw">mutate</span>(</span>
-<span id="cb2-5"><a href="#cb2-5"></a>    <span class="dt">community_board =</span> <span class="kw">replace</span>(community_board, community_board <span class="op">==</span><span class="st"> &quot;N/A&quot;</span>, <span class="ot">NA</span>)</span>
-<span id="cb2-6"><a href="#cb2-6"></a>  ) <span class="op">%&gt;%</span><span class="st"> </span></span>
-<span id="cb2-7"><a href="#cb2-7"></a><span class="st">  </span><span class="kw">drop_na</span>(community_board) <span class="op">%&gt;%</span><span class="st"> </span></span>
-<span id="cb2-8"><a href="#cb2-8"></a><span class="st">  </span><span class="kw">relocate</span>(community_board) <span class="op">%&gt;%</span><span class="st"> </span></span>
-<span id="cb2-9"><a href="#cb2-9"></a><span class="st">  </span><span class="kw">select</span>(<span class="op">-</span>prop_id,<span class="op">-</span>census_tract, <span class="op">-</span>bin, <span class="op">-</span>bbl, <span class="op">-</span>nta, <span class="op">-</span>council_district, <span class="op">-</span>cross_streets, <span class="op">-</span>jurisdiction, <span class="op">-</span>postcode)</span></code></pre></div>
+<pre class="r"><code>gardens = 
+  read_csv(&quot;./data/nyc_community_gardens.csv&quot;) %&gt;% 
+  janitor::clean_names() %&gt;% 
+  mutate(
+    community_board = replace(community_board, community_board == &quot;N/A&quot;, NA)
+  ) %&gt;% 
+  drop_na(community_board) %&gt;% 
+  relocate(community_board) %&gt;% 
+  select(-prop_id,-census_tract, -bin, -bbl, -nta, -council_district, -cross_streets, -jurisdiction, -postcode)</code></pre>
 <pre><code>## Parsed with column specification:
 ## cols(
 ##   PropID = col_character(),
@@ -642,56 +366,58 @@ body {
 ##   BIN = col_double(),
 ##   BBL = col_double(),
 ##   NTA = col_character()
-## )
-</code></pre>
-<h3 id="demographic-and-community-data">Demographic and Community data</h3>
+## )</code></pre>
+</div>
+<div id="demographic-and-community-data" class="section level3">
+<h3>Demographic and Community data</h3>
 <p><strong>Cleaning and tidying demographic data</strong></p>
-<div class="sourceCode" id="cb4"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1"></a>demo =<span class="st"> </span></span>
-<span id="cb4-2"><a href="#cb4-2"></a><span class="st">  </span><span class="kw">read_xlsx</span>(<span class="st">&quot;./data/health_profiles.xlsx&quot;</span>,</span>
-<span id="cb4-3"><a href="#cb4-3"></a>  <span class="dt">sheet =</span> <span class="st">&quot;CHP_all_data&quot;</span>, <span class="dt">skip =</span> <span class="dv">1</span>) <span class="op">%&gt;%</span><span class="st"> </span></span>
-<span id="cb4-4"><a href="#cb4-4"></a><span class="st">  </span>janitor<span class="op">::</span><span class="kw">clean_names</span>() <span class="op">%&gt;%</span><span class="st"> </span></span>
-<span id="cb4-5"><a href="#cb4-5"></a><span class="st">  </span><span class="kw">slice</span>(<span class="op">-</span>(<span class="dv">1</span><span class="op">:</span><span class="dv">6</span>)) <span class="op">%&gt;%</span><span class="st"> </span></span>
-<span id="cb4-6"><a href="#cb4-6"></a><span class="st">  </span><span class="kw">slice_head</span>(<span class="dt">n =</span> <span class="dv">59</span>) <span class="op">%&gt;%</span><span class="st"> </span></span>
-<span id="cb4-7"><a href="#cb4-7"></a><span class="st">  </span><span class="kw">mutate</span>(</span>
-<span id="cb4-8"><a href="#cb4-8"></a>    <span class="dt">id_spatial =</span> id, </span>
-<span id="cb4-9"><a href="#cb4-9"></a>    <span class="dt">id =</span> <span class="kw">str_replace</span>(id, <span class="st">&quot;^1&quot;</span>, <span class="st">&quot;M&quot;</span>),</span>
-<span id="cb4-10"><a href="#cb4-10"></a>    <span class="dt">id =</span> <span class="kw">str_replace</span>(id, <span class="st">&quot;^2&quot;</span>, <span class="st">&quot;X&quot;</span>),</span>
-<span id="cb4-11"><a href="#cb4-11"></a>    <span class="dt">id =</span> <span class="kw">str_replace</span>(id, <span class="st">&quot;^3&quot;</span>, <span class="st">&quot;B&quot;</span>),</span>
-<span id="cb4-12"><a href="#cb4-12"></a>    <span class="dt">id =</span> <span class="kw">str_replace</span>(id, <span class="st">&quot;^4&quot;</span>, <span class="st">&quot;Q&quot;</span>),</span>
-<span id="cb4-13"><a href="#cb4-13"></a>    <span class="dt">id =</span> <span class="kw">str_replace</span>(id, <span class="st">&quot;^5&quot;</span>, <span class="st">&quot;R&quot;</span>),</span>
-<span id="cb4-14"><a href="#cb4-14"></a>    <span class="dt">gentrification =</span> <span class="kw">replace</span>(gentrification, gentrification <span class="op">==</span><span class="st"> &quot;n/a&quot;</span>, <span class="ot">NA</span>),</span>
-<span id="cb4-15"><a href="#cb4-15"></a>    <span class="dt">avertable_death =</span> <span class="kw">replace</span>(avertable_death, avertable_death <span class="op">==</span><span class="st"> &quot;n/a&quot;</span>, <span class="ot">NA</span>),</span>
-<span id="cb4-16"><a href="#cb4-16"></a>    <span class="dt">avertable_death =</span> <span class="kw">replace</span>(avertable_death, avertable_death <span class="op">==</span><span class="st"> &quot;^&quot;</span>, <span class="ot">NA</span>)</span>
-<span id="cb4-17"><a href="#cb4-17"></a>  ) <span class="op">%&gt;%</span><span class="st"> </span></span>
-<span id="cb4-18"><a href="#cb4-18"></a><span class="st">  </span><span class="kw">rename</span>(<span class="dt">community_board =</span> id, <span class="dt">not_complete_hs =</span> edu_did_not_complete_hs, <span class="dt">hs_some_college =</span> edu_hs_grad_some_college, <span class="dt">college_higher =</span> edu_college_degree_and_higher) <span class="op">%&gt;%</span><span class="st"> </span></span>
-<span id="cb4-19"><a href="#cb4-19"></a><span class="st">  </span><span class="kw">select</span>(id_spatial, community_board<span class="op">:</span>age65plus, on_time_hs_grad, not_complete_hs, hs_some_college, college_higher, poverty, rent_burden, obesity, hypertension, life_expectancy, self_rep_health)</span></code></pre></div>
+<pre class="r"><code>demo = 
+  read_xlsx(&quot;./data/health_profiles.xlsx&quot;,
+  sheet = &quot;CHP_all_data&quot;, skip = 1) %&gt;% 
+  janitor::clean_names() %&gt;% 
+  slice(-(1:6)) %&gt;% 
+  slice_head(n = 59) %&gt;% 
+  mutate(
+    id_spatial = id, 
+    id = str_replace(id, &quot;^1&quot;, &quot;M&quot;),
+    id = str_replace(id, &quot;^2&quot;, &quot;X&quot;),
+    id = str_replace(id, &quot;^3&quot;, &quot;B&quot;),
+    id = str_replace(id, &quot;^4&quot;, &quot;Q&quot;),
+    id = str_replace(id, &quot;^5&quot;, &quot;R&quot;),
+    gentrification = replace(gentrification, gentrification == &quot;n/a&quot;, NA),
+    avertable_death = replace(avertable_death, avertable_death == &quot;n/a&quot;, NA),
+    avertable_death = replace(avertable_death, avertable_death == &quot;^&quot;, NA)
+  ) %&gt;% 
+  rename(community_board = id, not_complete_hs = edu_did_not_complete_hs, hs_some_college = edu_hs_grad_some_college, college_higher = edu_college_degree_and_higher) %&gt;% 
+  select(id_spatial, community_board:age65plus, on_time_hs_grad, not_complete_hs, hs_some_college, college_higher, poverty, rent_burden, obesity, hypertension, life_expectancy, self_rep_health)</code></pre>
 <pre><code>## New names:
 ## * lower_95CL -&gt; lower_95CL...16
 ## * upper_95CL -&gt; upper_95CL...17
 ## * NYC_Comparison -&gt; NYC_Comparison...18
 ## * lower_95CL -&gt; lower_95CL...20
 ## * upper_95CL -&gt; upper_95CL...21
-## * ...
-</code></pre>
-<h3 id="revised-property-value-notices"><a href="https://data.cityofnewyork.us/City-Government/Revised-Notice-of-Property-Value-RNOPV-/8vgb-zm6e">Revised property value notices</a></h3>
+## * ...</code></pre>
+</div>
+<div id="revised-property-value-notices" class="section level3">
+<h3><a href="https://data.cityofnewyork.us/City-Government/Revised-Notice-of-Property-Value-RNOPV-/8vgb-zm6e">Revised property value notices</a></h3>
 <p><strong>Cleaning and tidying property data</strong></p>
-<div class="sourceCode" id="cb6"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1"></a>property =<span class="st"> </span></span>
-<span id="cb6-2"><a href="#cb6-2"></a><span class="st">  </span><span class="kw">read_csv</span>(<span class="st">&quot;./data/property_values.csv&quot;</span>) <span class="op">%&gt;%</span><span class="st"> </span></span>
-<span id="cb6-3"><a href="#cb6-3"></a><span class="st">  </span>janitor<span class="op">::</span><span class="kw">clean_names</span>() <span class="op">%&gt;%</span><span class="st"> </span><span class="kw">drop_na</span>(community_board) <span class="op">%&gt;%</span><span class="st"> </span></span>
-<span id="cb6-4"><a href="#cb6-4"></a><span class="st">  </span><span class="kw">rename</span>(<span class="dt">old_community_board =</span> community_board) <span class="op">%&gt;%</span><span class="st"> </span></span>
-<span id="cb6-5"><a href="#cb6-5"></a><span class="st">  </span><span class="kw">mutate</span>(</span>
-<span id="cb6-6"><a href="#cb6-6"></a>    <span class="dt">boro_letter =</span> <span class="kw">case_when</span>(</span>
-<span id="cb6-7"><a href="#cb6-7"></a>      borough <span class="op">==</span><span class="st"> &quot;MANHATTAN&quot;</span> <span class="op">~</span><span class="st"> &quot;M&quot;</span>,</span>
-<span id="cb6-8"><a href="#cb6-8"></a>      borough <span class="op">==</span><span class="st"> &quot;BRONX&quot;</span> <span class="op">~</span><span class="st"> &quot;X&quot;</span>,</span>
-<span id="cb6-9"><a href="#cb6-9"></a>      borough <span class="op">==</span><span class="st"> &quot;BROOKLYN&quot;</span> <span class="op">~</span><span class="st"> &quot;B&quot;</span>,</span>
-<span id="cb6-10"><a href="#cb6-10"></a>      borough <span class="op">==</span><span class="st"> &quot;QUEENS&quot;</span> <span class="op">~</span><span class="st"> &quot;Q&quot;</span>,</span>
-<span id="cb6-11"><a href="#cb6-11"></a>      borough <span class="op">==</span><span class="st"> &quot;STATEN IS&quot;</span> <span class="op">~</span><span class="st"> &quot;R&quot;</span></span>
-<span id="cb6-12"><a href="#cb6-12"></a>    ),</span>
-<span id="cb6-13"><a href="#cb6-13"></a>    <span class="dt">board_num =</span> <span class="kw">ifelse</span>(<span class="kw">nchar</span>(old_community_board) <span class="op">==</span><span class="st"> </span><span class="dv">1</span>, <span class="kw">paste0</span>(<span class="dv">0</span>, old_community_board), old_community_board)</span>
-<span id="cb6-14"><a href="#cb6-14"></a>  ) <span class="op">%&gt;%</span><span class="st"> </span></span>
-<span id="cb6-15"><a href="#cb6-15"></a><span class="st">  </span><span class="kw">unite</span>(<span class="st">&quot;community_board&quot;</span>, boro_letter, board_num, <span class="dt">sep =</span> <span class="st">&quot;&quot;</span>) <span class="op">%&gt;%</span><span class="st"> </span></span>
-<span id="cb6-16"><a href="#cb6-16"></a><span class="st">  </span><span class="kw">relocate</span>(community_board, old_community_board, borough) <span class="op">%&gt;%</span><span class="st"> </span></span>
-<span id="cb6-17"><a href="#cb6-17"></a><span class="st">  </span><span class="kw">select</span>(community_board, original_market_value, revised_market_value)</span></code></pre></div>
+<pre class="r"><code>property = 
+  read_csv(&quot;./data/property_values.csv&quot;) %&gt;% 
+  janitor::clean_names() %&gt;% drop_na(community_board) %&gt;% 
+  rename(old_community_board = community_board) %&gt;% 
+  mutate(
+    boro_letter = case_when(
+      borough == &quot;MANHATTAN&quot; ~ &quot;M&quot;,
+      borough == &quot;BRONX&quot; ~ &quot;X&quot;,
+      borough == &quot;BROOKLYN&quot; ~ &quot;B&quot;,
+      borough == &quot;QUEENS&quot; ~ &quot;Q&quot;,
+      borough == &quot;STATEN IS&quot; ~ &quot;R&quot;
+    ),
+    board_num = ifelse(nchar(old_community_board) == 1, paste0(0, old_community_board), old_community_board)
+  ) %&gt;% 
+  unite(&quot;community_board&quot;, boro_letter, board_num, sep = &quot;&quot;) %&gt;% 
+  relocate(community_board, old_community_board, borough) %&gt;% 
+  select(community_board, original_market_value, revised_market_value)</code></pre>
 <pre><code>## Parsed with column specification:
 ## cols(
 ##   .default = col_double(),
@@ -713,41 +439,41 @@ body {
 ##   NTA = col_character()
 ## )
 
-## See spec(...) for full column specifications.
-</code></pre>
+## See spec(...) for full column specifications.</code></pre>
 <p><strong>Grouping values by community board</strong></p>
-<div class="sourceCode" id="cb8"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1"></a>property_tidy =<span class="st"> </span></span>
-<span id="cb8-2"><a href="#cb8-2"></a><span class="st">  </span>property <span class="op">%&gt;%</span><span class="st"> </span></span>
-<span id="cb8-3"><a href="#cb8-3"></a><span class="st">  </span><span class="kw">group_by</span>(community_board) <span class="op">%&gt;%</span><span class="st"> </span></span>
-<span id="cb8-4"><a href="#cb8-4"></a><span class="st">  </span><span class="kw">summarize</span>(</span>
-<span id="cb8-5"><a href="#cb8-5"></a>    <span class="dt">avg_org_value =</span> <span class="kw">mean</span>(original_market_value, <span class="dt">na.rm =</span> <span class="ot">TRUE</span>),</span>
-<span id="cb8-6"><a href="#cb8-6"></a>    <span class="dt">avg_rev_value =</span> <span class="kw">mean</span>(revised_market_value, <span class="dt">na.rm =</span> <span class="ot">TRUE</span>)</span>
-<span id="cb8-7"><a href="#cb8-7"></a>  )</span></code></pre></div>
-<pre><code>## `summarise()` ungrouping output (override with `.groups` argument)
-</code></pre>
+<pre class="r"><code>property_tidy = 
+  property %&gt;% 
+  group_by(community_board) %&gt;% 
+  summarize(
+    avg_org_value = mean(original_market_value, na.rm = TRUE),
+    avg_rev_value = mean(revised_market_value, na.rm = TRUE)
+  )</code></pre>
+<pre><code>## `summarise()` ungrouping output (override with `.groups` argument)</code></pre>
 <p><strong>Questions:</strong></p>
 <ul>
 <li>Check to see how different mean and median are</li>
 </ul>
-<h3 id="nyc-opendata"><a href="https://data.cityofnewyork.us/City-Government/Participatory-Budgeting-Project-Tracker/qm5f-frjb">NYC OpenData</a></h3>
+</div>
+<div id="nyc-opendata" class="section level3">
+<h3><a href="https://data.cityofnewyork.us/City-Government/Participatory-Budgeting-Project-Tracker/qm5f-frjb">NYC OpenData</a></h3>
 <p><strong>Cleaning and tidying budget data</strong></p>
-<div class="sourceCode" id="cb10"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1"></a>budget =<span class="st"> </span></span>
-<span id="cb10-2"><a href="#cb10-2"></a><span class="st">  </span><span class="kw">read_csv</span>(<span class="st">&quot;./data/budget_tracker.csv&quot;</span>) <span class="op">%&gt;%</span><span class="st"> </span></span>
-<span id="cb10-3"><a href="#cb10-3"></a><span class="st">  </span>janitor<span class="op">::</span><span class="kw">clean_names</span>() <span class="op">%&gt;%</span><span class="st"> </span><span class="kw">drop_na</span>(community_board) <span class="op">%&gt;%</span><span class="st"> </span></span>
-<span id="cb10-4"><a href="#cb10-4"></a><span class="st">  </span><span class="kw">rename</span>(<span class="dt">old_community_board =</span> community_board) <span class="op">%&gt;%</span><span class="st"> </span></span>
-<span id="cb10-5"><a href="#cb10-5"></a><span class="st">  </span><span class="kw">mutate</span>(</span>
-<span id="cb10-6"><a href="#cb10-6"></a>    <span class="dt">boro_letter =</span> <span class="kw">case_when</span>(</span>
-<span id="cb10-7"><a href="#cb10-7"></a>      borough <span class="op">==</span><span class="st"> &quot;MANHATTAN&quot;</span> <span class="op">~</span><span class="st"> &quot;M&quot;</span>,</span>
-<span id="cb10-8"><a href="#cb10-8"></a>      borough <span class="op">==</span><span class="st"> &quot;BRONX&quot;</span> <span class="op">~</span><span class="st"> &quot;X&quot;</span>,</span>
-<span id="cb10-9"><a href="#cb10-9"></a>      borough <span class="op">==</span><span class="st"> &quot;BROOKLYN&quot;</span> <span class="op">~</span><span class="st"> &quot;B&quot;</span>,</span>
-<span id="cb10-10"><a href="#cb10-10"></a>      borough <span class="op">==</span><span class="st"> &quot;QUEENS&quot;</span> <span class="op">~</span><span class="st"> &quot;Q&quot;</span>,</span>
-<span id="cb10-11"><a href="#cb10-11"></a>      borough <span class="op">==</span><span class="st"> &quot;STATEN IS&quot;</span> <span class="op">~</span><span class="st"> &quot;R&quot;</span></span>
-<span id="cb10-12"><a href="#cb10-12"></a>    ),</span>
-<span id="cb10-13"><a href="#cb10-13"></a>    <span class="dt">board_num =</span> <span class="kw">ifelse</span>(<span class="kw">nchar</span>(old_community_board) <span class="op">==</span><span class="st"> </span><span class="dv">1</span>, <span class="kw">paste0</span>(<span class="dv">0</span>, old_community_board), old_community_board)</span>
-<span id="cb10-14"><a href="#cb10-14"></a>  ) <span class="op">%&gt;%</span><span class="st"> </span></span>
-<span id="cb10-15"><a href="#cb10-15"></a><span class="st">  </span><span class="kw">unite</span>(<span class="st">&quot;community_board&quot;</span>, boro_letter, board_num, <span class="dt">sep =</span> <span class="st">&quot;&quot;</span>) <span class="op">%&gt;%</span><span class="st"> </span></span>
-<span id="cb10-16"><a href="#cb10-16"></a><span class="st">  </span><span class="kw">relocate</span>(community_board, old_community_board, borough) <span class="op">%&gt;%</span><span class="st"> </span></span>
-<span id="cb10-17"><a href="#cb10-17"></a><span class="st">  </span><span class="kw">select</span>(community_board, vote_year, total_appropriated)</span></code></pre></div>
+<pre class="r"><code>budget = 
+  read_csv(&quot;./data/budget_tracker.csv&quot;) %&gt;% 
+  janitor::clean_names() %&gt;% drop_na(community_board) %&gt;% 
+  rename(old_community_board = community_board) %&gt;% 
+  mutate(
+    boro_letter = case_when(
+      borough == &quot;MANHATTAN&quot; ~ &quot;M&quot;,
+      borough == &quot;BRONX&quot; ~ &quot;X&quot;,
+      borough == &quot;BROOKLYN&quot; ~ &quot;B&quot;,
+      borough == &quot;QUEENS&quot; ~ &quot;Q&quot;,
+      borough == &quot;STATEN IS&quot; ~ &quot;R&quot;
+    ),
+    board_num = ifelse(nchar(old_community_board) == 1, paste0(0, old_community_board), old_community_board)
+  ) %&gt;% 
+  unite(&quot;community_board&quot;, boro_letter, board_num, sep = &quot;&quot;) %&gt;% 
+  relocate(community_board, old_community_board, borough) %&gt;% 
+  select(community_board, vote_year, total_appropriated)</code></pre>
 <pre><code>## Parsed with column specification:
 ## cols(
 ##   .default = col_character(),
@@ -764,50 +490,100 @@ body {
 ##   BBL = col_double()
 ## )
 
-## See spec(...) for full column specifications.
-</code></pre>
+## See spec(...) for full column specifications.</code></pre>
 <p><strong>Grouping values by community board</strong></p>
-<div class="sourceCode" id="cb12"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb12-1"><a href="#cb12-1"></a>budget_tidy =<span class="st"> </span></span>
-<span id="cb12-2"><a href="#cb12-2"></a><span class="st">  </span>budget <span class="op">%&gt;%</span><span class="st"> </span></span>
-<span id="cb12-3"><a href="#cb12-3"></a><span class="st">  </span><span class="kw">group_by</span>(community_board) <span class="op">%&gt;%</span><span class="st"> </span></span>
-<span id="cb12-4"><a href="#cb12-4"></a><span class="st">  </span><span class="kw">summarize</span>(</span>
-<span id="cb12-5"><a href="#cb12-5"></a>    <span class="dt">avg_tot_appropriated =</span> <span class="kw">mean</span>(total_appropriated, <span class="dt">na.rm =</span> <span class="ot">TRUE</span>)</span>
-<span id="cb12-6"><a href="#cb12-6"></a>  )</span></code></pre></div>
-<pre><code>## `summarise()` ungrouping output (override with `.groups` argument)
-</code></pre>
-<h3 id="merging-1">Merging 1:</h3>
-<div class="sourceCode" id="cb14"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb14-1"><a href="#cb14-1"></a>final_tidy1 =</span>
-<span id="cb14-2"><a href="#cb14-2"></a><span class="st">  </span><span class="kw">left_join</span>(demo, gardens, <span class="dt">by =</span> <span class="st">&quot;community_board&quot;</span>) <span class="op">%&gt;%</span><span class="st"> </span></span>
-<span id="cb14-3"><a href="#cb14-3"></a><span class="st">  </span><span class="kw">left_join</span>(., property_tidy, <span class="dt">by =</span> <span class="st">&quot;community_board&quot;</span>) <span class="op">%&gt;%</span><span class="st"> </span></span>
-<span id="cb14-4"><a href="#cb14-4"></a><span class="st">  </span><span class="kw">left_join</span>(., budget_tidy, <span class="dt">by =</span> <span class="st">&quot;community_board&quot;</span>)</span></code></pre></div>
-<h3 id="calculate-number-of-gardens-per-community-board">Calculate number of gardens per community board</h3>
-<div class="sourceCode" id="cb15"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb15-1"><a href="#cb15-1"></a>num_gardens &lt;-</span>
-<span id="cb15-2"><a href="#cb15-2"></a><span class="st">  </span>final_tidy1 <span class="op">%&gt;%</span><span class="st"> </span></span>
-<span id="cb15-3"><a href="#cb15-3"></a><span class="st">  </span><span class="kw">drop_na</span>(garden_name) <span class="op">%&gt;%</span><span class="st"> </span></span>
-<span id="cb15-4"><a href="#cb15-4"></a><span class="st">  </span><span class="kw">group_by</span>(community_board) <span class="op">%&gt;%</span><span class="st"> </span></span>
-<span id="cb15-5"><a href="#cb15-5"></a><span class="st">  </span><span class="kw">summarize</span>(<span class="dt">garden_num =</span> <span class="kw">n</span>())</span></code></pre></div>
-<pre><code>## `summarise()` ungrouping output (override with `.groups` argument)
-</code></pre>
-<div class="sourceCode" id="cb17"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb17-1"><a href="#cb17-1"></a>unique_comboard &lt;-</span>
-<span id="cb17-2"><a href="#cb17-2"></a><span class="st">  </span>final_tidy1 <span class="op">%&gt;%</span><span class="st"> </span></span>
-<span id="cb17-3"><a href="#cb17-3"></a><span class="st">  </span><span class="kw">distinct</span>(community_board, <span class="dt">.keep_all =</span> <span class="ot">TRUE</span>)</span></code></pre></div>
-<h3 id="merging-2">Merging 2:</h3>
-<div class="sourceCode" id="cb18"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb18-1"><a href="#cb18-1"></a>final_tidy &lt;-</span>
-<span id="cb18-2"><a href="#cb18-2"></a><span class="st">  </span><span class="kw">left_join</span>(unique_comboard, num_gardens, <span class="dt">by =</span> <span class="st">&quot;community_board&quot;</span>) <span class="op">%&gt;%</span><span class="st"> </span></span>
-<span id="cb18-3"><a href="#cb18-3"></a><span class="st">  </span><span class="kw">replace_na</span>(<span class="kw">list</span>(<span class="dt">garden_num =</span> <span class="dv">0</span>)) </span>
-<span id="cb18-4"><a href="#cb18-4"></a></span>
-<span id="cb18-5"><a href="#cb18-5"></a>final_extra &lt;-</span>
-<span id="cb18-6"><a href="#cb18-6"></a><span class="st">  </span><span class="kw">left_join</span>(final_tidy1, num_gardens, <span class="dt">by =</span> <span class="st">&quot;community_board&quot;</span>) <span class="op">%&gt;%</span><span class="st"> </span></span>
-<span id="cb18-7"><a href="#cb18-7"></a><span class="st">  </span><span class="kw">replace_na</span>(<span class="kw">list</span>(<span class="dt">garden_num =</span> <span class="dv">0</span>))</span>
-<span id="cb18-8"><a href="#cb18-8"></a></span>
-<span id="cb18-9"><a href="#cb18-9"></a><span class="kw">write_csv</span>(final_extra, <span class="st">&quot;./data/final_extra.csv&quot;</span>)</span>
-<span id="cb18-10"><a href="#cb18-10"></a><span class="kw">write_csv</span>(final_tidy, <span class="st">&quot;./data/final_df.csv&quot;</span>)</span>
-<span id="cb18-11"><a href="#cb18-11"></a><span class="kw">write_csv</span>(final_tidy1, <span class="st">&quot;./data/final_df_main.csv&quot;</span>)</span></code></pre></div>
+<pre class="r"><code>budget_tidy = 
+  budget %&gt;% 
+  group_by(community_board) %&gt;% 
+  summarize(
+    avg_tot_appropriated = mean(total_appropriated, na.rm = TRUE)
+  )</code></pre>
+<pre><code>## `summarise()` ungrouping output (override with `.groups` argument)</code></pre>
+</div>
+<div id="merging-1" class="section level3">
+<h3>Merging 1:</h3>
+<pre class="r"><code>final_tidy1 =
+  left_join(demo, gardens, by = &quot;community_board&quot;) %&gt;% 
+  left_join(., property_tidy, by = &quot;community_board&quot;) %&gt;% 
+  left_join(., budget_tidy, by = &quot;community_board&quot;)</code></pre>
+</div>
+<div id="calculate-number-of-gardens-per-community-board" class="section level3">
+<h3>Calculate number of gardens per community board</h3>
+<pre class="r"><code>num_gardens &lt;-
+  final_tidy1 %&gt;% 
+  drop_na(garden_name) %&gt;% 
+  group_by(community_board) %&gt;% 
+  summarize(garden_num = n())</code></pre>
+<pre><code>## `summarise()` ungrouping output (override with `.groups` argument)</code></pre>
+<pre class="r"><code>unique_comboard &lt;-
+  final_tidy1 %&gt;% 
+  distinct(community_board, .keep_all = TRUE)</code></pre>
+</div>
+<div id="merging-2" class="section level3">
+<h3>Merging 2:</h3>
+<pre class="r"><code>final_tidy &lt;-
+  left_join(unique_comboard, num_gardens, by = &quot;community_board&quot;) %&gt;% 
+  replace_na(list(garden_num = 0)) 
+
+final_extra &lt;-
+  left_join(final_tidy1, num_gardens, by = &quot;community_board&quot;) %&gt;% 
+  replace_na(list(garden_num = 0))
+
+write_csv(final_extra, &quot;./data/final_extra.csv&quot;)
+write_csv(final_tidy, &quot;./data/final_df.csv&quot;)
+write_csv(final_tidy1, &quot;./data/final_df_main.csv&quot;)</code></pre>
 <p><strong>Notes:</strong></p>
 <ul>
 <li><p>This dataset contains 531 observations (the number of gardens in the garden dataset).</p></li>
 <li><p>I grouped the the property value variables and budgeting information variables by community board so there was 1 observations per community board in the “property_tidy” and “budget_tidy” dataframes</p></li>
 </ul>
+</div>
+</div>
+
+
+
+
+</div>
+
+<script>
+
+// add bootstrap table styles to pandoc tables
+function bootstrapStylePandocTables() {
+  $('tr.header').parent('thead').parent('table').addClass('table table-condensed');
+}
+$(document).ready(function () {
+  bootstrapStylePandocTables();
+});
+
+
+</script>
+
+<!-- tabsets -->
+
+<script>
+$(document).ready(function () {
+  window.buildTabsets("TOC");
+});
+
+$(document).ready(function () {
+  $('.tabset-dropdown > .nav-tabs > li').click(function () {
+    $(this).parent().toggleClass('nav-tabs-open')
+  });
+});
+</script>
+
+<!-- code folding -->
+
+
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+  (function () {
+    var script = document.createElement("script");
+    script.type = "text/javascript";
+    script.src  = "https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML";
+    document.getElementsByTagName("head")[0].appendChild(script);
+  })();
+</script>
 
 </body>
 </html>

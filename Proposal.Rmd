@@ -12,7 +12,6 @@ output: github_document
 ### Project Title
 
 **Community Gardens in New York City: planting the seed of urban growth**  
-**Community Gardens in New York City: cultivating urban activism and ownership**
 
 ### Background
 
@@ -86,48 +85,8 @@ This project aims to further explore the relationship between community gardens 
   
 ### Questions
 
-### Planned Analyses / Visualizations / Coding Challenges - remove section?? 
+### Planned Analyses / Visualizations / Coding Challenges 
 
 We plan to provide a leaflet map overlaying the location of the gardens throughout the boroughs in New York. We also hope to show a few other plots through shiny or a dashboard to help visualize the distribution of gardens and the relationship to the other variables of interest. These variables include the size of the community gardens and whether they have any relationship to boroughs and/or other geographic markers across the city. Furthermore, in the data source looking across community districts (https://communityprofiles.planning.nyc.gov/), there is a variable that assesses the accessibility to parks. We are also potentially interested in looking at park accessibility by key demographic and geographic variables. Analyses will include regression models to assess if number of community gardens in a certain location is associated with property values / median incomes and other demographic variables. Further association between investment from the city for local projects with gardens will be explored.
 
 We anticipate there may be coding challenges when we merge datasets. If the data is not coded consistently or with similar variables, it may be difficult to combine the datasets that we need in order to answer our research questions. We also anticipate there may be challenges with missing data in certain key variables, which we will have to deal with the in data cleaning/tidying phase of the project. 
-
-### To Do's
-
-Small things: 
-
-- Add photos to home page -
-
-- Add to health and garden map dashboard the theme and back to home page link, also map subtitles -
-
-- Add tabs for visual explorations to garden page, and both dashboards (also analysis for the health/econ dashboards) -
-
-- change exposure variable name in drop down 
-
-- Make left graph not a tab on health dashboard -
-
-- Make graph titles larger - 
-
-- Change market value map to quantile to get more color variation 
-
-- Add borough and community board to the economic dashboard pop up labels - 
-
-- Make titles bigger and captions bigger (move to top) for economic dashboard -
-
-- Make name for distribution of gardens by budget allocation more informative -
-
-- Change legends to bottom left -
-
-- Make analysis page pretty
-
-- Consolidate data cleaning code
-
-
-
-Big thing: 
-
-- Write up report
-
-- Make screen cast
-
-- Figure out analysis: Meet with Prof Porter again to ask about possibility of GEE and how to do linear models with not exactly linear data
