@@ -79,7 +79,7 @@ property_data %>%
   addProviderTiles(providers$CartoDB.Positron) %>% 
   addCircleMarkers(~longitude, ~latitude, radius = .1, color = ~pal(avg_tot_appropriated), popup = ~click_label) %>% 
   addLegend("topleft", pal = pal, values = ~avg_tot_appropriated,
-            title = "Budget Allocation </b><br>(in thoundsands)",
+            title = "Budget Allocation </b><br>(in thoundands)",
             labFormat = labelFormat(prefix = "$"),
             opacity = 1) %<>% htmlwidgets::prependContent(html_fix)
 ```
@@ -116,7 +116,7 @@ property_data %>%
   addProviderTiles(providers$CartoDB.Positron) %>% 
   addCircleMarkers(~longitude, ~latitude, radius = .1, color = ~pal2(avg_rev_value), popup = ~click_label) %<>%
     addLegend("topleft", pal = pal2, values = ~avg_rev_value, 
-               title = "Revised Market Value (Biannually) </b><br>(in thoundsands)",
+               title = "Revised Market Value (Biannually) </b><br>(in thoundands)",
               opacity = 1,
               labFormat = function(type, cuts, p) {
       n = length(cuts)

@@ -595,7 +595,7 @@ lagrange_df &lt;-
 lagrange_df %&gt;% 
   knitr::kable(booktabs = TRUE, align = &#39;c&#39;) %&gt;% 
   kable_styling() %&gt;% 
-  row_spec(1:3, color = &quot;black&quot;, background = &quot;yellow&quot;) </code></pre>
+  row_spec(1:3, color = &quot;black&quot;, background = &quot;#ceebcc&quot;) </code></pre>
 <table class="table" style="margin-left: auto; margin-right: auto;">
 <thead>
 <tr>
@@ -618,53 +618,53 @@ robust_LMlag_pvalue
 </thead>
 <tbody>
 <tr>
-<td style="text-align:center;color: black !important;background-color: yellow !important;">
+<td style="text-align:center;color: black !important;background-color: #ceebcc !important;">
 Obesity
 </td>
-<td style="text-align:center;color: black !important;background-color: yellow !important;">
+<td style="text-align:center;color: black !important;background-color: #ceebcc !important;">
 0.0000145
 </td>
-<td style="text-align:center;color: black !important;background-color: yellow !important;">
+<td style="text-align:center;color: black !important;background-color: #ceebcc !important;">
 0.3705
 </td>
-<td style="text-align:center;color: black !important;background-color: yellow !important;">
+<td style="text-align:center;color: black !important;background-color: #ceebcc !important;">
 0.0000000
 </td>
-<td style="text-align:center;color: black !important;background-color: yellow !important;">
+<td style="text-align:center;color: black !important;background-color: #ceebcc !important;">
 0.000067
 </td>
 </tr>
 <tr>
-<td style="text-align:center;color: black !important;background-color: yellow !important;">
+<td style="text-align:center;color: black !important;background-color: #ceebcc !important;">
 Hypertension
 </td>
-<td style="text-align:center;color: black !important;background-color: yellow !important;">
+<td style="text-align:center;color: black !important;background-color: #ceebcc !important;">
 0.0002054
 </td>
-<td style="text-align:center;color: black !important;background-color: yellow !important;">
+<td style="text-align:center;color: black !important;background-color: #ceebcc !important;">
 0.3374
 </td>
-<td style="text-align:center;color: black !important;background-color: yellow !important;">
+<td style="text-align:center;color: black !important;background-color: #ceebcc !important;">
 0.0000019
 </td>
-<td style="text-align:center;color: black !important;background-color: yellow !important;">
+<td style="text-align:center;color: black !important;background-color: #ceebcc !important;">
 0.001757
 </td>
 </tr>
 <tr>
-<td style="text-align:center;color: black !important;background-color: yellow !important;">
+<td style="text-align:center;color: black !important;background-color: #ceebcc !important;">
 Life Expectancy
 </td>
-<td style="text-align:center;color: black !important;background-color: yellow !important;">
+<td style="text-align:center;color: black !important;background-color: #ceebcc !important;">
 0.0000270
 </td>
-<td style="text-align:center;color: black !important;background-color: yellow !important;">
+<td style="text-align:center;color: black !important;background-color: #ceebcc !important;">
 0.6854
 </td>
-<td style="text-align:center;color: black !important;background-color: yellow !important;">
+<td style="text-align:center;color: black !important;background-color: #ceebcc !important;">
 0.0000008
 </td>
-<td style="text-align:center;color: black !important;background-color: yellow !important;">
+<td style="text-align:center;color: black !important;background-color: #ceebcc !important;">
 0.008062
 </td>
 </tr>
@@ -720,7 +720,11 @@ self_rep_lm %&gt;%
 rbind(obesity_lag_df, hypertension_lag_df, life_expect_lag_df, self_rep_lm_df) %&gt;%
   knitr::kable() %&gt;% 
     kable_styling() %&gt;%
-  pack_rows(index = c(&quot;Obesity&quot; = 4, &quot;Hypertension&quot; = 4, &quot;Life Expectancy&quot; = 4, &quot;Self Reported Health&quot; = 3))</code></pre>
+  pack_rows(index = c(&quot;Obesity&quot; = 4, &quot;Hypertension&quot; = 4, &quot;Life Expectancy&quot; = 4, &quot;Self Reported Health&quot; = 3)) %&gt;% 
+  row_spec(3, color = &quot;black&quot;, background = &quot;#ceebcc&quot;) %&gt;% 
+  row_spec(7, color = &quot;black&quot;, background = &quot;#ceebcc&quot;) %&gt;% 
+  row_spec(11, color = &quot;black&quot;, background = &quot;#ceebcc&quot;) %&gt;% 
+  row_spec(14, color = &quot;black&quot;, background = &quot;#ceebcc&quot;) </code></pre>
 <table class="table" style="margin-left: auto; margin-right: auto;">
 <thead>
 <tr>
@@ -782,19 +786,19 @@ rho
 </td>
 </tr>
 <tr>
-<td style="text-align:left; padding-left:  2em;" indentlevel="1">
+<td style="text-align:left; padding-left:  2em;color: black !important;background-color: #ceebcc !important;" indentlevel="1">
 garden_num
 </td>
-<td style="text-align:right;">
+<td style="text-align:right;color: black !important;background-color: #ceebcc !important;">
 1.2544384
 </td>
-<td style="text-align:right;">
+<td style="text-align:right;color: black !important;background-color: #ceebcc !important;">
 0.5856560
 </td>
-<td style="text-align:right;">
+<td style="text-align:right;color: black !important;background-color: #ceebcc !important;">
 2.1419372
 </td>
-<td style="text-align:right;">
+<td style="text-align:right;color: black !important;background-color: #ceebcc !important;">
 0.0321985
 </td>
 </tr>
@@ -855,19 +859,19 @@ rho
 </td>
 </tr>
 <tr>
-<td style="text-align:left; padding-left:  2em;" indentlevel="1">
+<td style="text-align:left; padding-left:  2em;color: black !important;background-color: #ceebcc !important;" indentlevel="1">
 garden_num
 </td>
-<td style="text-align:right;">
+<td style="text-align:right;color: black !important;background-color: #ceebcc !important;">
 1.1222358
 </td>
-<td style="text-align:right;">
+<td style="text-align:right;color: black !important;background-color: #ceebcc !important;">
 0.5634011
 </td>
-<td style="text-align:right;">
+<td style="text-align:right;color: black !important;background-color: #ceebcc !important;">
 1.9918947
 </td>
-<td style="text-align:right;">
+<td style="text-align:right;color: black !important;background-color: #ceebcc !important;">
 0.0463826
 </td>
 </tr>
@@ -928,19 +932,19 @@ rho
 </td>
 </tr>
 <tr>
-<td style="text-align:left; padding-left:  2em;" indentlevel="1">
+<td style="text-align:left; padding-left:  2em;color: black !important;background-color: #ceebcc !important;" indentlevel="1">
 garden_num
 </td>
-<td style="text-align:right;">
+<td style="text-align:right;color: black !important;background-color: #ceebcc !important;">
 -1.1920316
 </td>
-<td style="text-align:right;">
+<td style="text-align:right;color: black !important;background-color: #ceebcc !important;">
 0.2149444
 </td>
-<td style="text-align:right;">
+<td style="text-align:right;color: black !important;background-color: #ceebcc !important;">
 -5.5457664
 </td>
-<td style="text-align:right;">
+<td style="text-align:right;color: black !important;background-color: #ceebcc !important;">
 0.0000000
 </td>
 </tr>
@@ -984,19 +988,19 @@ poverty
 </td>
 </tr>
 <tr>
-<td style="text-align:left; padding-left:  2em;" indentlevel="1">
+<td style="text-align:left; padding-left:  2em;color: black !important;background-color: #ceebcc !important;" indentlevel="1">
 garden_num
 </td>
-<td style="text-align:right;">
+<td style="text-align:right;color: black !important;background-color: #ceebcc !important;">
 0.0617490
 </td>
-<td style="text-align:right;">
+<td style="text-align:right;color: black !important;background-color: #ceebcc !important;">
 0.6450767
 </td>
-<td style="text-align:right;">
+<td style="text-align:right;color: black !important;background-color: #ceebcc !important;">
 0.0957235
 </td>
-<td style="text-align:right;">
+<td style="text-align:right;color: black !important;background-color: #ceebcc !important;">
 0.9240881
 </td>
 </tr>
