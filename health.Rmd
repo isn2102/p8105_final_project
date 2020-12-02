@@ -5,6 +5,8 @@ output:
     orientation: columns
     theme: bootstrap
     navbar:
+       - { title: "Explore Economic Investment", href: property_values.html, align: left }
+       - { title: "Statistical Analysis", href: analysis.html, align: left }
        - { title: "Back to Home", href: index.html, align: right }
 
 ---

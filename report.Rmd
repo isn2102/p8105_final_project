@@ -1058,6 +1058,7 @@ moran.plot(as.vector(analysis_data_spatial@data$self_rep_health), listw = analys
 We found that the **Moran's I for was significant at the 1% level for obesity, hypertension, life expectancy, and self-reported health.** We were not able to calculate Moran's I for budget allocation because of too many missing values. Given the substantial number of missing values for budget, we did not move forward in the formal analysis with this outcome. Because we see significant spatial auto-correlation for all four of the health outcome variables, we decided to adjust for a spatial parameter in our linear regression model. 
 
 #### Fitting a model 
+
 **Initial linear model**  
 Based on our determination of spatial auto-correlation, we decided to fit spatial regression models. We first fit general linear models and then ran Lagrange Multiplier tests on these to identify the appropriate type of spatial regression model to use. We used the following flowchart to identify the appropriate spatial regression model based on the Lagrange multiplier diagnostics. 
 ![](images/spatial_model.jpeg){ height="400px" width="300px" }
@@ -1084,13 +1085,15 @@ lagrange_df <-
     robust_LMlag_pvalue = c(0.000067, 0.001757, 0.008062, 0.7673) 
   )
 lagrange_df %>% 
-  knitr::kable() %>% 
-  kable_styling()
+  knitr::kable(booktabs = TRUE, align = 'c') %>% 
+  kable_styling() %>% 
+  row_spec(1:3, color = "black", background = "#ceebcc") 
 ```
 
 We found that the robust Lagrange multiplier lag was significant for the obesity, hypertension, and life expectancy models. None of the Lagrange multipliers were significant for self-reported health. 
 
 **Final regression models**  
+
 Based on our spatial diagnostics we concluded that we need to run a spatial lag model for obesity, hypertension, and life expectancy, and a regular linear regression model for self-reported health (because none of the LM tests were significant, indicating no need for a spatial parameter adjustment). A spatial lag model includes a parameter (rho) that adjusts for spatial dependence among observations and ultimately ensures the residuals are no longer spatially correlated. This fixes the issue of dependent residuals in our model and makes us more confident that we have chosen an appropriate model because we are no longer violating the independence assumption. 
 
 ```{r, message = FALSE, warning = FALSE}
@@ -1098,45 +1101,39 @@ Based on our spatial diagnostics we concluded that we need to run a spatial lag 
 obesity_lag <- lagsarlm(obesity ~ garden_num + poverty, data = analysis_data_spatial, analysis_nbq_w, tol.solve = 1.0e-15)
 obesity_lag_df <-
 obesity_lag %>% 
-  broom::tidy() %>% 
-  mutate(
-    Outcome = "obesity") %>% 
-  relocate(Outcome)
+  broom::tidy() 
 
 ###Specify Spatial Lag Model for hypertension
 hypertension_lag <- lagsarlm(hypertension ~ garden_num + poverty, data = analysis_data_spatial, analysis_nbq_w, tol.solve = 1.0e-15)
 hypertension_lag_df <-
 hypertension_lag %>% 
-  broom::tidy() %>% 
-  mutate(
-    Outcome = "hypertension") %>% 
-  relocate(Outcome)
+  broom::tidy() 
 
 ###Specify Spatial Lag Model for life expectancy
 life_expect_lag <- lagsarlm(life_expectancy ~ garden_num + poverty, data = analysis_data_spatial, analysis_nbq_w, tol.solve = 1.0e-15)
 life_expect_lag_df <-
 life_expect_lag %>% 
-  broom::tidy() %>% 
-  mutate(
-    Outcome = "life expectancy") %>% 
-  relocate(Outcome)
+  broom::tidy() 
 
 ###Specify regular linear regression model for self-reported health
 self_rep_lm <- lm(self_rep_health ~ garden_num + poverty, data = analysis_data_spatial)
 self_rep_lm_df <-
 self_rep_lm %>% 
-  broom::tidy() %>% 
-  mutate(
-    Outcome = "self reported health") %>% 
-  relocate(Outcome)
+  broom::tidy() 
 
 rbind(obesity_lag_df, hypertension_lag_df, life_expect_lag_df, self_rep_lm_df) %>%
-  knitr::kable() %>% 
-    kable_styling()
+  knitr::kable(caption = "Spatial Lag Models for Outcomes") %>% 
+    kable_styling() %>%
+  pack_rows(index = c("Obesity" = 4, "Hypertension" = 4, "Life Expectancy" = 4, "Self Reported Health" = 3)) %>% 
+  row_spec(3, color = "black", background = "#ceebcc") %>% 
+  row_spec(7, color = "black", background = "#ceebcc") %>% 
+  row_spec(11, color = "black", background = "#ceebcc") %>% 
+  row_spec(14, color = "black", background = "#ceebcc") 
 
 ```
 
 **THIS SECTION MAY BE WRONG**
+
 Graphs of fitted line from model on top of actual points - but shouldn't the fitted line be linear??? Plots are also not really showing up right on the knitted doc.
 ```{r, message = FALSE, warning = FALSE}
 ###Plot fitted values over actual values
@@ -1183,6 +1180,7 @@ obesity_fitted + hypertension_fitted + life_expect_fitted + self_rep_fitted + pl
 
 
 ### Revisiting model diagnostics
+
 Once we fit our final models, we wanted to revisit the residuals to confirm that our assumptions of independence (no spatial correlation), normality, and homoscedasticity are satisfied. 
 ```{r, message = FALSE, warning = FALSE}
 ###Look at plot of residuals versus fitted values
@@ -1292,6 +1290,7 @@ rbind(resid_moran_ob, resid_moran_ht, resid_moran_le, resid_moran_srh) %>%
 
 
 ### Formal analysis conclusions
+
 * Spatial clustering of gardens and all the variables
 * Since we ended up doing 4 models, we should set alpha at 0.0125 using bonferroni correction 
 * interpret coefficients for garden for each outcome - [see here for a little on spatial model interpretations - chapter 9] (https://maczokni.github.io/crimemapping_textbook_bookdown/spatial-regression-models.html)
@@ -1306,6 +1305,7 @@ rbind(resid_moran_ob, resid_moran_ht, resid_moran_le, resid_moran_srh) %>%
 ***
 
 ## Discussion
+
 * model results: maybe reverse causation with entrenched poverty (and poor health outcomes) meaning people were more motivated to put in gardens that would lift up the communities in those areas to improve health 
 * possible that there is residual confounding from other variables we didn't include
 * also possible that since we have such a small sample size (59 obs), there is not enough variation in the health outcomes for community districts with different numbers of gardens- ex: if every single one of the community districts that has a lot of gardens has very poor health outcomes because of historic disenfranchisement and poverty, we may not be able to see any minimal positive impact of gardens becuase of the much larger impact of historic poverty 

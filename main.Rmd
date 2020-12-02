@@ -5,6 +5,8 @@ output:
     orientation: columns
     theme: bootstrap
     navbar:
+       - { title: "Explore Health Conditions", href: health.html, align: left }
+       - { title: "Explore Economic Investment", href: property_values.html, align: left }
        - { title: "Back to Home", href: index.html, align: right }
        
 ---
@@ -71,7 +73,6 @@ Column {data-width=400}
 
 
 ```{r,  message = FALSE, warning = FALSE}
-
 
 garden_all = 
   garden_all %>%

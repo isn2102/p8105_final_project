@@ -201,7 +201,7 @@ lagrange_df <-
 lagrange_df %>% 
   knitr::kable(booktabs = TRUE, align = 'c') %>% 
   kable_styling() %>% 
-  row_spec(1:3, color = "black", background = "yellow") 
+  row_spec(1:3, color = "black", background = "#ceebcc") 
 ```
 
 **Notes:** the Lagrange multiplier lags was significant for regressions modeling, obesity, hypertension and life-expectancy. None of the Lagrange multipliers were significant for self-reported health.
@@ -239,6 +239,10 @@ self_rep_lm %>%
 rbind(obesity_lag_df, hypertension_lag_df, life_expect_lag_df, self_rep_lm_df) %>%
   knitr::kable() %>% 
     kable_styling() %>%
-  pack_rows(index = c("Obesity" = 4, "Hypertension" = 4, "Life Expectancy" = 4, "Self Reported Health" = 3))
+  pack_rows(index = c("Obesity" = 4, "Hypertension" = 4, "Life Expectancy" = 4, "Self Reported Health" = 3)) %>% 
+  row_spec(3, color = "black", background = "#ceebcc") %>% 
+  row_spec(7, color = "black", background = "#ceebcc") %>% 
+  row_spec(11, color = "black", background = "#ceebcc") %>% 
+  row_spec(14, color = "black", background = "#ceebcc") 
 
 ```
