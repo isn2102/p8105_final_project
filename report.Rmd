@@ -714,7 +714,7 @@ One issue we encountered was that only 33 community districts use participatory 
 property_data1 =
   read_csv("./data/final_df_main.csv") %>%
   select(community_board, borough, overall_pop, poverty, rent_burden, avg_org_value, avg_rev_value, avg_tot_appropriated, latitude, longitude, garden_name) %>% 
-  mutate(value_diff = avg_rev_value - avg_org_value)
+  mutate(avg_rev_value = round(avg_rev_value, 0))
 
 # Calculating number of gardens
 num_gardens = 
@@ -733,18 +733,19 @@ html_fix <- htmltools::tags$style(type = "text/css", css_fix)  # Convert CSS to 
 # Creating color palette for map
 pal <- colorNumeric(
   palette = "viridis",
-  domain = property_data$avg_tot_appropriated)
+  domain = property_data$avg_tot_appropriated / 1000)
 
 # Creating leaflet
 property_data %>%
   mutate(
+    avg_tot_appropriated = avg_tot_appropriated / 1000,
     click_label =
-      str_c("<b>", garden_name, "</b><br>Borough: ", borough,"</b><br>Community Borad: ", community_board, "</b><br>Budget: $", avg_tot_appropriated)) %>% 
+      str_c("<b>", garden_name, "</b><br>Borough: ", borough,"</b><br>Community Board: ", community_board, "</b><br>Budget (in thousands): $", avg_tot_appropriated)) %>% 
   leaflet() %>%
   addProviderTiles(providers$CartoDB.Positron) %>% 
   addCircleMarkers(~longitude, ~latitude, radius = .1, color = ~pal(avg_tot_appropriated), popup = ~click_label) %>% 
   addLegend("topleft", pal = pal, values = ~avg_tot_appropriated,
-            title = "Budget Allocation",
+            title = "Budget Allocation </b><br>(in thousands)",
             labFormat = labelFormat(prefix = "$"),
             opacity = 1) %<>% htmlwidgets::prependContent(html_fix)
 ```
@@ -753,7 +754,7 @@ property_data %>%
 # Creating color palette for market value map
 pal2 <- colorQuantile(
   palette = "viridis",
-  domain = property_data$avg_rev_value)
+  domain = property_data$avg_rev_value / 1000)
 
 # Creating quantiles for market value map (data is skewed)
 property_data$quantile <- with(property_data, cut(avg_rev_value, 
@@ -763,13 +764,14 @@ property_data$quantile <- with(property_data, cut(avg_rev_value,
 # Creating market value map
 property_data %>%
   mutate(
+    avg_rev_value = avg_rev_value / 1000,
     click_label =
-      str_c("<b>", garden_name, "</b><br>Borough: ", borough,"</b><br>Community Board: ", community_board, "</b><br>Market Value: $", avg_rev_value)) %>% 
+      str_c("<b>", garden_name, "</b><br>Borough: ", borough,"</b><br>Community Board: ", community_board, "</b><br>Market Value (in thousands): $", avg_rev_value)) %>% 
   leaflet() %>%
   addProviderTiles(providers$CartoDB.Positron) %>% 
   addCircleMarkers(~longitude, ~latitude, radius = .1, color = ~pal2(avg_rev_value), popup = ~click_label) %<>%
     addLegend("topleft", pal = pal2, values = ~avg_rev_value, 
-               title = "Revised Market Value (Biannually)",
+               title = "Revised Market Value (Biannually) </b><br>(in thousands)",
               opacity = 1,
               labFormat = function(type, cuts, p) {
       n = length(cuts)
@@ -781,6 +783,7 @@ property_data %>%
         '</span>'
       )
     })
+
 
 # Creating color palette for poverty map
 pal3 <- colorNumeric(
