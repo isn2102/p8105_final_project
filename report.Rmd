@@ -54,6 +54,13 @@ h1.title {
 </style>
 
 
+<center>
+![](images/nyc_garden_2.JPG){ height="267px" width="200px" }  ![](images/radishes.JPG){ height="267px" width="200px" } 
+</center>
+<center>Images taken by *Isabel Nelson* and *Kelley Lou*</center>
+
+
+
 ## Motivation
 
 * Since the development of community gardens in NYC beginning in the 1970s, these small pockets of green space have become staples of the city's urban landscape.  

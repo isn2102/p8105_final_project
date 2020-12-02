@@ -46,7 +46,7 @@ property_data =
   
 ```
 
-Column {data-width=500}
+Column {.tabset .tabset-fade data-width=500}
 -----------------------------------------------------------------------
     
 ### Gardens by Budget/Funding Allocation
@@ -84,8 +84,6 @@ property_data %>%
 > Visualization of the distribution of community gardens in New York City, colored by participatory budget allocated to each community board. NA values reflect community boards that do not engage in participatory budgeting. 
 > Budget allocation: total amount of participatory funding for projects in that community board. Participatory budget: process where community members vote of projects that they want funding to be allocated towards. 
 
-Column {.tabset .tabset-fade data-width=500}
------------------------------------------------------------------------
    
 ### Market Value
 <style type="text/css">
@@ -130,6 +128,10 @@ property_data %>%
 
 > Visualization of the distribution of community gardens in New York City, colored by average revised market value in each community board, which is updated twice a year (most recently, Feb 2020).
 > Average revised market value: updated original market value.
+
+
+Column {.tabset .tabset-fade data-width=500}
+-----------------------------------------------------------------------
 
 ### Poverty
   
