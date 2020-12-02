@@ -28,6 +28,7 @@ library(patchwork)
 library(modelr)
 library(tmap)
 library(kableExtra)
+library(patchwork)
 
 #Set global theme for plots
 theme_set(theme_minimal() + 
@@ -535,19 +536,25 @@ The next step in our exploration was to see how the number of gardens in each co
 We initially selected the following variables as outcomes to explore with linear regression:   
 
 **Health outcomes**  
-1. Obesity  
+1. Obesity
+
   - Hypothesis: A higher number of community gardens in a district will be associated with a lower percentage of obese adults in the district.   
-2. Hypertension  
+2. Hypertension
+
   - Hypothesis: A higher number of community gardens in a district will be associated with a lower percentage of adults reporting hypertension in the district.   
-3. Life expectancy  
+3. Life expectancy
+
   -Hypothesis: A higher number of community gardens in a district will be associated with a higher average life expectancy in the district.   
 4. Self-reported health  
+
   -Hypothesis: A higher number of community gardens in a district will be associated with a higher percentage of adults in the district reporting good health.   
 
 **Economic outcomes**  
-1. Money allocated to project through a participatory budgeting process  
+1. Money allocated to project through a participatory budgeting process 
+
   -Hypothesis: A higher number of community gardens in a district will be associated with greater total amount of money allocated by the community through participatory budgeting processes for that district.  
-2. Average market value of buildings   
+2. Average market value of buildings
+
   -Hypothesis: A higher number of community gardens in a district will be associated with higher average property market values.   
   
 **Confounders**   
@@ -1081,7 +1088,7 @@ self_rep_lagrange <- lm.LMtests(self_rep_health_lm, analysis_nbq_w, test = c("LM
 
 lagrange_df <-
   tibble(
-    model_outcome = c("obesity", "hypertension", "life expectancy", "self reported health"), 
+    model_outcome = c("Obesity", "Hypertension", "Life Expectancy", "Self Reported Health"), 
     LMerror_pvalue = c(0.0000145, 0.0002054, 0.000027, 0.6988), 
     robust_LMerror_pvalue = c(0.3705, 0.3374, 0.6854, 0.6328), 
     LMlag_pvalue = c(0.0000000046, 0.0000019, 0.00000075, 0.9243), 
@@ -1090,7 +1097,7 @@ lagrange_df <-
 lagrange_df %>% 
   knitr::kable(booktabs = TRUE, align = 'c') %>% 
   kable_styling() %>% 
-  row_spec(1:3, color = "black", background = "#ceebcc") 
+  row_spec(1:3, color = "black", background = "#ceebcc", bold = TRUE) 
 ```
 
 We found that the robust Lagrange multiplier lag was significant for the obesity, hypertension, and life expectancy models. None of the Lagrange multipliers were significant for self-reported health. 
@@ -1130,7 +1137,7 @@ rbind(obesity_lag_df, hypertension_lag_df, life_expect_lag_df, self_rep_lm_df) %
   pack_rows(index = c("Obesity" = 4, "Hypertension" = 4, "Life Expectancy" = 4, "Self Reported Health" = 3)) %>% 
   row_spec(3, color = "black", background = "#ceebcc") %>% 
   row_spec(7, color = "black", background = "#ceebcc") %>% 
-  row_spec(11, color = "black", background = "#ceebcc") %>% 
+  row_spec(11, color = "black", background = "#EBE4CC", bold = TRUE) %>% 
   row_spec(14, color = "black", background = "#ceebcc") 
 
 ```
@@ -1287,7 +1294,8 @@ resid_moran_srh <- moran.mc(analysis_data_spatial$residuals_srh, analysis_nbq_w,
   relocate(outcome)
 
 rbind(resid_moran_ob, resid_moran_ht, resid_moran_le, resid_moran_srh) %>%
-  knitr::kable()
+  knitr::kable() %>% 
+  kable_styling()
 
 ```
 
@@ -1311,7 +1319,7 @@ rbind(resid_moran_ob, resid_moran_ht, resid_moran_le, resid_moran_srh) %>%
 
 * model results: maybe reverse causation with entrenched poverty (and poor health outcomes) meaning people were more motivated to put in gardens that would lift up the communities in those areas to improve health 
 * possible that there is residual confounding from other variables we didn't include
-* also possible that since we have such a small sample size (59 obs), there is not enough variation in the health outcomes for community districts with different numbers of gardens- ex: if every single one of the community districts that has a lot of gardens has very poor health outcomes because of historic disenfranchisement and poverty, we may not be able to see any minimal positive impact of gardens becuase of the much larger impact of historic poverty 
+* also possible that since we have such a small sample size (59 obs), there is not enough variation in the health outcomes for community districts with different numbers of gardens- ex: if every single one of the community districts that has a lot of gardens has very poor health outcomes because of historic disenfranchisement and poverty, we may not be able to see any minimal positive impact of gardens because of the much larger impact of historic poverty 
 * Could not include anything about the budget or revised market values because of too many missing values. But just from an exploratory look at the maps, interesting that a few of the areas that have a lot of gardens (east harlem and south bronx) have high amounts of money allocated through participatory budgeting. This aligns with our hypothesis of greater community engagement in areas with more gardens. 
 
 ***

@@ -55,42 +55,45 @@ analysis_data_spatial <- merge(com_board_spdf2, analysis_data_final, by.x = "bor
 
 ### **Questions**
 
-1. How are community gardens distributed throughout the city?
+1. How are community gardens spatially distributed throughout the city?
 2. How are the locations of gardens related to certain demographic characteristics?
 3. What is the relationship between community gardens and economic investment? 
 4. What is the relationship between community gardens and health conditions? 
 
-### **Exposure of interest**
+### **Exposure of interest and Confounder**
 
-Number of gardens in each community board**
+Exposure:
 
-### **Confounder**
+ * Number of gardens in each Community Board 
 
-#### Percent of Poverty
+Confounder:
 
- * Community gardens are historically formed in empty lots/areas of abandoned buildings 
- * Poverty impacts health and perceived neighborhood value
+ * Poverty - percent living below 100% of NYC's calculated poverty threshold based on income and necessary expenses
+    
+    - Community gardens are historically formed in empty lots/areas of abandoned buildings 
+    - Poverty impacts health and perceived neighborhood value
 
 ### **Outcomes of Interest** 
 
 #### Health Outcomes
 
- * Obesity
- * Hypertension
- * Life expectancy 
- * Self reported health
+ * Obesity - percent obesity in a community board (BMI > 30)
+ * Hypertension - percent of hypertension in a community board (individuals with a diagnosis)
+ * Life expectancy - at birth
+ * Self reported health - percent of adults reporting health on a scale from "excellent" to "poor"
 
 #### Economic Outcomes
 
  * Average total appropriated - money allocated through participatory budget processing
-    - After assessing the distribution of values, we found that there were too many missing values and chose to not move forward in analyzing this variable
+    - After assessing the distribution of values, we found that there were too many missing values and chose to not move forward in analyzing this variable.
  * Average Market value of buildings  
+    - After assessing the distribution of values, we found that there were too many missing values and chose to not move forward in analyzing this variable.
 
 ### **Moran's I**
 
 #### What is it
 
-A correlation coefficient that measures the overall spatial auto-correlation among nearby locations in space. It measures how similar on object is to other surrounding it. 
+  A correlation coefficient that measures the overall spatial auto-correlation among nearby locations in space. It measures how similar on object is to          other surrounding it. 
 
 #### Interpretation
 
@@ -100,7 +103,7 @@ A correlation coefficient that measures the overall spatial auto-correlation amo
  
 #### Hypothesis
 
-We hypothesized that the community gardens in NYC would not be evenly distributed spatially, indicating that the number of gardens in a specific community board depends on where in NYC you are looking
+  We hypothesized that the community gardens in NYC would not be evenly distributed spatially, indicating that the number of gardens in a specific               community board depends on where in NYC you are looking
  
 #### What we did
 
@@ -110,7 +113,7 @@ We hypothesized that the community gardens in NYC would not be evenly distribute
 
 #### Results
 
-We found that *Moran's I = 0.1899 (p=0.0138)*. This confirmed our hypothesis that community gardens in NYC are not evenly distributed spatially.
+  We found that *Moran's I = 0.1899 (p=0.0138)*. This confirmed our hypothesis that community gardens in NYC are not evenly distributed spatially.
 
 ```{r, message = FALSE, warning = FALSE}
 analysis_data_final <-
@@ -173,7 +176,7 @@ moran.plot(as.vector(analysis_data_spatial@data$garden_num), listw = analysis_nb
 
 #### Spatial Diagnostics
 
-We fit general linear regression modesl and ran Lagrange Multiplier tests on these to identify the appropriate type of spatial regression model to use. See flow chart below for our thought process: 
+  We fit general linear regression models and ran Lagrange Multiplier tests on these to identify the appropriate type of spatial regression model to use.        The Lagrange Multiplier test statistics allow us to observe a distinction between spatial error models and spatial lag models. See flow chart below for        our thought process: 
 
 ![](images/spatial_model.jpeg){ height="400px" width="300px" }
 [Image source](https://rpubs.com/quarcs-lab/tutorial-spatial-regression)
@@ -201,15 +204,14 @@ lagrange_df <-
 lagrange_df %>% 
   knitr::kable(booktabs = TRUE, align = 'c') %>% 
   kable_styling() %>% 
-  row_spec(1:3, color = "black", background = "#ceebcc") 
+  row_spec(1:3, color = "black", background = "#ceebcc", bold = TRUE) 
 ```
 
 **Notes:** the Lagrange multiplier lags was significant for regressions modeling, obesity, hypertension and life-expectancy. None of the Lagrange multipliers were significant for self-reported health.
 
 ### **Final Model**
 
-Based on the linear regression assumptions and the spatial diagnostic tests, we concluded that we need to run **spatial lag models** for obesity, hypertension, and life-expectancy and a **regular multivariable linear regression** for self-reported health (since none of the Lagrange tests were significant we deduced that there was no need for spatial parameter adjustment)
-
+  Based on the linear regression assumptions and the spatial diagnostic tests, we concluded that we need to run **spatial lag models** for obesity,              hypertension, and life-expectancy and a **regular multivariable linear regression** for self-reported health (since none of the Lagrange tests were            significant we deduced that there was no need for spatial parameter adjustment). 
 
 ```{r, message = FALSE, warning = FALSE}
 ###Specify Spatial Lag Model for obesity
@@ -242,7 +244,42 @@ rbind(obesity_lag_df, hypertension_lag_df, life_expect_lag_df, self_rep_lm_df) %
   pack_rows(index = c("Obesity" = 4, "Hypertension" = 4, "Life Expectancy" = 4, "Self Reported Health" = 3)) %>% 
   row_spec(3, color = "black", background = "#ceebcc") %>% 
   row_spec(7, color = "black", background = "#ceebcc") %>% 
-  row_spec(11, color = "black", background = "#ceebcc") %>% 
+  row_spec(11, color = "black", background = "#EBE4CC", bold = TRUE) %>% 
   row_spec(14, color = "black", background = "#ceebcc") 
 
 ```
+
+**Notes:** "Rho": Indicates the spatial lag (there is no rho term in the self-reported health model because a spatial lag model was not run here). Alpha = 0.01 to account for Bonferroni Correction
+
+#### Obesity Results
+
+  There was no significant association at alpha equal to 0.01, between number of gardens and obesity
+
+#### Hypertension Results
+
+  There was no significant association at alpha equal to 0.01, between number of gardens and hypertension.
+
+#### Life Expectancy Results
+
+  For every one unit increase in the number of gardens, there is a **1.19 unit decrease** in percent of adults with hypertension in the district, at the 1%       level of significance.
+
+#### Self Reported Health Results
+
+  There was no significant association at alpha equal to 0.01, between number of gardens and self reported health.
+
+### **Conclusions**
+
+**Spatial Clustering**
+
+ * Based on the Moran's I results, we can conclude that there is evidence of spatial clustering of gardens.
+ * This means that the gardens are not randomly distributed across NYC, confirming our initial hypothesis that community gardens are not evenly dispersed spatially.
+ 
+ **Final Model**
+ 
+  * Since we ended up using 4 models to assess our research questions, we chose to *set alpha at 0.0125, using the Bonferroni Correction*
+  * Interpret Betas!!!???
+  
+### **What to take away from this**
+
+  We noticed that an increase in number of outcomes resulted in poorer overall health(higher proportions of obesity and hypertension, lower life                 expectancy). While these results are contrary to our initial hypotheses, upon reflection we do believe that these results accurately represent the             associations between community gardens and health in NYC. As part of community outreach programs, we believe that gardens may be prioritized to be             constructed in areas with low overall health to help improve health outcomes there. Therefore, more gardens would be built in these areas. A future            analysis could look at the associations between number of gardens and health in these communities after several years to see if adding gardens impacted        the overall health outcomes over time. 
+

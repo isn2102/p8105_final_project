@@ -428,35 +428,36 @@ analysis_data_spatial &lt;- merge(com_board_spdf2, analysis_data_final, by.x = &
 <div id="questions" class="section level3">
 <h3><strong>Questions</strong></h3>
 <ol style="list-style-type: decimal">
-<li>How are community gardens distributed throughout the city?</li>
+<li>How are community gardens spatially distributed throughout the city?</li>
 <li>How are the locations of gardens related to certain demographic characteristics?</li>
 <li>What is the relationship between community gardens and economic investment?</li>
 <li>What is the relationship between community gardens and health conditions?</li>
 </ol>
 </div>
-<div id="exposure-of-interest" class="section level3">
-<h3><strong>Exposure of interest</strong></h3>
-<p>Number of gardens in each community board**</p>
-</div>
-<div id="confounder" class="section level3">
-<h3><strong>Confounder</strong></h3>
-<div id="percent-of-poverty" class="section level4">
-<h4>Percent of Poverty</h4>
+<div id="exposure-of-interest-and-confounder" class="section level3">
+<h3><strong>Exposure of interest and Confounder</strong></h3>
+<p>Exposure:</p>
+<ul>
+<li>Number of gardens in each Community Board</li>
+</ul>
+<p>Confounder:</p>
+<ul>
+<li><p>Poverty - percent living below 100% of NYC’s calculated poverty threshold based on income and necessary expenses</p>
 <ul>
 <li>Community gardens are historically formed in empty lots/areas of abandoned buildings</li>
 <li>Poverty impacts health and perceived neighborhood value</li>
+</ul></li>
 </ul>
-</div>
 </div>
 <div id="outcomes-of-interest" class="section level3">
 <h3><strong>Outcomes of Interest</strong></h3>
 <div id="health-outcomes" class="section level4">
 <h4>Health Outcomes</h4>
 <ul>
-<li>Obesity</li>
-<li>Hypertension</li>
-<li>Life expectancy</li>
-<li>Self reported health</li>
+<li>Obesity - percent obesity in a community board (BMI &gt; 30)</li>
+<li>Hypertension - percent of hypertension in a community board (individuals with a diagnosis)</li>
+<li>Life expectancy - at birth</li>
+<li>Self reported health - percent of adults reporting health on a scale from “excellent” to “poor”</li>
 </ul>
 </div>
 <div id="economic-outcomes" class="section level4">
@@ -464,9 +465,12 @@ analysis_data_spatial &lt;- merge(com_board_spdf2, analysis_data_final, by.x = &
 <ul>
 <li>Average total appropriated - money allocated through participatory budget processing
 <ul>
-<li>After assessing the distribution of values, we found that there were too many missing values and chose to not move forward in analyzing this variable</li>
+<li>After assessing the distribution of values, we found that there were too many missing values and chose to not move forward in analyzing this variable.</li>
 </ul></li>
-<li>Average Market value of buildings</li>
+<li>Average Market value of buildings
+<ul>
+<li>After assessing the distribution of values, we found that there were too many missing values and chose to not move forward in analyzing this variable.</li>
+</ul></li>
 </ul>
 </div>
 </div>
@@ -571,7 +575,7 @@ moran.plot(as.vector(analysis_data_spatial@data$garden_num), listw = analysis_nb
 </div>
 <div id="spatial-diagnostics" class="section level4">
 <h4>Spatial Diagnostics</h4>
-<p>We fit general linear regression modesl and ran Lagrange Multiplier tests on these to identify the appropriate type of spatial regression model to use. See flow chart below for our thought process:</p>
+<p>We fit general linear regression models and ran Lagrange Multiplier tests on these to identify the appropriate type of spatial regression model to use. The Lagrange Multiplier test statistics allow us to observe a distinction between spatial error models and spatial lag models. See flow chart below for our thought process:</p>
 <p><img src="images/spatial_model.jpeg" width="300" height="400" /> <a href="https://rpubs.com/quarcs-lab/tutorial-spatial-regression">Image source</a></p>
 <pre class="r"><code>###fit baseline linear models.
 obesity_lm &lt;- lm(obesity ~ garden_num + poverty, data = analysis_data_spatial)
@@ -595,7 +599,7 @@ lagrange_df &lt;-
 lagrange_df %&gt;% 
   knitr::kable(booktabs = TRUE, align = &#39;c&#39;) %&gt;% 
   kable_styling() %&gt;% 
-  row_spec(1:3, color = &quot;black&quot;, background = &quot;#ceebcc&quot;) </code></pre>
+  row_spec(1:3, color = &quot;black&quot;, background = &quot;#ceebcc&quot;, bold = TRUE) </code></pre>
 <table class="table" style="margin-left: auto; margin-right: auto;">
 <thead>
 <tr>
@@ -618,53 +622,53 @@ robust_LMlag_pvalue
 </thead>
 <tbody>
 <tr>
-<td style="text-align:center;color: black !important;background-color: #ceebcc !important;">
+<td style="text-align:center;font-weight: bold;color: black !important;background-color: #ceebcc !important;">
 Obesity
 </td>
-<td style="text-align:center;color: black !important;background-color: #ceebcc !important;">
+<td style="text-align:center;font-weight: bold;color: black !important;background-color: #ceebcc !important;">
 0.0000145
 </td>
-<td style="text-align:center;color: black !important;background-color: #ceebcc !important;">
+<td style="text-align:center;font-weight: bold;color: black !important;background-color: #ceebcc !important;">
 0.3705
 </td>
-<td style="text-align:center;color: black !important;background-color: #ceebcc !important;">
+<td style="text-align:center;font-weight: bold;color: black !important;background-color: #ceebcc !important;">
 0.0000000
 </td>
-<td style="text-align:center;color: black !important;background-color: #ceebcc !important;">
+<td style="text-align:center;font-weight: bold;color: black !important;background-color: #ceebcc !important;">
 0.000067
 </td>
 </tr>
 <tr>
-<td style="text-align:center;color: black !important;background-color: #ceebcc !important;">
+<td style="text-align:center;font-weight: bold;color: black !important;background-color: #ceebcc !important;">
 Hypertension
 </td>
-<td style="text-align:center;color: black !important;background-color: #ceebcc !important;">
+<td style="text-align:center;font-weight: bold;color: black !important;background-color: #ceebcc !important;">
 0.0002054
 </td>
-<td style="text-align:center;color: black !important;background-color: #ceebcc !important;">
+<td style="text-align:center;font-weight: bold;color: black !important;background-color: #ceebcc !important;">
 0.3374
 </td>
-<td style="text-align:center;color: black !important;background-color: #ceebcc !important;">
+<td style="text-align:center;font-weight: bold;color: black !important;background-color: #ceebcc !important;">
 0.0000019
 </td>
-<td style="text-align:center;color: black !important;background-color: #ceebcc !important;">
+<td style="text-align:center;font-weight: bold;color: black !important;background-color: #ceebcc !important;">
 0.001757
 </td>
 </tr>
 <tr>
-<td style="text-align:center;color: black !important;background-color: #ceebcc !important;">
+<td style="text-align:center;font-weight: bold;color: black !important;background-color: #ceebcc !important;">
 Life Expectancy
 </td>
-<td style="text-align:center;color: black !important;background-color: #ceebcc !important;">
+<td style="text-align:center;font-weight: bold;color: black !important;background-color: #ceebcc !important;">
 0.0000270
 </td>
-<td style="text-align:center;color: black !important;background-color: #ceebcc !important;">
+<td style="text-align:center;font-weight: bold;color: black !important;background-color: #ceebcc !important;">
 0.6854
 </td>
-<td style="text-align:center;color: black !important;background-color: #ceebcc !important;">
+<td style="text-align:center;font-weight: bold;color: black !important;background-color: #ceebcc !important;">
 0.0000008
 </td>
-<td style="text-align:center;color: black !important;background-color: #ceebcc !important;">
+<td style="text-align:center;font-weight: bold;color: black !important;background-color: #ceebcc !important;">
 0.008062
 </td>
 </tr>
@@ -692,7 +696,7 @@ Self Reported Health
 </div>
 <div id="final-model" class="section level3">
 <h3><strong>Final Model</strong></h3>
-<p>Based on the linear regression assumptions and the spatial diagnostic tests, we concluded that we need to run <strong>spatial lag models</strong> for obesity, hypertension, and life-expectancy and a <strong>regular multivariable linear regression</strong> for self-reported health (since none of the Lagrange tests were significant we deduced that there was no need for spatial parameter adjustment)</p>
+<p>Based on the linear regression assumptions and the spatial diagnostic tests, we concluded that we need to run <strong>spatial lag models</strong> for obesity, hypertension, and life-expectancy and a <strong>regular multivariable linear regression</strong> for self-reported health (since none of the Lagrange tests were significant we deduced that there was no need for spatial parameter adjustment).</p>
 <pre class="r"><code>###Specify Spatial Lag Model for obesity
 obesity_lag &lt;- lagsarlm(obesity ~ garden_num + poverty, data = analysis_data_spatial, analysis_nbq_w, tol.solve = 1.0e-15)
 obesity_lag_df &lt;-
@@ -723,7 +727,7 @@ rbind(obesity_lag_df, hypertension_lag_df, life_expect_lag_df, self_rep_lm_df) %
   pack_rows(index = c(&quot;Obesity&quot; = 4, &quot;Hypertension&quot; = 4, &quot;Life Expectancy&quot; = 4, &quot;Self Reported Health&quot; = 3)) %&gt;% 
   row_spec(3, color = &quot;black&quot;, background = &quot;#ceebcc&quot;) %&gt;% 
   row_spec(7, color = &quot;black&quot;, background = &quot;#ceebcc&quot;) %&gt;% 
-  row_spec(11, color = &quot;black&quot;, background = &quot;#ceebcc&quot;) %&gt;% 
+  row_spec(11, color = &quot;black&quot;, background = &quot;#EBE4CC&quot;, bold = TRUE) %&gt;% 
   row_spec(14, color = &quot;black&quot;, background = &quot;#ceebcc&quot;) </code></pre>
 <table class="table" style="margin-left: auto; margin-right: auto;">
 <thead>
@@ -932,19 +936,19 @@ rho
 </td>
 </tr>
 <tr>
-<td style="text-align:left; padding-left:  2em;color: black !important;background-color: #ceebcc !important;" indentlevel="1">
+<td style="text-align:left; padding-left:  2em;font-weight: bold;color: black !important;background-color: #EBE4CC !important;" indentlevel="1">
 garden_num
 </td>
-<td style="text-align:right;color: black !important;background-color: #ceebcc !important;">
+<td style="text-align:right;font-weight: bold;color: black !important;background-color: #EBE4CC !important;">
 -1.1920316
 </td>
-<td style="text-align:right;color: black !important;background-color: #ceebcc !important;">
+<td style="text-align:right;font-weight: bold;color: black !important;background-color: #EBE4CC !important;">
 0.2149444
 </td>
-<td style="text-align:right;color: black !important;background-color: #ceebcc !important;">
+<td style="text-align:right;font-weight: bold;color: black !important;background-color: #EBE4CC !important;">
 -5.5457664
 </td>
-<td style="text-align:right;color: black !important;background-color: #ceebcc !important;">
+<td style="text-align:right;font-weight: bold;color: black !important;background-color: #EBE4CC !important;">
 0.0000000
 </td>
 </tr>
@@ -1023,6 +1027,42 @@ poverty
 </tr>
 </tbody>
 </table>
+<p><strong>Notes:</strong> “Rho”: Indicates the spatial lag (there is no rho term in the self-reported health model because a spatial lag model was not run here). Alpha = 0.01 to account for Bonferroni Correction</p>
+<div id="obesity-results" class="section level4">
+<h4>Obesity Results</h4>
+<p>There was no significant association at alpha equal to 0.01, between number of gardens and obesity</p>
+</div>
+<div id="hypertension-results" class="section level4">
+<h4>Hypertension Results</h4>
+<p>There was no significant association at alpha equal to 0.01, between number of gardens and hypertension.</p>
+</div>
+<div id="life-expectancy-results" class="section level4">
+<h4>Life Expectancy Results</h4>
+<p>For every one unit increase in the number of gardens, there is a <strong>1.19 unit decrease</strong> in percent of adults with hypertension in the district, at the 1% level of significance.</p>
+</div>
+<div id="self-reported-health-results" class="section level4">
+<h4>Self Reported Health Results</h4>
+<p>There was no significant association at alpha equal to 0.01, between number of gardens and self reported health.</p>
+</div>
+</div>
+<div id="conclusions" class="section level3">
+<h3><strong>Conclusions</strong></h3>
+<p><strong>Spatial Clustering</strong></p>
+<ul>
+<li>Based on the Moran’s I results, we can conclude that there is evidence of spatial clustering of gardens.</li>
+<li>This means that the gardens are not randomly distributed across NYC, confirming our initial hypothesis that community gardens are not evenly dispersed spatially.</li>
+</ul>
+<p><strong>Final Model</strong></p>
+<ul>
+<li>Since we ended up using 4 models to assess our research questions, we chose to <em>set alpha at 0.0125, using the Bonferroni Correction</em>
+<ul>
+<li>Interpret Betas!!!???</li>
+</ul></li>
+</ul>
+</div>
+<div id="what-to-take-away-from-this" class="section level3">
+<h3><strong>What to take away from this</strong></h3>
+<p>We noticed that an increase in number of outcomes resulted in poorer overall health(higher proportions of obesity and hypertension, lower life expectancy). While these results are contrary to our initial hypotheses, upon reflection we do believe that these results accurately represent the associations between community gardens and health in NYC. As part of community outreach programs, we believe that gardens may be prioritized to be constructed in areas with low overall health to help improve health outcomes there. Therefore, more gardens would be built in these areas. A future analysis could look at the associations between number of gardens and health in these communities after several years to see if adding gardens impacted the overall health outcomes over time.</p>
 </div>
 
 
