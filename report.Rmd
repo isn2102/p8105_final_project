@@ -1221,6 +1221,7 @@ obesity_resid + hypertension_resid + life_expect_resid + self_health_resid + plo
 These plots of fitted values versus residuals do not appear to show any specific patterns, suggesting that the models fit fairly well. 
 
 We next explored whether the spatial adjustment in the lag model had adequately removed spatial correlation of the residuals by plotting the residuals on the map for both the basic linear model and the spatial linear model. We did this visualization for all four of the models, however given that they all look basically the same, we are just showing one here for illustrative purposes. We can see residuals on the map for linear regression are more clustered with more areas of the map that are all dark green or all yellow. The residuals on the map for the spatial linear regression are less clustered and more randomly distributed in space. We also used the Moran's I test to check that the residuals for each model are not spatially correlated, as shown by the insignificant p-values for the Moran's I on the residuals from the all final models. 
+
 ```{r, message = FALSE, warning = FALSE}
 ###Store residuals for each model in the spatial data frame
 analysis_data_spatial$residuals_ob <- residuals(obesity_lag)
@@ -1306,21 +1307,25 @@ rbind(resid_moran_ob, resid_moran_ht, resid_moran_le, resid_moran_srh) %>%
 * Since we ended up doing 4 models, we should set alpha at 0.0125 using bonferroni correction 
 * interpret coefficients for garden for each outcome - [see here for a little on spatial model interpretations - chapter 9] (https://maczokni.github.io/crimemapping_textbook_bookdown/spatial-regression-models.html)
 
-### Limitations of the model 
+### Limitations 
 
-- Small sample size (removed one observation because of no neighbors)  
-- Because of small sample we could only adjust for one covariate, but this may not account for all the variance in the model  
-- Decided not to transform garden number to make it more of a linear relationship or account for heteroscedasticity because it introduced issues later in the analysis process, but this may lead to a misspecified model  
-- Anything else? 
+It is important to note limitations of our model and analysis. First, we have a small sample size (59 community boards), which became even smaller after removing one observation for having no neighboring community boards, allowing for more variation and spread. As a result, we adjusted for only one covariate, which may not account for all the variance in the model and leave residual confounding. Additionally, we were unable to conduct statistical analyses on the budget or revised market variables because of the number of unavailable values. 
+
+
+Additionally, when working on the type of model, we initially tried to use the log of garden number in order to normalize the distribution. Further, many variables that we included in our exploratory visualizations were skewed (ex. poverty, rent burden). However, we ran into issues later in the analysis due to the spatial nature. Therefore, we decided to use a linear model, which may not be the best fit. 
 
 ***
 
 ## Discussion
 
-* model results: maybe reverse causation with entrenched poverty (and poor health outcomes) meaning people were more motivated to put in gardens that would lift up the communities in those areas to improve health 
-* possible that there is residual confounding from other variables we didn't include
-* also possible that since we have such a small sample size (59 obs), there is not enough variation in the health outcomes for community districts with different numbers of gardens- ex: if every single one of the community districts that has a lot of gardens has very poor health outcomes because of historic disenfranchisement and poverty, we may not be able to see any minimal positive impact of gardens because of the much larger impact of historic poverty 
-* Could not include anything about the budget or revised market values because of too many missing values. But just from an exploratory look at the maps, interesting that a few of the areas that have a lot of gardens (east harlem and south bronx) have high amounts of money allocated through participatory budgeting. This aligns with our hypothesis of greater community engagement in areas with more gardens. 
+While we had initially hypothesized that a higher number of gardens in an area would be associated with better health outcomes and economic investment, our analyses and visualizations suggest a largely inverse relationship where more gardens are associated with worse outcomes. This could be due to entrenched poverty and poor health outcomes that have been embedded throughout New York City for decades. As a result, the city may have been more motivated to place gardens in areas with more abandoned lots and in communities to improve health and economic conditions. 
+
+Despite the number of missing values in the budget and revised market value variables, the maps show that a few of the areas that have the majority of the gardens (East Harlem and South Bronx) have high amounts of money allocated through participatory budgeting. This aligns with our hypothesis of greater community engagement in areas with more gardens. 
+
+The garden distribution map shows that gardens are not evenly distributed across the city, with very few in Manhattan. Further, issues of inequity and divides between boroughs and neighborhoods are still present as ever. Future studies may explore the reasoning behind the placement of gardens and whether or not these gardens have a significant effect on the lives of community members. Further, it would be interesting to include a variable that measures community engagement. Given our results, we can see that while gardens have a significant relationship with other factors of life, it is important to continue researching how community gardens are affecting the lives of New Yorkers. 
+
+Who knows - maybe in a few decades New York will be known for its gardens rather than its skyscrapers. 
+
 
 ***
 
