@@ -67,6 +67,7 @@ h1.title {
 * Since the development of community gardens in NYC beginning in the 1970s, these small pockets of green space have become staples of the city's urban landscape.  
 * Research in the past decade has begun to explore the connection between urban green space and various health outcomes.  
 * We wanted to better understand the relationship of community gardens to demographic characteristics, health outcomes, and economic conditions in NYC neighborhoods.   
+* Connecting community gardens to positive health outcomes, increased neighborhood value, or greater community engagement may inspire more investment in gardens in NYC.  
 
 ***
 
@@ -287,7 +288,7 @@ The second tidied dataset contains 535 rows (the number of unique community gard
 
 ## Analytic and visualization strategy
 
-To begin answering our project questions, we first [visualized the distribution of community gardens](main.html) throughout the city. We wanted to see if the locations of community gardens are equally distributed throughout New York City.
+To help answer our first question **"How are community gardens spatially distributed throughout the city?**" we [visualized the distribution of community gardens](main.html) throughout the city. We wanted to see if the locations of community gardens are clustered throughout New York City.
 
 ### **Garden Distribution**
 
@@ -391,7 +392,7 @@ number_borough %>%
           title = "Community Board", tickmode = "linear"), yaxis = list(title = "Number of Community Gardens", dtick = 5))
 ```
 
-We then created tables showing an overview of demographic information which allows the reader to gain a better understanding of differences between community districts.
+To answer our second question **"How are the locations of gardens related to certain demographic characteristics?** we created tables showing an overview of demographic information which allows the reader to gain a better understanding of differences between community boards These tables are side by side with the map of community gardens, so readers can click on a community board on the map and then search for the corresponding board in the tables to see the demographic characteristics of that area.
 
 #### **Age Distribution**
 
@@ -486,9 +487,9 @@ reactable(race_tables, highlight = TRUE, searchable = TRUE, striped = FALSE, ful
 
 The garden map illustrates that there are many gardens distributed around the city, however they do not seem to be evenly spaced. There appear to be more gardens in north Brooklyn, south / west Queens, the lower east side, northern Manhattan and the Bronx. 
 
-The age table shows that the distribution in age across the five boroughs are similar, with the majority of people being 25 to 44 years old. However, there seems to be less children living in Manhattan when compared to the other boroughs. In terms of education, there is a larger difference. It appears that most people living in New York City have a high school education, with percentages tapering quickly moving towards college. Manhattan has the highest percentage of a college education or higher (65%), which is much higher than all other boroughs, more than doubling the percentage in the Bronx. Race also appears to be highly divided. While the majority of people in Staten Island are white, the majority of people in the Bronx are Latino. Manhattan looks to be most evenly distributed, showing the difference in racial makeup for each geographical location.
+The age table shows that the distribution in age across the five boroughs are similar, with the majority of people being 25 to 44 years old. However, there seems to be less children living in Manhattan when compared to the other boroughs. In terms of education, there is a larger difference. It appears that most people living in New York City have a high school education, with percentages tapering quickly moving towards college. Manhattan has the highest percentage of a college education or higher (65%), which is much higher than all other boroughs, more than doubling the percentage in the Bronx. Race also appears to be highly divided. While the majority of people in Staten Island are white, the majority of people in the Bronx are Latino. Manhattan and Queens are more evenly distributed, showing the difference in racial makeup for each geographical location.
 
-After looking at the distribution of gardens we wanted to test if the spatial distribution was randomly distributed using a statistical test. To do this we used Moran's I, which is similar to a correlation coefficient and denotes the level of correlation between values in a certain area and the values in the surrounding areas. We first created a queen's neighborhood spatial weight matrix to define spatial neighbors as those community districts directly touching each other, and used this to calculate Moran's I using the spdep package. 
+After looking at the distribution of gardens we wanted to test if the spatial distribution was randomly distributed using a statistical test. To do this we used Moran's I, which is similar to a correlation coefficient and denotes the level of correlation between values in a certain area and the values in the surrounding areas. We first created a queen's neighborhood spatial weight matrix to define spatial neighbors as those community districts directly touching each other, and used this to calculate Moran's I using the spdep package.
 
 A significant Moran's I indicates the values are significantly clustered in space and are not randomly distributed. We found that the Moran's I for garden number was 0.19, with a p-value of 0.014, confirming our visual suspicion that community gardens in NYC are not evenly distributed spatially.
 
@@ -504,24 +505,24 @@ com_board_spdf2 <- com_board_spdf[!com_board_spdf@data$boro_cd %in% c("414"), ]
 invisible(names(com_board_spdf))
 analysis_data_spatial <- merge(com_board_spdf2, analysis_data_final, by.x = "boro_cd", by.y = "id_spatial")
 
-###Create a queen's neighborhood weight matrix using the poly2nb command.
+# Create a queen's neighborhood weight matrix using the poly2nb command.
 analysis_nbq <- poly2nb(analysis_data_spatial)
 
-###extract coordinates to plot the connectivity matrix for visualization.
-coords <- coordinates(analysis_data_spatial)
+# extract coordinates to plot the connectivity matrix for visualization.
+#coords <- coordinates(analysis_data_spatial)
 
-###convert the neighborhood matrix into a list so that the connections between counties can be used in Moran's I test.
+# convert the neighborhood matrix into a list so that the connections between counties can be used in Moran's I test.
 analysis_nbq_w <- nb2listw(analysis_nbq)
 
-###Garden number
-###Convert Exposure variable to z-form and then create the lag of that variable.
+# Garden number
+# Convert Exposure variable to z-form and then create the lag of that variable.
 analysis_data_spatial@data$garden_num <- scale(analysis_data_spatial@data$garden_num)
 analysis_data_spatial@data$lag_sQL <- lag.listw(analysis_nbq_w,analysis_data_spatial@data$garden_num)
 
-### Lose spatial properties when we turn into data frame for analysis
+# Lose spatial properties when we turn into data frame for analysis
 #analysis_sp_data <- as.data.frame(analysis_data_spatial)
 
-###Run morans I test and plot the results.
+# Run morans I test and plot the results.
 garden_moran <- moran.test(analysis_data_spatial@data$garden_num, listw = analysis_nbq_w, zero.policy = TRUE)
 moran.plot(as.vector(analysis_data_spatial@data$garden_num), listw = analysis_nbq_w, 
            xlim = c(-2,4),ylim = c(-2,2),
@@ -529,13 +530,13 @@ moran.plot(as.vector(analysis_data_spatial@data$garden_num), listw = analysis_nb
            xlab = "Garden Number", ylab = "Spatial Lag Number of Gardens", pch = 19)
 ```
 
-This information serves as a foundation for the other analyses to build off of. 
+This information serves as a foundation for the other analyses to build off 
 
 ***
 
 ### **Relationship of Garden Number to Economic and Health Outcomes**
 
-The next step in our exploration was to see how the number of gardens in each community district was related to health and economic outcomes. To do this we decided to build regression models using the number of gardens in each community district as the main predictor of interest. We began the process by selecting specific outcome variables that we hypothesized might be influenced by the number of gardens in a community district, informed by prior literature. The studies and articles we reviewed (see Background and Related Work section of the report) suggested that access to green space and gardens was beneficial for health, and that community gardens may also positively impact community engagement and the perceived value of the neighborhood. 
+The next step in our exploration was to answer the questions **"What is the relationship between community gardens and economic investment?"** and **"What is the relationship between community gardens and health conditions?"** To do this we decided to build regression models using the number of gardens in each community district as the main predictor of interest. We began the process by selecting specific outcome variables that we hypothesized might be influenced by the number of gardens in a community district, informed by prior literature. The studies and articles we reviewed (see Background and Related Work section of the report) suggested that access to green space and gardens was beneficial for health, and that community gardens may also positively impact community engagement and the perceived value of the neighborhood. 
 
 We initially selected the following variables as outcomes to explore with linear regression:   
 
@@ -738,7 +739,7 @@ Interestingly when comparing these health outcomes to the map of garden number p
 
 To visualize the spatial distribution of number of gardens and the [economic outcomes](property_values.html) of interest we used leaflet to visualize the locations of gardens and colored these points by quintile of the value for each economic variable of interest. In the dashboard we wanted to show both variables that we think are potential confounders (poverty and rent burden) as well as variables that exemplify community engagement (the amount of money allocated by the community to projects through participatory budgeting) and neighborhood value (average property market value). 
 
-One issue we encountered was that only 33 community districts use participatory budgeting (this is determined by the city council person), so there are about 25 districts where we do not have data on this particular measure of comminuty engagement (visualized by the gray dots). 
+One issue we encountered was that only 33 community districts use participatory budgeting (this is determined by the city council person), so there are about 25 districts where we do not have data on this particular measure of community engagement (visualized by the gray dots). 
 
 ```{r, message = FALSE, warning = FALSE}
 # Creating dataset for property values with applicable info
@@ -1022,15 +1023,15 @@ An assumption of linear regression is that the observations are independent. Fro
 To test for spatial auto-correlation of variables beyond our visual assessment we used Moran's I. 
 
 ```{r, message = FALSE, warning = FALSE}
-###Obesity
-###Convert outcome variable to z-form and then create the lag of that variable.
+# Obesity
+# Convert outcome variable to z-form and then create the lag of that variable.
 analysis_data_spatial@data$obesity <- scale(analysis_data_spatial@data$obesity)
 analysis_data_spatial@data$lag_sQL_o <- lag.listw(analysis_nbq_w,analysis_data_spatial@data$obesity)
 
-### Lose spatial properties when we turn into data frame for analysis
+# Lose spatial properties when we turn into data frame for analysis
 #analysis_sp_data <- as.data.frame(analysis_data_spatial)
 
-###Run morans I test and plot the results.
+# Run morans I test and plot the results.
 obesity_moran <- moran.test(analysis_data_spatial@data$obesity, listw = analysis_nbq_w, zero.policy = TRUE)
 moran.plot(as.vector(analysis_data_spatial@data$obesity), listw = analysis_nbq_w, 
            xlim = c(-2,4),ylim = c(-2,2),
@@ -1039,15 +1040,15 @@ moran.plot(as.vector(analysis_data_spatial@data$obesity), listw = analysis_nbq_w
 ```
 
 ```{r, message = FALSE, warning = FALSE}
-###hypertension
-###Convert Exposure variable to z-form and then create the lag of that variable.
+# hypertension
+# Convert Exposure variable to z-form and then create the lag of that variable.
 analysis_data_spatial@data$hypertension <- scale(analysis_data_spatial@data$hypertension)
 analysis_data_spatial@data$lag_sQL_ht <- lag.listw(analysis_nbq_w,analysis_data_spatial@data$hypertension)
 
 ### Lose spatial properties when we turn into data frame for analysis
 #analysis_sp_data <- as.data.frame(analysis_data_spatial)
 
-###Run morans I test and plot the results.
+# Run morans I test and plot the results.
 hypertension_moran <- moran.test(analysis_data_spatial@data$hypertension, listw = analysis_nbq_w, zero.policy = TRUE)
 moran.plot(as.vector(analysis_data_spatial@data$hypertension), listw = analysis_nbq_w, 
            xlim = c(-2,4),ylim = c(-2,2),
@@ -1056,15 +1057,15 @@ moran.plot(as.vector(analysis_data_spatial@data$hypertension), listw = analysis_
 ```
 
 ```{r, message = FALSE, warning = FALSE}
-###Life Expectancy
-###Convert outcome variable to z-form and then create the lag of that variable.
+# Life Expectancy
+# Convert outcome variable to z-form and then create the lag of that variable.
 analysis_data_spatial@data$life_expectancy <- scale(analysis_data_spatial@data$life_expectancy)
 analysis_data_spatial@data$lag_sQL_l <- lag.listw(analysis_nbq_w,analysis_data_spatial@data$life_expectancy)
 
 ### Lose spatial properties when we turn into data frame for analysis
 #analysis_sp_data <- as.data.frame(analysis_data_spatial)
 
-###Run morans I test and plot the results.
+# Run morans I test and plot the results.
 life_moran <- moran.test(analysis_data_spatial@data$life_expectancy, listw = analysis_nbq_w, zero.policy = TRUE)
 moran.plot(as.vector(analysis_data_spatial@data$life_expectancy), listw = analysis_nbq_w, 
            xlim = c(-2,4),ylim = c(-2,2),
@@ -1073,15 +1074,15 @@ moran.plot(as.vector(analysis_data_spatial@data$life_expectancy), listw = analys
 ```
 
 ```{r, message = FALSE, warning = FALSE}
-###Self Reported Health 
-###Convert outcome variable to z-form and then create the lag of that variable.
+# Self Reported Health 
+# Convert outcome variable to z-form and then create the lag of that variable.
 analysis_data_spatial@data$self_rep_health <- scale(analysis_data_spatial@data$self_rep_health)
 analysis_data_spatial@data$lag_sQL_sh <- lag.listw(analysis_nbq_w,analysis_data_spatial@data$self_rep_health)
 
 ### Lose spatial properties when we turn into data frame for analysis
 #analysis_sp_data <- as.data.frame(analysis_data_spatial)
 
-###Run morans I test and plot the results.
+# Run morans I test and plot the results.
 self_health_moran <- moran.test(analysis_data_spatial@data$self_rep_health, listw = analysis_nbq_w, zero.policy = TRUE)
 moran.plot(as.vector(analysis_data_spatial@data$self_rep_health), listw = analysis_nbq_w, 
            xlim = c(-2,4),ylim = c(-2,2),
@@ -1099,7 +1100,7 @@ Based on our determination of spatial auto-correlation, we decided to fit spatia
 [Image source](https://rpubs.com/quarcs-lab/tutorial-spatial-regression)
 
 ```{r, message = FALSE, warning = FALSE}
-###fit baseline linear models.
+# fit baseline linear models.
 obesity_lm <- lm(obesity ~ garden_num + poverty, data = analysis_data_spatial)
 hypertension_lm <- lm(hypertension ~ garden_num + poverty, data = analysis_data_spatial)
 life_expectancy_lm <- lm(life_expectancy ~ garden_num + poverty, data = analysis_data_spatial)
@@ -1131,25 +1132,25 @@ We found that the robust Lagrange multiplier lag was significant for the obesity
 Based on our spatial diagnostics we concluded that we need to run a spatial lag model for obesity, hypertension, and life expectancy, and a regular linear regression model for self-reported health (because none of the LM tests were significant, indicating no need for a spatial parameter adjustment). A spatial lag model includes a parameter (rho) that adjusts for spatial dependence among observations and ultimately ensures the residuals are no longer spatially correlated. This fixes the issue of dependent residuals in our model and makes us more confident that we have chosen an appropriate model because we are no longer violating the independence assumption. 
 
 ```{r, message = FALSE, warning = FALSE}
-###Specify Spatial Lag Model for obesity
+# Specify Spatial Lag Model for obesity
 obesity_lag <- lagsarlm(obesity ~ garden_num + poverty, data = analysis_data_spatial, analysis_nbq_w, tol.solve = 1.0e-15)
 obesity_lag_df <-
 obesity_lag %>% 
   broom::tidy() 
 
-###Specify Spatial Lag Model for hypertension
+# Specify Spatial Lag Model for hypertension
 hypertension_lag <- lagsarlm(hypertension ~ garden_num + poverty, data = analysis_data_spatial, analysis_nbq_w, tol.solve = 1.0e-15)
 hypertension_lag_df <-
 hypertension_lag %>% 
   broom::tidy() 
 
-###Specify Spatial Lag Model for life expectancy
+# Specify Spatial Lag Model for life expectancy
 life_expect_lag <- lagsarlm(life_expectancy ~ garden_num + poverty, data = analysis_data_spatial, analysis_nbq_w, tol.solve = 1.0e-15)
 life_expect_lag_df <-
 life_expect_lag %>% 
   broom::tidy() 
 
-###Specify regular linear regression model for self-reported health
+# Specify regular linear regression model for self-reported health
 self_rep_lm <- lm(self_rep_health ~ garden_num + poverty, data = analysis_data_spatial)
 self_rep_lm_df <-
 self_rep_lm %>% 
@@ -1166,11 +1167,11 @@ rbind(obesity_lag_df, hypertension_lag_df, life_expect_lag_df, self_rep_lm_df) %
 
 ```
 
-**THIS SECTION MAY BE WRONG**
+### Revisiting model diagnostics
 
-Graphs of fitted line from model on top of actual points - but shouldn't the fitted line be linear??? Plots are also not really showing up right on the knitted doc.
+Once we fit our final models, we wanted to revisit the residuals to confirm that our assumptions of independence (no spatial correlation), normality, and homoscedasticity are satisfied. 
 ```{r, message = FALSE, warning = FALSE}
-###Plot fitted values over actual values
+# Save residuals and predicted values to dataframe
 analysis_data_final$residuals_ob <- residuals(obesity_lag)
 analysis_data_final$predictions_ob <- fitted.values(obesity_lag)
 analysis_data_final$residuals_ht <- residuals(hypertension_lag)
@@ -1180,60 +1181,23 @@ analysis_data_final$predictions_le <- fitted.values(life_expect_lag)
 analysis_data_final$residuals_srh <- residuals(self_rep_lm)
 analysis_data_final$predictions_srh <- fitted.values(self_rep_lm)
 
-###Obesity
-obesity_fitted <- 
-  analysis_data_final %>% 
-  ggplot(aes(x = garden_num, y = obesity)) + 
-  geom_point() + 
-  geom_smooth(aes(x = garden_num, y = predictions_ob))
-
-###Hypertension
-hypertension_fitted <- 
-  analysis_data_final %>% 
-  ggplot(aes(x = garden_num, y = hypertension)) + 
-  geom_point() + 
-  geom_smooth(aes(x = garden_num, y = predictions_ht))
-
-###Life Expectancy
-life_expect_fitted <- 
-  analysis_data_final %>% 
-  ggplot(aes(x = garden_num, y = life_expectancy)) + 
-  geom_point() + 
-  geom_smooth(aes(x = garden_num, y = predictions_le))
-
-###Self reported health 
-self_rep_fitted <- 
-  analysis_data_final %>% 
-  ggplot(aes(x = garden_num, y = self_rep_health)) + 
-  geom_point() + 
-  geom_smooth(aes(x = garden_num, y = predictions_srh))
-
-obesity_fitted + hypertension_fitted + life_expect_fitted + self_rep_fitted + plot_layout(ncol = 2)
-
-```
-
-
-### Revisiting model diagnostics
-
-Once we fit our final models, we wanted to revisit the residuals to confirm that our assumptions of independence (no spatial correlation), normality, and homoscedasticity are satisfied. 
-```{r, message = FALSE, warning = FALSE}
-###Look at plot of residuals versus fitted values
-###Obesity
+# Look at plot of residuals versus fitted values
+# Obesity
 obesity_resid <-
 analysis_data_final %>% 
   ggplot(aes(x = predictions_ob, y = residuals_ob)) + 
   geom_point()
-###Hypertension
+# Hypertension
 hypertension_resid <-
 analysis_data_final %>% 
   ggplot(aes(x = predictions_ht, y = residuals_ht)) + 
   geom_point()
-###Life expectancy
+# Life expectancy
 life_expect_resid <-
 analysis_data_final %>% 
   ggplot(aes(x = predictions_le, y = residuals_le)) + 
   geom_point()
-###Self reported health
+# Self reported health
 self_health_resid <-
 analysis_data_final %>% 
   ggplot(aes(x = predictions_srh, y = residuals_srh)) + 
@@ -1247,7 +1211,7 @@ These plots of fitted values versus residuals do not appear to show any specific
 We next explored whether the spatial adjustment in the lag model had adequately removed spatial correlation of the residuals by plotting the residuals on the map for both the basic linear model and the spatial linear model. We did this visualization for all four of the models, however given that they all look basically the same, we are just showing one here for illustrative purposes. We can see residuals on the map for linear regression are more clustered with more areas of the map that are all dark green or all yellow. The residuals on the map for the spatial linear regression are less clustered and more randomly distributed in space. We also used the Moran's I test to check that the residuals for each model are not spatially correlated, as shown by the insignificant p-values for the Moran's I on the residuals from the all final models. 
 
 ```{r, message = FALSE, warning = FALSE}
-###Store residuals for each model in the spatial data frame
+# Store residuals for each model in the spatial data frame
 analysis_data_spatial$residuals_ob <- residuals(obesity_lag)
 analysis_data_spatial$residuals_ob_lm <- residuals(obesity_lm)
 
@@ -1259,7 +1223,7 @@ analysis_data_spatial$residuals_le_lm <- residuals(life_expectancy_lm)
 
 analysis_data_spatial$residuals_srh <- residuals(self_rep_lm)
 
-###Look at map of residuals for regular linear model for hypertension 
+# Look at map of residuals for regular linear model for hypertension 
 pal_2 <- colorNumeric("YlGn", analysis_data_spatial@data$residuals_ht_lm)
 leaflet(analysis_data_spatial) %>% 
   addProviderTiles(providers$CartoDB.Positron) %>%  
@@ -1274,7 +1238,7 @@ leaflet(analysis_data_spatial) %>%
     ) %>%
   addLegend( pal = pal_2, values = ~residuals_ht_lm, opacity = 0.9, title = "Hypertension Residuals Linear", position = "topleft" )
 
-###Look at map of residuals for spatial lag model for hypertension 
+# Look at map of residuals for spatial lag model for hypertension 
 pal_1 <- colorNumeric("YlGn", analysis_data_spatial@data$residuals_ht)
 leaflet(analysis_data_spatial) %>% 
   addProviderTiles(providers$CartoDB.Positron) %>%  
@@ -1289,7 +1253,7 @@ leaflet(analysis_data_spatial) %>%
     ) %>%
   addLegend( pal = pal_1, values = ~residuals_ht, opacity = 0.9, title = "Hypertension Residuals Spatial Lag", position = "topleft" )
 
-#Check that residuals are no longer spatially dependent with the lag model 
+# Check that residuals are no longer spatially dependent with the lag model 
 resid_moran_ob <- moran.mc(analysis_data_spatial$residuals_ob, analysis_nbq_w, 999) %>% 
   broom::tidy() %>% 
   select(p.value) %>% 
@@ -1325,38 +1289,43 @@ rbind(resid_moran_ob, resid_moran_ht, resid_moran_le, resid_moran_srh) %>%
 ```
 
 
-### Formal analysis conclusions
+### Analysis and Visualization Conclusions
 
-* Spatial clustering of gardens and all the variables
-* Since we ended up doing 4 models, we should set alpha at 0.0125 using bonferroni correction 
-* interpret coefficients for garden for each outcome - [see here for a little on spatial model interpretations - chapter 9] (https://maczokni.github.io/crimemapping_textbook_bookdown/spatial-regression-models.html)
+Our analysis and visualizations were able to answer some of our initial questions, however we were not able to conclusively answer all of them because of limitations in our data.  
+
+ * Using the visualization of garden locations and Moran's I (p = 0.014) we can conclude that community gardens are not randomly distributed around the city, and are highly concentrated in certain neighborhoods.  
+
+ * We did not do a formal analysis of demographic characteristics and community gardens, and instead opted for a more interactive tool that allows viewers to look up detailed demographic information for each community board. From this we can see that some trends where the areas with more garden tend to have a more racially diverse population and lower education levels. 
+
+ * In our formal analysis through spatial linear regression we set alpha at 0.01 to account for the fact that we are doing multiple comparisons (4 models). Our models reveal that when adjusting for spatial effects and poverty, number of gardens is not associated with health outcomes for obesity, hypertension, or self-reported health. Despite not being significant, in each of these models the coefficient for garden number was in the direction of predicting worse health for each of these outcomes. In the one model where garden number was significant, we found that number of gardens is associated with a 1.19 year decrease in life expectancy when adjusting for poverty and spatial effects. Based on our diagnostics of residuals plotted against predicted values and our residuals plotted spatially, we are satisfied that our models fit the data fairly well. 
+ 
+ * We were not able to analyze the relationships of garden number with participatory budget allocation or average market value because of missing values for these variables. However from the visualization we can see that many of the areas with a high number of gardens also experience high percentage of poverty and high rent burden. Some of the areas with a high concentration of gardens (east Harlem and South Bronx) also show a particularly high average participatory budget allocation. There does not appear to be a trend with market value and garden location.
 
 ### Limitations 
 
-It is important to note limitations of our model and analysis. First, we have a small sample size (59 community boards), which became even smaller after removing one observation for having no neighboring community boards, allowing for more variation and spread. As a result, we adjusted for only one covariate, which may not account for all the variance in the model and leave residual confounding. Additionally, we were unable to conduct statistical analyses on the budget or revised market variables because of the number of unavailable values. 
+It is important to note the limitations of our model and analysis. 
 
+First, as mentioned we were not able to analyze the economic variables because of missing data. Additionally as we chose to visualize garden points colored by the economic variables, our visualization does not provide much information allowing the comparison of these values between areas of high garden density and low garden density (or areas with no gardens). We chose this visualization method because of the increased detail given with the specific location of gardens, but we recognize the information that is lost given this choice.
 
-Additionally, when working on the type of model, we initially tried to use the log of garden number in order to normalize the distribution. Further, many variables that we included in our exploratory visualizations were skewed (ex. poverty, rent burden). However, we ran into issues later in the analysis due to the spatial nature. Therefore, we decided to use a linear model, which may not be the best fit. 
+Second, we have a small sample size (59 community boards), which became even smaller after removing one observation for having no neighboring community boards. As a result, we only adjusted for one covariate (poverty) which may not account for all the variance in the model and leave residual confounding. As can be seen from the demographic information section, there are clearly differences in other characteristics between the community boards. These differences may contribute to differential health outcomes, however we were not able to adjust for these which may obscure the true relationship of gardens to health outcomes. 
+
+Thirdly, when selecting the type of model we are aware that many of our outcomes are not perfectly linear relationships with garden number. Further, many variables that we included in our exploratory visualizations were skewed (ex. poverty, rent burden). We initially tried to use the log of garden number in order to transform to a more linear and normal relationship. However, we ran into issues later when using log(garden number) in the analysis due to the spatial nature. Therefore, we decided to continue with using a linear model, which may not be the absolute best fit for the data.  
 
 ***
 
 ## Discussion
 
-While we had initially hypothesized that a higher number of gardens in an area would be associated with better health outcomes and economic investment, our analyses and visualizations suggest a largely inverse relationship where more gardens are associated with worse outcomes. This could be due to entrenched poverty and poor health outcomes that have been embedded throughout New York City for decades. As a result, the city may have been more motivated to place gardens in areas with more abandoned lots and in communities to improve health and economic conditions. 
+While we had initially hypothesized that a higher number of gardens in an area would be associated with better health outcomes and economic investment, our analyses and visualizations suggest a largely inverse relationship where more gardens are associated with worse outcomes both health-wise and economically. Our hypothesis was founded on the belief that despite the historic disinvestment in the neighborhoods where community gardens developed, the gardens themselves would serve as features that could improve health. However we do not see this, which could be due to several factors One is that perhaps the entrenched poverty and disinvestment in these areas is so strongly embedded throughout New York City that the relatively small effect of the gardens in a short period of time is not able to be distinguished. Another reason could be that there is residual confounding and garden number is actually capturing a number of other factors that correlate with poor health and poor economic outcomes. As we were only able to adjust for one covariate this is a strong possibility. Another possibility is that we see some reverse causation: as a result of poor health and economic conditions in certain neighborhoods, residents may have been more motivated to develop gardens in order to improve their communities. 
 
-Despite the number of missing values in the budget and revised market value variables, the maps show that a few of the areas that have the majority of the gardens (East Harlem and South Bronx) have high amounts of money allocated through participatory budgeting. This aligns with our hypothesis of greater community engagement in areas with more gardens. 
+One particularly interesting finding was from the participatory budgeting visualization. Despite the number of missing values in the budget and revised market value variables that precluded formal analysis, the maps show that a few of the areas that have the majority of the gardens (East Harlem and South Bronx) have high amounts of money allocated through participatory budgeting. This indicates that community members voted to allocate more money to community-driven projects than in other areas, which aligns with our hypothesis of greater community engagement in areas with more gardens. It would be interesting to explore this trend further with comparisons to other areas with fewer gardens. 
 
-The garden distribution map shows that gardens are not evenly distributed across the city, with very few in Manhattan. Further, issues of inequity and divides between boroughs and neighborhoods are still present as ever. Future studies may explore the reasoning behind the placement of gardens and whether or not these gardens have a significant effect on the lives of community members. Further, it would be interesting to include a variable that measures community engagement. Given our results, we can see that while gardens have a significant relationship with other factors of life, it is important to continue researching how community gardens are affecting the lives of New Yorkers. 
+This project highlights that issues of inequity and divides between boroughs and neighborhoods are still present as ever. The distribution of gardens is not evenly spread across the city, and is concentrated in areas of historic poverty and disenfranchisement, as is expected from the origins of community gardens. Despite our negative findings, community gardens may still have a positive impact on community well-being as prior studies have shown. This is especially likely given the limitations previously discussed of residual confounding. 
+
+Given that community gardens are located primarily in neighborhoods with worse health outcomes, they have the potential to have a large impact on community well-being if they are found to be a benefit to health. Future studies should explore whether or not these gardens have a significant effect on the lives of community members through more individual-focused research. Further it would be interesting to include a variable that measures community engagement, particularly given that the history of these gardens is wrapped up in the activism of community members in these neighborhoods. 
 
 Who knows - maybe in a few decades New York will be known for its gardens rather than its skyscrapers. 
 
-
 ***
-
-**Notes - can remove later**
-- [Figure out how to do residual plots with spatial data](https://data.library.virginia.edu/diagnostic-plots/) 
-- [Another residuals interpretation link](http://www.sthda.com/english/articles/39-regression-model-diagnostics/161-linear-regression-assumptions-and-diagnostics-in-r-essentials/#loading-required-r-packages)
-- Figure out how to plot the predicted values on top of the datapoints? 
 
 
 

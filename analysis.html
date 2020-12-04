@@ -425,80 +425,23 @@ com_board_spdf &lt;- readOGR(dsn = working, layer = &quot;community_board_new&qu
 com_board_spdf2 &lt;- com_board_spdf[!com_board_spdf@data$boro_cd %in% c(&quot;414&quot;), ]
 invisible(names(com_board_spdf))
 analysis_data_spatial &lt;- merge(com_board_spdf2, analysis_data_final, by.x = &quot;boro_cd&quot;, by.y = &quot;id_spatial&quot;)</code></pre>
-<div id="questions" class="section level3">
-<h3><strong>Questions</strong></h3>
-<ol style="list-style-type: decimal">
-<li>How are community gardens spatially distributed throughout the city?</li>
-<li>How are the locations of gardens related to certain demographic characteristics?</li>
-<li>What is the relationship between community gardens and economic investment?</li>
-<li>What is the relationship between community gardens and health conditions?</li>
-</ol>
-</div>
-<div id="exposure-of-interest-and-confounder" class="section level3">
-<h3><strong>Exposure of interest and Confounder</strong></h3>
-<p>Exposure:</p>
-<ul>
-<li>Number of gardens in each Community Board</li>
-</ul>
-<p>Confounder:</p>
-<ul>
-<li><p>Poverty - percent living below 100% of NYC’s calculated poverty threshold based on income and necessary expenses</p>
-<ul>
-<li>Community gardens are historically formed in empty lots/areas of abandoned buildings</li>
-<li>Poverty impacts health and perceived neighborhood value</li>
-</ul></li>
-</ul>
-</div>
-<div id="outcomes-of-interest" class="section level3">
-<h3><strong>Outcomes of Interest</strong></h3>
-<div id="health-outcomes" class="section level4">
-<h4>Health Outcomes</h4>
-<ul>
-<li>Obesity - percent obesity in a community board (BMI &gt; 30)</li>
-<li>Hypertension - percent of hypertension in a community board (individuals with a diagnosis)</li>
-<li>Life expectancy - at birth</li>
-<li>Self reported health - percent of adults reporting health on a scale from “excellent” to “poor”</li>
-</ul>
-</div>
-<div id="economic-outcomes" class="section level4">
-<h4>Economic Outcomes</h4>
-<ul>
-<li>Average total appropriated - money allocated through participatory budget processing
-<ul>
-<li>After assessing the distribution of values, we found that there were too many missing values and chose to not move forward in analyzing this variable.</li>
-</ul></li>
-<li>Average Market value of buildings
-<ul>
-<li>After assessing the distribution of values, we found that there were too many missing values and chose to not move forward in analyzing this variable.</li>
-</ul></li>
-</ul>
-</div>
-</div>
-<div id="morans-i" class="section level3">
-<h3><strong>Moran’s I</strong></h3>
-<div id="what-is-it" class="section level4">
-<h4>What is it</h4>
-<p>A correlation coefficient that measures the overall spatial auto-correlation among nearby locations in space. It measures how similar on object is to other surrounding it.</p>
-</div>
-<div id="interpretation" class="section level4">
-<h4>Interpretation</h4>
-<ul>
-<li>-1: perfect dispersion (definite pattern)</li>
-<li>0: no auto-correlation (perfect randomness, values are dependent on values of nearby areas)</li>
-<li>+1: perfect clustering of similar values (opposite of dispersion)</li>
-</ul>
-</div>
+<div id="question-how-are-community-gardens-spatially-distributed-throughout-the-city" class="section level3">
+<h3><strong>Question: How are community gardens spatially distributed throughout the city?</strong></h3>
 <div id="hypothesis" class="section level4">
 <h4>Hypothesis</h4>
-<p>We hypothesized that the community gardens in NYC would not be evenly distributed spatially, indicating that the number of gardens in a specific community board depends on where in NYC you are looking</p>
+<p>We hypothesized that the community gardens in NYC would not be evenly distributed spatially, indicating that the number of gardens in a specific community board is dependent on where in NYC you are looking geographically</p>
 </div>
-<div id="what-we-did" class="section level4">
-<h4>What we did</h4>
+<div id="analysis" class="section level4">
+<h4>Analysis</h4>
+<p><strong>Moran’s I</strong> A correlation coefficient that measures the overall spatial auto-correlation among nearby locations in space. It measures how similar an values of a spatial object are to the values of other spatial objects surrounding it. In this way Moran’s I helps identify whether variables are clustered in space in a non-random way.</p>
+<p><strong>Moran’s I Interpretation</strong></p>
 <ul>
-<li>We wanted to test if the spatial distribution of the gardens was randomly distributed</li>
-<li>Created a Queen’s neighborhood spatial weight matrix to define spatial neighbors as those community districts which are directly touching</li>
-<li>Used this to calculate Moran’s I using the <code>spdep</code> package</li>
+<li>-1: perfect dispersion (definite pattern)</li>
+<li>0: no auto-correlation (perfect randomness, values are not dependent on values of nearby areas)</li>
+<li>+1: perfect clustering of similar values (opposite of dispersion)</li>
 </ul>
+<p><strong>Process</strong><br />
+* We created a Queen’s neighborhood spatial weight matrix to define spatial neighbors as those community districts which are directly touching * We used this to calculate Moran’s I using the <code>spdep</code> package</p>
 </div>
 <div id="results" class="section level4">
 <h4>Results</h4>
@@ -514,24 +457,24 @@ com_board_spdf2 &lt;- com_board_spdf[!com_board_spdf@data$boro_cd %in% c(&quot;4
 invisible(names(com_board_spdf))
 analysis_data_spatial &lt;- merge(com_board_spdf2, analysis_data_final, by.x = &quot;boro_cd&quot;, by.y = &quot;id_spatial&quot;)
 
-###Create a queen&#39;s neighborhood weight matrix using the poly2nb command.
+# Create a queen&#39;s neighborhood weight matrix using poly2nb 
 analysis_nbq &lt;- poly2nb(analysis_data_spatial)
 
-###extract coordinates to plot the connectivity matrix for visualization.
-coords &lt;- coordinates(analysis_data_spatial)
+# extract coordinates to plot the connectivity matrix for visualization.
+#coords &lt;- coordinates(analysis_data_spatial)
 
-###convert the neighborhood matrix into a list so that the connections between counties can be used in Moran&#39;s I test.
+# convert neighborhood matrix into a list so connections between counties can be used in Moran&#39;s I test.
 analysis_nbq_w &lt;- nb2listw(analysis_nbq)
 
-###Garden number
-###Convert Exposure variable to z-form and then create the lag of that variable.
+# Garden number
+# Convert Exposure variable to z-form and then create the lag of that variable.
 analysis_data_spatial@data$garden_num &lt;- scale(analysis_data_spatial@data$garden_num)
 analysis_data_spatial@data$lag_sQL &lt;- lag.listw(analysis_nbq_w,analysis_data_spatial@data$garden_num)
 
-### Lose spatial properties when we turn into data frame for analysis
+# Lose spatial properties when we turn into data frame for analysis
 #analysis_sp_data &lt;- as.data.frame(analysis_data_spatial)
 
-###Run morans I test and plot the results.
+# Run morans I test and plot the results.
 garden_moran &lt;- moran.test(analysis_data_spatial@data$garden_num, listw = analysis_nbq_w, zero.policy = TRUE)
 moran.plot(as.vector(analysis_data_spatial@data$garden_num), listw = analysis_nbq_w, 
            xlim = c(-2,4),ylim = c(-2,2),
@@ -540,43 +483,97 @@ moran.plot(as.vector(analysis_data_spatial@data$garden_num), listw = analysis_nb
 <p><img src="analysis_files/figure-html/unnamed-chunk-2-1.png" width="90%" /></p>
 </div>
 </div>
-<div id="choosing-a-model" class="section level3">
-<h3><strong>Choosing a model</strong></h3>
-<div id="linear-regression" class="section level4">
-<h4>Linear Regression</h4>
+<div id="question-how-are-the-locations-of-gardens-related-to-certain-demographic-characteristics" class="section level3">
+<h3><strong>Question: How are the locations of gardens related to certain demographic characteristics?</strong></h3>
+<p>This was primarily a question that we explored through tables, and we did not incorporate demographic characteristics into our formal analysis. Some trends we saw include:</p>
+<ul>
+<li>Manhattan has a higher proportion of adults 25-44 and a lower percentage of children aged 0-17 compared to all other boroughs</li>
+<li>The Bronx has the highest percentage of people who have less than a high school education, and Manhattan has the highest percentage of people who have a college education or higher<br />
+</li>
+<li>Manhattan and Staten Island have a higher proportion of people identifying as white compared to other boroughs, Bronx has a higher proportion of people identifying as Latino compared to other boroughs, Queens has a higher proportion of people identifying as Asian compared to other boroughs, and Brooklyn and Bronx have a higher percentage of people identifying as Black compared to other boroughs.</li>
+</ul>
+</div>
+<div id="question-what-is-the-relationship-between-community-gardens-and-economic-investment" class="section level3">
+<h3><strong>Question: What is the relationship between community gardens and economic investment?</strong></h3>
+</div>
+<div id="question-what-is-the-relationship-between-community-gardens-and-health-conditions" class="section level3">
+<h3><strong>Question: What is the relationship between community gardens and health conditions?</strong></h3>
+<p>We explored both of these questions using linear regression modeling.</p>
+<div id="exposure-of-interest-and-confounder" class="section level4">
+<h4><strong>Exposure of Interest and Confounder</strong></h4>
+<div id="exposure" class="section level5">
+<h5>Exposure:</h5>
+<ul>
+<li>Number of gardens in each Community Board</li>
+</ul>
+</div>
+<div id="confounder" class="section level5">
+<h5>Confounder:</h5>
+<ul>
+<li><p>Poverty - percent living below 100% of NYC’s calculated poverty threshold based on income and necessary expenses</p>
+<ul>
+<li>Community gardens are historically formed in empty lots/areas of abandoned buildings</li>
+<li>Poverty impacts health and perceived neighborhood value</li>
+</ul></li>
+</ul>
+</div>
+</div>
+<div id="outcomes-of-interest" class="section level4">
+<h4><strong>Outcomes of Interest</strong></h4>
+<div id="health-outcomes" class="section level5">
+<h5>Health Outcomes</h5>
+<ul>
+<li>Obesity - percent obesity in a community board (BMI &gt; 30)</li>
+<li>Hypertension - percent of hypertension in a community board (individuals with a diagnosis)</li>
+<li>Life expectancy - at birth</li>
+<li>Self reported health - percent of adults reporting health of “excellent,” “very good,” or “good” on a scale from excellent to poor</li>
+</ul>
+</div>
+<div id="economic-outcomes" class="section level5">
+<h5>Economic Outcomes</h5>
+<ul>
+<li>Average total appropriated - the amount of money allocated through the participatory budget process, averaged across all projects in a community board
+<ul>
+<li>After assessing the distribution of values, we found that there were too many missing values and chose to not move forward in analyzing this variable.</li>
+</ul></li>
+<li>Average Market value of buildings
+<ul>
+<li>After assessing the distribution of values, we found that there were too many missing values and chose to not move forward in analyzing this variable. Additionally the relationship of garden number to average market value was not remotely linear so we were not able to include it in our analysis using linear regression.</li>
+</ul></li>
+</ul>
+</div>
+</div>
+<div id="hypothesis-1" class="section level4">
+<h4>Hypothesis</h4>
+<p>We hypothesized that a greater number of gardens in a community district would be associated with a decrease in the percentage of adults with hypertension and obesity, and an increase in life expectancy and the percentage of adults reporting good health, adjusting for percent poverty.</p>
+</div>
+<div id="analysis-1" class="section level4">
+<h4>Analysis</h4>
+<div id="choosing-a-model-linear-regression" class="section level5">
+<h5>Choosing a model: Linear Regression</h5>
 <ul>
 <li>Initially we intended to run a linear regression model because of ease of interpretation and flexibility with the model</li>
-<li>Assessing linear model assumptions (see <a href="report.html">report</a> for more information on this)
+<li>To determine the appropriateness of linear regression we assessed the assumptions (see <a href="report.html">report</a> for more information on this)
 <ul>
-<li>Normal distribution
+<li>Normal distribution - satisfied</li>
+<li>Linearity and Homoscedasticity - mostly satisfied
 <ul>
-<li>All variables were generally normally distributed</li>
-</ul></li>
-<li>Linearity and Homoscedasticity
-<ul>
-<li>While most associations appear linear, <em>the variance does not appear constant</em></li>
 <li>We will address lack of constant variance by looking at residuals after fitting our model</li>
 </ul></li>
-<li>Multicollinearity
+<li>No multicollinearity - satisfied</li>
+<li>No auto-correlation / observations are independent
 <ul>
-<li>We wanted to ensure that the correlation coefficient between garden number and poverty (2 covariates) was not high</li>
-<li>We found that <em>r = 0.32, assuring us that our 2 covariates are not highly correlated</em></li>
-</ul></li>
-<li>Auto-correlation
-<ul>
-<li>We needed to ensure that all observations are independent to meet linear regression assumptions</li>
 <li>Based on our map visualizations, we suspected that there would be substantial auto-correlation as it appears that <a href="main.html">number of gardens</a>, <a href="property_values.html">economic variables</a>, and <a href="health.html">health outcome variables</a> are all clustered in space.</li>
-<li>We used Moran’s I spatial auto-correlation for each outcome</li>
-<li><em>We found Moran’s I was significant for obesity, hypertension, life expectancy and self-reported health (they are not evenly distributed spatially across NYC)</em></li>
+<li>We used Moran’s I to test spatial auto-correlation for each outcome</li>
+<li><em>Moran’s I was significant for obesity, hypertension, life expectancy and self-reported health indicating that these observations are not spatially independent</em></li>
 <li><strong>We decided to adjust for a spatial parameter in our linear regression model to account for the significant auto-correlation</strong></li>
 </ul></li>
 </ul></li>
 </ul>
 </div>
-<div id="spatial-diagnostics" class="section level4">
-<h4>Spatial Diagnostics</h4>
-<p>We fit general linear regression models and ran Lagrange Multiplier tests on these to identify the appropriate type of spatial regression model to use. The Lagrange Multiplier test statistics allow us to observe a distinction between spatial error models and spatial lag models. See flow chart below for our thought process:</p>
-<p><img src="images/spatial_model.jpeg" width="300" height="400" /> <a href="https://rpubs.com/quarcs-lab/tutorial-spatial-regression">Image source</a></p>
+<div id="spatial-diagnostics" class="section level5">
+<h5>Spatial Diagnostics</h5>
+<p>We fit general linear regression models for each outcome (obesity, hypertension, life expectancy, self-reported health) and ran Lagrange Multiplier tests on these to identify the appropriate type of spatial regression model to use. See <a href="report.html">report</a> for more details on the diagnostic process.</p>
 <pre class="r"><code>###fit baseline linear models.
 obesity_lm &lt;- lm(obesity ~ garden_num + poverty, data = analysis_data_spatial)
 hypertension_lm &lt;- lm(hypertension ~ garden_num + poverty, data = analysis_data_spatial)
@@ -691,12 +688,11 @@ Self Reported Health
 </tr>
 </tbody>
 </table>
-<p><strong>Notes:</strong> the Lagrange multiplier lags was significant for regressions modeling, obesity, hypertension and life-expectancy. None of the Lagrange multipliers were significant for self-reported health.</p>
+<p><strong>Notes:</strong> the Lagrange multiplier lag was significant for the models for obesity, hypertension and life-expectancy. None of the Lagrange multipliers were significant for self-reported health.</p>
 </div>
-</div>
-<div id="final-model" class="section level3">
-<h3><strong>Final Model</strong></h3>
-<p>Based on the linear regression assumptions and the spatial diagnostic tests, we concluded that we need to run <strong>spatial lag models</strong> for obesity, hypertension, and life-expectancy and a <strong>regular multivariable linear regression</strong> for self-reported health (since none of the Lagrange tests were significant we deduced that there was no need for spatial parameter adjustment).</p>
+<div id="final-model" class="section level5">
+<h5><strong>Final Model</strong></h5>
+<p>Based on the linear regression assumptions and the spatial diagnostic tests, we concluded that we need to run <strong>spatial lag linear regression models</strong> for obesity, hypertension, and life-expectancy and a <strong>regular multivariable linear regression model </strong> for self-reported health (since none of the Lagrange tests were significant we deduced that there was no need for spatial parameter adjustment).</p>
 <pre class="r"><code>###Specify Spatial Lag Model for obesity
 obesity_lag &lt;- lagsarlm(obesity ~ garden_num + poverty, data = analysis_data_spatial, analysis_nbq_w, tol.solve = 1.0e-15)
 obesity_lag_df &lt;-
@@ -721,7 +717,7 @@ self_rep_lm_df &lt;-
 self_rep_lm %&gt;% 
   broom::tidy() 
 
-rbind(obesity_lag_df, hypertension_lag_df, life_expect_lag_df, self_rep_lm_df) %&gt;%
+rbind(life_expect_lag_df, obesity_lag_df, hypertension_lag_df, self_rep_lm_df) %&gt;%
   knitr::kable() %&gt;% 
     kable_styling() %&gt;%
   pack_rows(index = c(&quot;Obesity&quot; = 4, &quot;Hypertension&quot; = 4, &quot;Life Expectancy&quot; = 4, &quot;Self Reported Health&quot; = 3)) %&gt;% 
@@ -753,6 +749,79 @@ p.value
 <tr grouplength="4">
 <td colspan="5" style="border-bottom: 1px solid;">
 <strong>Obesity</strong>
+</td>
+</tr>
+<tr>
+<td style="text-align:left; padding-left:  2em;" indentlevel="1">
+rho
+</td>
+<td style="text-align:right;">
+0.4921277
+</td>
+<td style="text-align:right;">
+0.0965190
+</td>
+<td style="text-align:right;">
+5.0987675
+</td>
+<td style="text-align:right;">
+0.0000003
+</td>
+</tr>
+<tr>
+<td style="text-align:left; padding-left:  2em;" indentlevel="1">
+(Intercept)
+</td>
+<td style="text-align:right;">
+43.4508221
+</td>
+<td style="text-align:right;">
+8.0771479
+</td>
+<td style="text-align:right;">
+5.3794759
+</td>
+<td style="text-align:right;">
+0.0000001
+</td>
+</tr>
+<tr>
+<td style="text-align:left; padding-left:  2em;color: black !important;background-color: #ceebcc !important;" indentlevel="1">
+garden_num
+</td>
+<td style="text-align:right;color: black !important;background-color: #ceebcc !important;">
+-1.1920316
+</td>
+<td style="text-align:right;color: black !important;background-color: #ceebcc !important;">
+0.2149444
+</td>
+<td style="text-align:right;color: black !important;background-color: #ceebcc !important;">
+-5.5457664
+</td>
+<td style="text-align:right;color: black !important;background-color: #ceebcc !important;">
+0.0000000
+</td>
+</tr>
+<tr>
+<td style="text-align:left; padding-left:  2em;" indentlevel="1">
+poverty
+</td>
+<td style="text-align:right;">
+-0.0965110
+</td>
+<td style="text-align:right;">
+0.0325297
+</td>
+<td style="text-align:right;">
+-2.9668618
+</td>
+<td style="text-align:right;">
+0.0030086
+</td>
+</tr>
+<tr grouplength="4">
+<td colspan="5" style="border-bottom: 1px solid;">
+<strong>Hypertension</strong>
 </td>
 </tr>
 <tr>
@@ -825,7 +894,7 @@ poverty
 </tr>
 <tr grouplength="4">
 <td colspan="5" style="border-bottom: 1px solid;">
-<strong>Hypertension</strong>
+<strong>Life Expectancy</strong>
 </td>
 </tr>
 <tr>
@@ -863,19 +932,19 @@ rho
 </td>
 </tr>
 <tr>
-<td style="text-align:left; padding-left:  2em;color: black !important;background-color: #ceebcc !important;" indentlevel="1">
+<td style="text-align:left; padding-left:  2em;font-weight: bold;color: black !important;background-color: #EBE4CC !important;" indentlevel="1">
 garden_num
 </td>
-<td style="text-align:right;color: black !important;background-color: #ceebcc !important;">
+<td style="text-align:right;font-weight: bold;color: black !important;background-color: #EBE4CC !important;">
 1.1222358
 </td>
-<td style="text-align:right;color: black !important;background-color: #ceebcc !important;">
+<td style="text-align:right;font-weight: bold;color: black !important;background-color: #EBE4CC !important;">
 0.5634011
 </td>
-<td style="text-align:right;color: black !important;background-color: #ceebcc !important;">
+<td style="text-align:right;font-weight: bold;color: black !important;background-color: #EBE4CC !important;">
 1.9918947
 </td>
-<td style="text-align:right;color: black !important;background-color: #ceebcc !important;">
+<td style="text-align:right;font-weight: bold;color: black !important;background-color: #EBE4CC !important;">
 0.0463826
 </td>
 </tr>
@@ -894,79 +963,6 @@ poverty
 </td>
 <td style="text-align:right;">
 0.0010038
-</td>
-</tr>
-<tr grouplength="4">
-<td colspan="5" style="border-bottom: 1px solid;">
-<strong>Life Expectancy</strong>
-</td>
-</tr>
-<tr>
-<td style="text-align:left; padding-left:  2em;" indentlevel="1">
-rho
-</td>
-<td style="text-align:right;">
-0.4921277
-</td>
-<td style="text-align:right;">
-0.0965190
-</td>
-<td style="text-align:right;">
-5.0987675
-</td>
-<td style="text-align:right;">
-0.0000003
-</td>
-</tr>
-<tr>
-<td style="text-align:left; padding-left:  2em;" indentlevel="1">
-(Intercept)
-</td>
-<td style="text-align:right;">
-43.4508221
-</td>
-<td style="text-align:right;">
-8.0771479
-</td>
-<td style="text-align:right;">
-5.3794759
-</td>
-<td style="text-align:right;">
-0.0000001
-</td>
-</tr>
-<tr>
-<td style="text-align:left; padding-left:  2em;font-weight: bold;color: black !important;background-color: #EBE4CC !important;" indentlevel="1">
-garden_num
-</td>
-<td style="text-align:right;font-weight: bold;color: black !important;background-color: #EBE4CC !important;">
--1.1920316
-</td>
-<td style="text-align:right;font-weight: bold;color: black !important;background-color: #EBE4CC !important;">
-0.2149444
-</td>
-<td style="text-align:right;font-weight: bold;color: black !important;background-color: #EBE4CC !important;">
--5.5457664
-</td>
-<td style="text-align:right;font-weight: bold;color: black !important;background-color: #EBE4CC !important;">
-0.0000000
-</td>
-</tr>
-<tr>
-<td style="text-align:left; padding-left:  2em;" indentlevel="1">
-poverty
-</td>
-<td style="text-align:right;">
--0.0965110
-</td>
-<td style="text-align:right;">
-0.0325297
-</td>
-<td style="text-align:right;">
--2.9668618
-</td>
-<td style="text-align:right;">
-0.0030086
 </td>
 </tr>
 <tr grouplength="3">
@@ -1027,42 +1023,30 @@ poverty
 </tr>
 </tbody>
 </table>
-<p><strong>Notes:</strong> “Rho”: Indicates the spatial lag (there is no rho term in the self-reported health model because a spatial lag model was not run here). Alpha = 0.01 to account for Bonferroni Correction</p>
-<div id="obesity-results" class="section level4">
-<h4>Obesity Results</h4>
-<p>There was no significant association at alpha equal to 0.01, between number of gardens and obesity</p>
-</div>
-<div id="hypertension-results" class="section level4">
-<h4>Hypertension Results</h4>
-<p>There was no significant association at alpha equal to 0.01, between number of gardens and hypertension.</p>
-</div>
-<div id="life-expectancy-results" class="section level4">
-<h4>Life Expectancy Results</h4>
-<p>For every one unit increase in the number of gardens, there is a <strong>1.19 unit decrease</strong> in percent of adults with hypertension in the district, at the 1% level of significance.</p>
-</div>
-<div id="self-reported-health-results" class="section level4">
-<h4>Self Reported Health Results</h4>
-<p>There was no significant association at alpha equal to 0.01, between number of gardens and self reported health.</p>
+<p><strong>Notes:</strong> “Rho”: Indicates the spatial lag parameter (there is no rho term in the self-reported health model because a spatial lag model was not run here). Alpha was set at 0.01 to account for Bonferroni Correction</p>
 </div>
 </div>
-<div id="conclusions" class="section level3">
-<h3><strong>Conclusions</strong></h3>
-<p><strong>Spatial Clustering</strong></p>
+<div id="results-1" class="section level4">
+<h4>Results</h4>
+<p>We set alpha at 0.01 to account for the fact that we are doing multiple comparisons (4 models). At this level of significance we found that there was no significant association between number of gardens and percent obesity, number of gardens and percent hypertension, or number of gardens and percent self-reporting good health.</p>
+<p>We found that at the 1% level of significance a one unit increase in the number of gardens is associated with a <strong>1.19 year decrease</strong> in life expectancy, controlling for poverty and spacial effects.</p>
+</div>
+</div>
+<div id="takeaways" class="section level3">
+<h3><strong>Takeaways</strong></h3>
+<p><strong>Limitations</strong></p>
 <ul>
-<li>Based on the Moran’s I results, we can conclude that there is evidence of spatial clustering of gardens.</li>
-<li>This means that the gardens are not randomly distributed across NYC, confirming our initial hypothesis that community gardens are not evenly dispersed spatially.</li>
+<li><p>We were not able to analyze the economic variables because of missing data, and our visualization does not provide much information allowing the comparison of values between areas of high garden density and low garden density (or areas with no gardens).</p></li>
+<li><p>The small sample size (59 community boards) only allowed adjustment for one covariate (poverty) which may not account for all the variance in the model and leave residual confounding.</p></li>
+<li><p>Our models may not be perfectly specified because the relationships of many of our outcome variables were not exactly linear with garden number, and there was some level of skew</p></li>
 </ul>
-<p><strong>Final Model</strong></p>
+<p><strong>Conclusions and Discussion</strong></p>
 <ul>
-<li>Since we ended up using 4 models to assess our research questions, we chose to <em>set alpha at 0.0125, using the Bonferroni Correction</em>
-<ul>
-<li>Interpret Betas!!!???</li>
-</ul></li>
+<li><p>While we had initially hypothesized that a higher number of gardens in an area would be associated with better health outcomes and economic investment, our analyses and visualizations suggest a largely inverse relationship where more gardens are associated with worse outcomes both health-wise and economically.</p></li>
+<li><p>The relationship observed may be because of residual confounding as we were only able to adjust for one confounder or reverse causation with residents of neighborhoods with worse health outcomes being more motivated to develop gardens in order to improve their communities.</p></li>
+<li><p>There is some hint from our visualizations that communities with more gardens have high amounts of money allocated through participatory budgeting, indicating potentially greater community engagement. It would be interesting to explore this trend further with comparisons to other areas with fewer gardens.</p></li>
+<li><p>This project highlights that issues of inequity and divides between boroughs and neighborhoods are still present as ever. However the position of community gardens in neighborhoods with generally worse health outcomes means they have the potential to have a large impact on community well-being if they are found to be a benefit to health. Future studies should explore the impact of gardens through more individual lens.</p></li>
 </ul>
-</div>
-<div id="what-to-take-away-from-this" class="section level3">
-<h3><strong>What to take away from this</strong></h3>
-<p>We noticed that an increase in number of outcomes resulted in poorer overall health(higher proportions of obesity and hypertension, lower life expectancy). While these results are contrary to our initial hypotheses, upon reflection we do believe that these results accurately represent the associations between community gardens and health in NYC. As part of community outreach programs, we believe that gardens may be prioritized to be constructed in areas with low overall health to help improve health outcomes there. Therefore, more gardens would be built in these areas. A future analysis could look at the associations between number of gardens and health in these communities after several years to see if adding gardens impacted the overall health outcomes over time.</p>
 </div>
 
 
