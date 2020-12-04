@@ -29,16 +29,16 @@ options(
   ggplot2.continuous.colour = "viridis",
   ggplot2.continuous.fill = "viridis"
 )
+
 scale_colour_discrete = scale_colour_viridis_d
 scale_fill_discrete = scale_fill_viridis_d
-
 
 ```
 
 ```{r, message = FALSE, warning = FALSE, include = FALSE}
 health_data_final <-
   read_csv("./data/final_df.csv") %>% 
-  select(community_board, borough, obesity, hypertension, life_expectancy, self_rep_health, garden_num, id_spatial) #%>% 
+  select(community_board, borough, obesity, hypertension, life_expectancy, self_rep_health, garden_num, id_spatial) 
   
 working <- getwd()
 com_board_spdf <- readOGR(dsn = working, layer = "community_board_new")
@@ -91,10 +91,15 @@ leaflet(health_data_spatial) %>%
       direction = "auto"
     )
   ) %>%
-  addLegend( pal = pal, values = ~garden_num, opacity = 0.9, title = "Number of Gardens", position = "topleft" )
+  addLegend(pal = pal, 
+            values = ~garden_num, 
+            opacity = 0.9, 
+            title = "Number of Gardens", 
+            position = "topleft" )
+
 ```
 
-> Visualization of the distribution of number of gardens across community boards.
+> Visualization of the distribution of total number of gardens in each community board. Gardens were designated as being part of a community board based on the label in the original gardens dataset, therefore gardens without latitude and longitude data are included. Data was updated in 2017.
 
 Column {.tabset .tabset-fade data-width=400}
 -----------------------------------------------------------------------
@@ -133,11 +138,16 @@ leaflet(health_data_spatial) %>%
       direction = "auto"
     )
   ) %>%
-  addLegend( pal = pal2, values = ~obesity, opacity = 0.9, title = "Percent Obesity", position = "topleft" )
+  addLegend(pal = pal2, 
+            values = ~obesity, 
+            opacity = 0.9, 
+            title = "Percent Obesity", 
+            labFormat = labelFormat(suffix = "%"),
+            position = "topleft" )
 ```
 
 > Visualization of the distribution of obesity across community boards. 
-> Obesity: Percentage of adults ages 18 and older who have obesity (Body Mass Index of 30 or greater) based on self-reported height and weight.
+> Obesity: Percentage of adults ages 18 and older who have obesity (Body Mass Index of 30 or greater) based on self-reported height and weight. Data from the NYC 2018 Community Health Profiles.
 
 ### Hypertension
 
@@ -173,11 +183,17 @@ leaflet(health_data_spatial) %>%
       direction = "auto"
     )
   ) %>%
-  addLegend( pal = pal3, values = ~hypertension, opacity = 0.9, title = "Percent Hypertension", position = "topleft" )
+  addLegend(pal = pal3, 
+            values = ~hypertension, 
+            opacity = 0.9, 
+            title = "Percent Hypertension", 
+            labFormat = labelFormat(suffix = "%"),
+            position = "topleft" )
+
 ```
 
 > Visualization of the distribution of hypertensio across community boards. 
-> Hypertension: Percentage of adults ages 18 and older who report ever being told by a healthcare professional that they have hypertension, also known as high blood pressure.
+> Hypertension: Percentage of adults ages 18 and older who report ever being told by a healthcare professional that they have hypertension, also known as high blood pressure. Data from the NYC 2018 Community Health Profiles.
 
 
 ### Life Expectancy
@@ -215,11 +231,17 @@ leaflet(health_data_spatial) %>%
       direction = "auto"
     )
   ) %>%
-  addLegend( pal = pal4, values = ~life_expectancy, opacity = 0.9, title = "Life Expectancy", position = "topleft" )
+  addLegend(pal = pal4, 
+            values = ~life_expectancy, 
+            opacity = 0.9, 
+            title = "Life Expectancy", 
+            labFormat = labelFormat(suffix = " years"),
+            position = "topleft" )
+
 ```
 
 > Visualization of the distribution of life expectancy across community boards. 
-> Life expectancy: Life expectancy at birth.
+> Life expectancy: Life expectancy at birth. Data from the NYC 2018 Community Health Profiles.
 
 
 ### Self Reported Health
@@ -255,11 +277,16 @@ leaflet(health_data_spatial) %>%
       direction = "auto"
     )
   ) %>%
-  addLegend( pal = pal5, values = ~self_rep_health, opacity = 0.9, title = "Self Reported Health", position = "topleft" )
+  addLegend(pal = pal5, 
+            values = ~self_rep_health, 
+            opacity = 0.9, 
+            title = "Percent Self-Reported </b><br>Good Health", 
+            labFormat = labelFormat(suffix = "%"),
+            position = "topleft" )
 ```
 
 > Visualization of the distribution of self reported health across community boards. 
-> Self Reported Health: Percentage of adults ages 18 and older who report their overall health is “excellent,” "very good" or “good” on a scale of excellent, very good, good, fair or poor.
+> Self Reported Health: Percentage of adults ages 18 and older who report their overall health is “excellent,” "very good" or “good” on a scale of excellent, very good, good, fair or poor. Data from the NYC 2018 Community Health Profiles.
 
 
 

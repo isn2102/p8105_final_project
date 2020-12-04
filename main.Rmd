@@ -110,8 +110,8 @@ leaflet() %>%
 
 ```
 
-> Outlined community board regions and individual garden locations.
-> 111 gardens were missing longitude and latitude values and are therefore missing individual data points for their location.
+> Outlined community boards and individual garden locations.
+> Label text specifies the total number of gardens in a given community board. Gardens were designated as being part of a community board based on their community board label in the original gardens dataset, therefore gardens without latitude and longitude values (n = 111) are included in the label text but not as an individual data point on the map.
 
 Column {.tabset .tabset-fade data-width=400}
 -----------------------------------------------------------------------

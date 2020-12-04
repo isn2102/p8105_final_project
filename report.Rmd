@@ -56,7 +56,7 @@ h1.title {
 
 
 <center>
-![](images/nyc_garden_2.JPG){ height="267px" width="200px" }  ![](images/radishes.JPG){ height="267px" width="200px" } 
+![](images/nyc_garden_2.JPG){ height="267px" width="200px" }  ![](images/garden1.JPG){ height="267px" width="350px" }  ![](images/radishes.JPG){ height="267px" width="200px" } 
 </center>
 <center>Images taken by *Isabel Nelson* and *Kelley Lou*</center>
 
@@ -105,13 +105,14 @@ Our initial broad question was to explore how gardens were distributed throughou
 ### *Data Sources*
 
 * Primary data source: [NYC Greenthumb Community Gardens](https://data.cityofnewyork.us/Environment/NYC-Greenthumb-Community-Gardens/ajxm-kzmj)
-* Demographic & health data from [nyc.gov](https://communityprofiles.planning.nyc.gov/)
+* Demographic & health data from [nyc.gov](https://www1.nyc.gov/site/doh/about/press/pr2019/2018-community-health-profiles.page)
 * Property value data from [Revised property value notices](https://data.cityofnewyork.us/City-Government/Revised-Notice-of-Property-Value-RNOPV-/8vgb-zm6e)
 * Participatory budgeting project tracker from [NYC OpenData](https://data.cityofnewyork.us/City-Government/Participatory-Budgeting-Project-Tracker/qm5f-frjb)
+* Community District Shapefile from [NYC OpenData](https://data.cityofnewyork.us/City-Government/Community-Districts/yfnk-k7r4)
 
 ### *Data Cleaning*
 
-Each dataset that was obtained was first individually cleaned. Most were already well organized, and unnecessary variables were removed for efficiency and clarity. Average variables for market value and budget allocation were calculated in these steps as well.
+Each text dataset that was obtained was first individually cleaned. Most were already well organized (in xlsx or csv format). Unnecessary variables were removed for efficiency and clarity. Average variables for market value and participatory budget allocation were calculated in these steps as well. 
 
 ```{r, message = FALSE, warning = FALSE}
 
@@ -201,9 +202,10 @@ budget_tidy =
   summarize(
     avg_tot_appropriated = mean(total_appropriated, na.rm = TRUE)
   )
+
 ```
 
-Afterwards, we merged all datasets into two tidied datasets. The first contains one row for each unique community districts with a variable for the number of community gardens per district, and the second contains one row for each unique community garden. 
+Afterwards, we merged all datasets into two tidied datasets. The first contains one row for each unique community districts with a variable for the number of community gardens per district, and the second contains one row for each unique community garden. At this stage we also obtained spatial data for community districts in shapefile format.
 
 ```{r, message = FALSE, warning = FALSE}
 
@@ -234,6 +236,10 @@ final_extra <-
 
 write_csv(final_tidy, "./data/final_df.csv")
 write_csv(final_tidy1, "./data/final_df_main.csv")
+
+# Load shapefile data
+working <- getwd()
+com_board_spdf <- readOGR(dsn = working, layer = "community_board_new", verbose = FALSE)
 ```
 
 The first tidied dataset contains 59 observations (the number of community boards in NYC) and consists of the following 36 variables:
@@ -304,9 +310,7 @@ leafIcons <- icons(
   iconWidth = 10, iconHeight = 20
 )
 
-# Prepare for leaflet outline.
-working <- getwd()
-com_board_spdf <- readOGR(dsn = working, layer = "community_board_new", verbose = FALSE)
+# Prepare shapefile for leaflet outline.
 invisible(names(com_board_spdf))
 data_spatial <- merge(com_board_spdf, garden, by.x = "boro_cd", by.y = "id_spatial")
 
@@ -494,8 +498,8 @@ analysis_data_final <-
   select(id_spatial, community_board, obesity, hypertension, life_expectancy, self_rep_health, poverty, avg_rev_value, avg_tot_appropriated, borough, garden_num) %>% 
 filter(!id_spatial %in% c('414'))
          
-working <- getwd()
-com_board_spdf <- readOGR(dsn = working, layer = "community_board_new", verbose = FALSE)
+#working <- getwd()
+#com_board_spdf <- readOGR(dsn = working, layer = "community_board_new", verbose = FALSE)
 com_board_spdf2 <- com_board_spdf[!com_board_spdf@data$boro_cd %in% c("414"), ]
 invisible(names(com_board_spdf))
 analysis_data_spatial <- merge(com_board_spdf2, analysis_data_final, by.x = "boro_cd", by.y = "id_spatial")
@@ -572,8 +576,8 @@ health_data_final <-
   read_csv("./data/final_df.csv") %>% 
   select(community_board, borough, obesity, hypertension, life_expectancy, self_rep_health, garden_num, id_spatial) 
 
-working <- getwd()
-com_board_spdf <- readOGR(dsn = working, layer = "community_board_new", verbose = FALSE)
+#working <- getwd()
+#com_board_spdf <- readOGR(dsn = working, layer = "community_board_new", verbose = FALSE)
 invisible(names(com_board_spdf))
 health_data_spatial <- merge(com_board_spdf, health_data_final, by.x = "boro_cd", by.y = "id_spatial")
 
@@ -607,7 +611,12 @@ leaflet(health_data_spatial) %>%
       direction = "auto"
     )
   ) %>%
-  addLegend( pal = pal2, values = ~obesity, opacity = 0.9, title = "Percent Obesity", position = "topleft" )
+  addLegend(pal = pal2, 
+            values = ~obesity, 
+            opacity = 0.9, 
+            title = "Percent Obesity", 
+            labFormat = labelFormat(suffix = "%"),
+            position = "topleft" )
 
 # Create a color palette for the hypertension map:
 pal3 <- colorNumeric("BuPu", health_data_spatial@data$hypertension)
@@ -639,7 +648,12 @@ leaflet(health_data_spatial) %>%
       direction = "auto"
     )
   ) %>%
-  addLegend( pal = pal3, values = ~hypertension, opacity = 0.9, title = "Percent Hypertension", position = "topleft" )
+  addLegend(pal = pal3, 
+            values = ~hypertension, 
+            opacity = 0.9, 
+            title = "Percent Hypertension",
+            labFormat = labelFormat(suffix = "%"),
+            position = "topleft" )
 
 # Create a color palette for the life expectancy map:
 pal4 <- colorNumeric("BuPu", health_data_spatial@data$life_expectancy)
@@ -671,7 +685,12 @@ leaflet(health_data_spatial) %>%
       direction = "auto"
     )
   ) %>%
-  addLegend( pal = pal4, values = ~life_expectancy, opacity = 0.9, title = "Life Expectancy", position = "topleft" )
+  addLegend(pal = pal4, 
+            values = ~life_expectancy, 
+            opacity = 0.9, 
+            title = "Life Expectancy", 
+            labFormat = labelFormat(suffix = " years"),
+            position = "topleft" )
 
 # Create a color palette for the self reported health map:
 pal5 <- colorNumeric("BuPu", health_data_spatial@data$self_rep_health)
@@ -703,7 +722,12 @@ leaflet(health_data_spatial) %>%
       direction = "auto"
     )
   ) %>%
-  addLegend( pal = pal5, values = ~self_rep_health, opacity = 0.9, title = "Self Reported Health", position = "topleft" )
+  addLegend(pal = pal5, 
+            values = ~self_rep_health, 
+            opacity = 0.9, 
+            title = "Percent Self-Reported </b><br>Good Health", 
+            labFormat = labelFormat(suffix = "%"),
+            position = "topleft" )
 ```
 
 From our maps we saw that obesity and hypertension are highly correlated, with a higher percentage of adults being obese and having hypertension in the Bronx and parts of Brooklyn. On the other hand, Manhattan has a much lower percentage of adults being obese and having hypertension. This relationship is further confirmed with life expectancy and self-reported health. Life expectancy at birth is highest for those in Manhattan and parts of Queens. Further, the highest percentage of adults rating their health as "excellent", "very good" or "good" lies in Manhattan and parts of Brooklyn. Therefore, it appears that adults living in Manhattan are the "healthiest". 
@@ -849,8 +873,8 @@ analysis_data_final <-
   select(id_spatial, community_board, obesity, hypertension, life_expectancy, self_rep_health, poverty, avg_rev_value, avg_tot_appropriated, borough, garden_num) %>% 
 filter(!id_spatial %in% c('414'))
          
-working <- getwd()
-com_board_spdf <- readOGR(dsn = working, layer = "community_board_new", verbose = FALSE)
+#working <- getwd()
+#com_board_spdf <- readOGR(dsn = working, layer = "community_board_new", verbose = FALSE)
 com_board_spdf2 <- com_board_spdf[!com_board_spdf@data$boro_cd %in% c("414"), ]
 invisible(names(com_board_spdf))
 analysis_data_spatial <- merge(com_board_spdf2, analysis_data_final, by.x = "boro_cd", by.y = "id_spatial")
