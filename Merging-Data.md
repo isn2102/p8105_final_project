@@ -206,13 +206,14 @@ budget_tidy =
 
     ## `summarise()` ungrouping output (override with `.groups` argument)
 
-### Merging 1:
+### Merging 1: dataset with all unique gardens
 
 ``` r
 final_tidy1 =
   left_join(demo, gardens, by = "community_board") %>% 
   left_join(., property_tidy, by = "community_board") %>% 
-  left_join(., budget_tidy, by = "community_board")
+  left_join(., budget_tidy, by = "community_board") %>% 
+  select(-neighborhood_name)
 ```
 
 ### Calculate number of gardens per community board
@@ -233,28 +234,14 @@ unique_comboard <-
   distinct(community_board, .keep_all = TRUE)
 ```
 
-### Merging 2:
+### Merging 2: dataset with unique community boards (no unique garden data)
 
 ``` r
 final_tidy <-
   left_join(unique_comboard, num_gardens, by = "community_board") %>% 
-  replace_na(list(garden_num = 0)) 
+  replace_na(list(garden_num = 0)) %>% 
+  select(id_spatial:boro, avg_org_value:garden_num)
 
-final_extra <-
-  left_join(final_tidy1, num_gardens, by = "community_board") %>% 
-  replace_na(list(garden_num = 0))
-
-write_csv(final_extra, "./data/final_extra.csv")
-write_csv(final_tidy, "./data/final_df.csv")
-write_csv(final_tidy1, "./data/final_df_main.csv")
+write_csv(final_tidy, "./data/final_unique_boards.csv")
+write_csv(final_tidy1, "./data/final_unique_gardens.csv")
 ```
-
-**Notes:**
-
-  - This dataset contains 531 observations (the number of gardens in the
-    garden dataset).
-
-  - I grouped the the property value variables and budgeting information
-    variables by community board so there was 1 observations per
-    community board in the “property\_tidy” and “budget\_tidy”
-    dataframes

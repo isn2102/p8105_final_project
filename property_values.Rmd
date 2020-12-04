@@ -33,7 +33,7 @@ scale_fill_discrete = scale_fill_viridis_d
   
 ```{r}
 property_data1 =
-  read_csv("./data/final_df_main.csv") %>%
+  read_csv("./data/final_unique_gardens.csv") %>%
   select(community_board, borough, overall_pop, poverty, rent_burden, avg_org_value, avg_rev_value, avg_tot_appropriated, latitude, longitude, garden_name) %>% 
   mutate(avg_rev_value = round(avg_rev_value, 0))
 

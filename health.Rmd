@@ -37,7 +37,7 @@ scale_fill_discrete = scale_fill_viridis_d
 
 ```{r, message = FALSE, warning = FALSE, include = FALSE}
 health_data_final <-
-  read_csv("./data/final_df.csv") %>% 
+  read_csv("./data/final_unique_boards.csv") %>% 
   select(community_board, borough, obesity, hypertension, life_expectancy, self_rep_health, garden_num, id_spatial) 
   
 working <- getwd()

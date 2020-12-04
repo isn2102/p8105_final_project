@@ -37,12 +37,12 @@ scale_fill_discrete = scale_fill_viridis_d
 
 ```{r, include = FALSE}
 garden =
-  read_csv("./data/final_df.csv") %>%
+  read_csv("./data/final_unique_boards.csv") %>%
   group_by(community_board) %>%
-  select(id_spatial, garden_num, community_board, borough, overall_pop, race_white:college_higher, garden_name:longitude)
+  select(id_spatial, garden_num, community_board, borough, overall_pop, race_white:college_higher)
 
 garden_all = 
-  read_csv("./data/final_df_main.csv")
+  read_csv("./data/final_unique_gardens.csv")
 
 leafIcons <- icons(
   iconUrl = "http://leafletjs.com/examples/custom-icons/leaf-green.png",
@@ -111,7 +111,7 @@ leaflet() %>%
 ```
 
 > Outlined community boards and individual garden locations.
-> Label text specifies the total number of gardens in a given community board. Gardens were designated as being part of a community board based on their community board label in the original gardens dataset, therefore gardens without latitude and longitude values (n = 111) are included in the label text but not as an individual data point on the map.
+> Label text specifies the total number of gardens in a given community board. Gardens were designated as being part of a community board based on their community board label in the original gardens dataset, therefore gardens without latitude and longitude values (n = 111) are included in the label text but not as an individual data point on the map (garden data last updated in 2017).
 
 Column {.tabset .tabset-fade data-width=400}
 -----------------------------------------------------------------------
@@ -144,7 +144,7 @@ reactable(age_tables, groupBy = "Borough",highlight = TRUE, searchable = TRUE, s
 
 ```
 
-> Proportion of age categories in each community board.
+> Proportion of age categories in each community board (data collected from 2012 - 2016).
 
 ### Education Distribution
 
@@ -175,7 +175,7 @@ reactable(edu_tables, groupBy = "Borough", highlight = TRUE, searchable = TRUE, 
   "College or higher" = colDef(aggregate = "mean", format = colFormat(digits = 2, suffix = "%"))))
 ```
 
-> Proportion of education levels in each community board.
+> Proportion of education levels in each community board (data collected from 2012 - 2016).
 
 ### Race Distributions
 
@@ -205,4 +205,4 @@ reactable(race_tables, highlight = TRUE, searchable = TRUE, striped = FALSE, ful
 
 ```
 
-> Proportion of race categories in each community board.
+> Proportion of race categories in each community board (data collected from 2012 - 2016).

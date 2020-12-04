@@ -416,7 +416,7 @@ div.tocify {
 
 
 <pre class="r"><code>analysis_data_final &lt;-
-  read_csv(&quot;./data/final_df.csv&quot;) %&gt;% 
+  read_csv(&quot;./data/final_unique_boards.csv&quot;) %&gt;% 
   select(id_spatial, community_board, obesity, hypertension, life_expectancy, self_rep_health, poverty, avg_rev_value, avg_tot_appropriated, borough, garden_num) %&gt;% 
 filter(!id_spatial %in% c(&#39;414&#39;))
          
@@ -433,21 +433,25 @@ analysis_data_spatial &lt;- merge(com_board_spdf2, analysis_data_final, by.x = &
 </div>
 <div id="analysis" class="section level4">
 <h4>Analysis</h4>
-<p><strong>Moran’s I</strong> A correlation coefficient that measures the overall spatial auto-correlation among nearby locations in space. It measures how similar an values of a spatial object are to the values of other spatial objects surrounding it. In this way Moran’s I helps identify whether variables are clustered in space in a non-random way.</p>
+<p><strong>Moran’s I</strong></p>
+<p>A correlation coefficient that measures the overall spatial auto-correlation among nearby locations in space. It measures how similar an values of a spatial object are to the values of other spatial objects surrounding it. In this way Moran’s I helps identify whether variables are clustered in space in a non-random way.</p>
 <p><strong>Moran’s I Interpretation</strong></p>
 <ul>
 <li>-1: perfect dispersion (definite pattern)</li>
 <li>0: no auto-correlation (perfect randomness, values are not dependent on values of nearby areas)</li>
 <li>+1: perfect clustering of similar values (opposite of dispersion)</li>
 </ul>
-<p><strong>Process</strong><br />
-* We created a Queen’s neighborhood spatial weight matrix to define spatial neighbors as those community districts which are directly touching * We used this to calculate Moran’s I using the <code>spdep</code> package</p>
+<p><strong>Process</strong></p>
+<ul>
+<li>We created a Queen’s neighborhood spatial weight matrix to define spatial neighbors as those community districts which are directly touching</li>
+<li>We used this to calculate Moran’s I using the <code>spdep</code> package</li>
+</ul>
 </div>
 <div id="results" class="section level4">
 <h4>Results</h4>
 <p>We found that <em>Moran’s I = 0.1899 (p=0.0138)</em>. This confirmed our hypothesis that community gardens in NYC are not evenly distributed spatially.</p>
 <pre class="r"><code>analysis_data_final &lt;-
-  read_csv(&quot;./data/final_df.csv&quot;) %&gt;% 
+  read_csv(&quot;./data/final_unique_boards.csv&quot;) %&gt;% 
   select(id_spatial, community_board, obesity, hypertension, life_expectancy, self_rep_health, poverty, avg_rev_value, avg_tot_appropriated, borough, garden_num) %&gt;% 
 filter(!id_spatial %in% c(&#39;414&#39;))
          
@@ -688,7 +692,7 @@ Self Reported Health
 </tr>
 </tbody>
 </table>
-<p><strong>Notes:</strong> the Lagrange multiplier lag was significant for the models for obesity, hypertension and life-expectancy. None of the Lagrange multipliers were significant for self-reported health.</p>
+<p><strong>Notes:</strong> The Lagrange multiplier lag was significant for the models for obesity, hypertension and life-expectancy. None of the Lagrange multipliers were significant for self-reported health.</p>
 </div>
 <div id="final-model" class="section level5">
 <h5><strong>Final Model</strong></h5>
@@ -1023,7 +1027,7 @@ poverty
 </tr>
 </tbody>
 </table>
-<p><strong>Notes:</strong> “Rho”: Indicates the spatial lag parameter (there is no rho term in the self-reported health model because a spatial lag model was not run here). Alpha was set at 0.01 to account for Bonferroni Correction</p>
+<p><strong>Notes:</strong> “Rho”: Indicates the spatial lag parameter (there is no rho term in the self-reported health model because a spatial lag model was not run here). Alpha was set at 0.01 to account for Bonferroni Correction.</p>
 </div>
 </div>
 <div id="results-1" class="section level4">
