@@ -5,14 +5,14 @@ navbar:
   left:
   - text: "Garden Map"
     href: main.html
-  - text: "Analysis"
-    href: analysis.html
   - text: "Exploratory Visualizations"
     menu:
     - text: "Health Conditions"
       href: health.html
     - text: "Economic Investment"
       href: property_values.html
+  - text: "Analysis"
+    href: analysis.html
 
   right:
   - text: "Report"

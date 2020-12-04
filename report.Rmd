@@ -243,10 +243,11 @@ com_board_spdf <- readOGR(dsn = working, layer = "community_board_new", verbose 
 
 **Variables**
 
-The first tidied dataset (`final_unique_boards`) contains 59 observations (the number of community boards in NYC): variables included denoted with *
-The second tidied dataset (`final_unique_gardens`) contains 535 rows (the number of unique community gardens):  
+The first tidied dataset (`final_unique_boards`) contains 59 observations (the number of community boards in NYC).
+The second tidied dataset (`final_unique_gardens`) contains 535 rows (the number of unique community gardens).
 
-* Variables included denotes with **
+* Variables included in `final_unique_boards`  denoted with *
+* Variables included in `final_unique_gardens`denotes with **
 * Variables existing in both dataset denotes with ***
 
 
@@ -1235,14 +1236,14 @@ rbind(obesity_lag_df, hypertension_lag_df, life_expect_lag_df, self_rep_lm_df) %
   knitr::kable() %>% 
     kable_styling() %>%
   pack_rows(index = c("Obesity" = 4, "Hypertension" = 4, "Life Expectancy" = 4, "Self Reported Health" = 3)) %>% 
-  row_spec(3, color = "black", background = "#ceebcc") %>% 
-  row_spec(7, color = "black", background = "#ceebcc") %>% 
-  row_spec(11, color = "black", background = "#EBE4CC", bold = TRUE) %>% 
-  row_spec(14, color = "black", background = "#ceebcc") 
+  row_spec(3, color = "black", background = "#EBE4CC") %>% 
+  row_spec(7, color = "black", background = "#EBE4CC") %>% 
+  row_spec(11, color = "black", background = "#ceebcc", bold = TRUE) %>% 
+  row_spec(14, color = "black", background = "#EBE4CC") 
 
 ```
 
-**Notes:** “Rho”: Indicates the spatial lag parameter (there is no rho term in the self-reported health model because a spatial lag model was not run here). Alpha was set at 0.01 to account for Bonferroni Correction.
+**Notes:** “Rho”: Indicates the spatial lag parameter (there is no rho term in the self-reported health model because a spatial lag model was not run here). Alpha was set at 0.01 to account for Bonferroni Correction.The yellow highlighted rows draw attention to our main exposure of interest and the green highlighted row indicates the one significant result.
 
 ***
 
@@ -1345,28 +1346,28 @@ resid_moran_ob <- moran.mc(analysis_data_spatial$residuals_ob, analysis_nbq_w, 9
   broom::tidy() %>% 
   select(p.value) %>% 
   mutate(
-    outcome = "obesity") %>% 
+    outcome = "Obesity") %>% 
   relocate(outcome)
 
 resid_moran_ht <- moran.mc(analysis_data_spatial$residuals_ht, analysis_nbq_w, 999) %>% 
   broom::tidy() %>% 
   select(p.value) %>% 
   mutate(
-    outcome = "hypertension") %>% 
+    outcome = "Hypertension") %>% 
   relocate(outcome)
 
 resid_moran_le <- moran.mc(analysis_data_spatial$residuals_le, analysis_nbq_w, 999) %>% 
   broom::tidy() %>% 
   select(p.value) %>% 
   mutate(
-    outcome = "life expectancy") %>% 
+    outcome = "Life Expectancy") %>% 
   relocate(outcome)
 
 resid_moran_srh <- moran.mc(analysis_data_spatial$residuals_srh, analysis_nbq_w, 999) %>% 
   broom::tidy() %>% 
   select(p.value) %>% 
   mutate(
-    outcome = "self reported health") %>% 
+    outcome = "Self Reported Health") %>% 
   relocate(outcome)
 
 rbind(resid_moran_ob, resid_moran_ht, resid_moran_le, resid_moran_srh) %>%
