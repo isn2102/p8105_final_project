@@ -467,8 +467,9 @@ reactable(age_tables, groupBy = "Borough",highlight = TRUE, searchable = TRUE, s
 # Creating education table
 edu_tables =
   garden_all %>% 
-  select(borough, community_board, on_time_hs_grad:college_higher) %>% 
+  select(borough, community_board, not_complete_hs:college_higher) %>% 
   distinct()
+
 
 # Additional order formatting
 edu_tables = 
@@ -476,7 +477,8 @@ edu_tables =
  relocate(not_complete_hs, .after = community_board)
 
 # Creating column names
-colnames(edu_tables) = c("Borough", "Community Board", "Less than High School", "High School", "Some College", "College or higher")
+
+colnames(edu_tables) = c("Borough", "Community Board", "Less than High School", "High School/Some College", "College or higher")
 
 # Creating interactive table and averages
 reactable(edu_tables, groupBy = "Borough", highlight = TRUE, searchable = TRUE, striped = FALSE, fullWidth = FALSE, showSortIcon = FALSE,
@@ -487,10 +489,10 @@ reactable(edu_tables, groupBy = "Borough", highlight = TRUE, searchable = TRUE, 
       minWidth = 100),
     columns = list(
   'Community Board' = colDef(),
-  "Less than High School" = colDef(aggregate = "mean", format = colFormat(digits = 2, suffix = "%")),
-  "High School" = colDef(aggregate = "mean", format = colFormat(digits = 2, suffix = "%")),
-  "Some College" = colDef(aggregate = "mean", format = colFormat(digits = 2, suffix = "%")),
-  "College or higher" = colDef(aggregate = "mean", format = colFormat(digits = 2, suffix = "%"))))
+  "Less than High School" = colDef(aggregate = "mean", format = colFormat(digits = 2, suffix = "%"), width = 150),
+  "High School/Some College" = colDef(aggregate = "mean", format = colFormat(digits = 2, suffix = "%"), width = 150),
+  "College or higher" = colDef(aggregate = "mean", format = colFormat(digits = 2, suffix = "%"), width = 150)))
+
 ```
 
 **Notes:** Proportion of education levels in each community board (data collected from 2012 - 2016).
