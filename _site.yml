@@ -25,3 +25,5 @@ navbar:
 output:
   html_document:
     theme: paper
+    
+<link rel="shortcut icon" type="image/x-icon" href="logo.ico">
