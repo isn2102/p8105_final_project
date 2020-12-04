@@ -425,8 +425,8 @@ com_board_spdf &lt;- readOGR(dsn = working, layer = &quot;community_board_new&qu
 com_board_spdf2 &lt;- com_board_spdf[!com_board_spdf@data$boro_cd %in% c(&quot;414&quot;), ]
 invisible(names(com_board_spdf))
 analysis_data_spatial &lt;- merge(com_board_spdf2, analysis_data_final, by.x = &quot;boro_cd&quot;, by.y = &quot;id_spatial&quot;)</code></pre>
-<div id="question-how-are-community-gardens-spatially-distributed-throughout-the-city" class="section level3">
-<h3><strong>Question: How are community gardens spatially distributed throughout the city?</strong></h3>
+<div id="community-gardens-distribution" class="section level3">
+<h3><strong>Community Gardens Distribution</strong></h3>
 <div id="hypothesis" class="section level4">
 <h4>Hypothesis</h4>
 <p>We hypothesized that the community gardens in NYC would not be evenly distributed spatially, indicating that the number of gardens in a specific community board is dependent on where in NYC you are looking geographically</p>
@@ -464,9 +464,6 @@ analysis_data_spatial &lt;- merge(com_board_spdf2, analysis_data_final, by.x = &
 # Create a queen&#39;s neighborhood weight matrix using poly2nb 
 analysis_nbq &lt;- poly2nb(analysis_data_spatial)
 
-# extract coordinates to plot the connectivity matrix for visualization.
-#coords &lt;- coordinates(analysis_data_spatial)
-
 # convert neighborhood matrix into a list so connections between counties can be used in Moran&#39;s I test.
 analysis_nbq_w &lt;- nb2listw(analysis_nbq)
 
@@ -474,9 +471,6 @@ analysis_nbq_w &lt;- nb2listw(analysis_nbq)
 # Convert Exposure variable to z-form and then create the lag of that variable.
 analysis_data_spatial@data$garden_num &lt;- scale(analysis_data_spatial@data$garden_num)
 analysis_data_spatial@data$lag_sQL &lt;- lag.listw(analysis_nbq_w,analysis_data_spatial@data$garden_num)
-
-# Lose spatial properties when we turn into data frame for analysis
-#analysis_sp_data &lt;- as.data.frame(analysis_data_spatial)
 
 # Run morans I test and plot the results.
 garden_moran &lt;- moran.test(analysis_data_spatial@data$garden_num, listw = analysis_nbq_w, zero.policy = TRUE)
@@ -487,8 +481,8 @@ moran.plot(as.vector(analysis_data_spatial@data$garden_num), listw = analysis_nb
 <p><img src="analysis_files/figure-html/unnamed-chunk-2-1.png" width="90%" /></p>
 </div>
 </div>
-<div id="question-how-are-the-locations-of-gardens-related-to-certain-demographic-characteristics" class="section level3">
-<h3><strong>Question: How are the locations of gardens related to certain demographic characteristics?</strong></h3>
+<div id="gardens-and-demographic-characteristics" class="section level3">
+<h3><strong>Gardens and Demographic Characteristics</strong></h3>
 <p>This was primarily a question that we explored through tables, and we did not incorporate demographic characteristics into our formal analysis. Some trends we saw include:</p>
 <ul>
 <li>Manhattan has a higher proportion of adults 25-44 and a lower percentage of children aged 0-17 compared to all other boroughs</li>
@@ -497,11 +491,11 @@ moran.plot(as.vector(analysis_data_spatial@data$garden_num), listw = analysis_nb
 <li>Manhattan and Staten Island have a higher proportion of people identifying as white compared to other boroughs, Bronx has a higher proportion of people identifying as Latino compared to other boroughs, Queens has a higher proportion of people identifying as Asian compared to other boroughs, and Brooklyn and Bronx have a higher percentage of people identifying as Black compared to other boroughs.</li>
 </ul>
 </div>
-<div id="question-what-is-the-relationship-between-community-gardens-and-economic-investment" class="section level3">
-<h3><strong>Question: What is the relationship between community gardens and economic investment?</strong></h3>
+<div id="gardens-and-economic-investment" class="section level3">
+<h3><strong>Gardens and Economic Investment</strong></h3>
 </div>
-<div id="question-what-is-the-relationship-between-community-gardens-and-health-conditions" class="section level3">
-<h3><strong>Question: What is the relationship between community gardens and health conditions?</strong></h3>
+<div id="gardens-and-health-conditions" class="section level3">
+<h3><strong>Gardens and Health Conditions</strong></h3>
 <p>We explored both of these questions using linear regression modeling.</p>
 <div id="exposure-of-interest-and-confounder" class="section level4">
 <h4><strong>Exposure of Interest and Confounder</strong></h4>
@@ -554,7 +548,7 @@ moran.plot(as.vector(analysis_data_spatial@data$garden_num), listw = analysis_nb
 <div id="analysis-1" class="section level4">
 <h4>Analysis</h4>
 <div id="choosing-a-model-linear-regression" class="section level5">
-<h5>Choosing a model: Linear Regression</h5>
+<h5>Choosing a Model: Linear Regression</h5>
 <ul>
 <li>Initially we intended to run a linear regression model because of ease of interpretation and flexibility with the model</li>
 <li>To determine the appropriateness of linear regression we assessed the assumptions (see <a href="report.html">report</a> for more information on this)
@@ -1041,6 +1035,7 @@ poverty
 <p><strong>Limitations</strong></p>
 <ul>
 <li><p>We were not able to analyze the economic variables because of missing data, and our visualization does not provide much information allowing the comparison of values between areas of high garden density and low garden density (or areas with no gardens).</p></li>
+<li><p>Different data collection times, which could lead to a lack of consistency and accuracy.</p></li>
 <li><p>The small sample size (59 community boards) only allowed adjustment for one covariate (poverty) which may not account for all the variance in the model and leave residual confounding.</p></li>
 <li><p>Our models may not be perfectly specified because the relationships of many of our outcome variables were not exactly linear with garden number, and there was some level of skew</p></li>
 </ul>

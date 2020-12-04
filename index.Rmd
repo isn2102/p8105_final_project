@@ -33,6 +33,8 @@ This project aims to further explore the relationship between community gardens 
 3. What is the relationship between community gardens and [economic investment](property_values.html)? 
 4. What is the relationship between community gardens and select [health conditions](health.html)? 
 
+You can see these questions answered through statistical analysis [here](analysis.html). 
+
 ***
 
 #### How to Get Involved

@@ -243,9 +243,11 @@ com_board_spdf <- readOGR(dsn = working, layer = "community_board_new", verbose 
 
 **Variables**
 
-The first tidied dataset  (`final_unique_boards`)contains 59 observations (the number of community boards in NYC): variables included denoted with *
-The second tidied dataset (`final_unique_gardens`) contains 535 rows (the number of unique community gardens): variables included denotes with **
-Variables existing in both dataset denotes with ***
+The first tidied dataset (`final_unique_boards`) contains 59 observations (the number of community boards in NYC): variables included denoted with *
+The second tidied dataset (`final_unique_gardens`) contains 535 rows (the number of unique community gardens):  
+
+* Variables included denotes with **
+* Variables existing in both dataset denotes with ***
 
 
   * `id_spatial`. Unique spatial ID for each board. **
@@ -281,13 +283,13 @@ Variables existing in both dataset denotes with ***
   * `longitude`. Longitude location of garden. **
   * `avg_org_value`. Average original market value of a property. ***
   * `avg_rev_value`. Average revised market value of a property. ***
-  * `avg_tot_appropriated`. Average amount of participatory budgeting allocated for all projects per a community board. ***
+  * `avg_tot_appropriated`. Average amount of participatory budgeting allocated for all projects per a community board. Data last updated February 2020. ***
   * `garden_num`. Number of gardens in each community board. *
 
 
 ***
 
-## Analytic and visualization strategy
+## Analytic and Visualization Strategy
 
 We initially selected the following variables as outcomes to explore with linear regression:   
 
@@ -571,7 +573,7 @@ moran.plot(as.vector(analysis_data_spatial@data$garden_num), listw = analysis_nb
 
 **Notes:** Moran’s I is correlation coefficient that measures the overall spatial auto-correlation among nearby locations in space. It measures how similar an values of a spatial object are to the values of other spatial objects surrounding it. A significant p-value indicates that the gardens are not evenly spatially distributed.
 
-This information serves as a foundation for the other analyses to build off 
+This information serves as a foundation for the other analyses to build off. 
 
 ***
 
@@ -582,7 +584,7 @@ The next step in our exploration was to answer the questions **"What is the rela
 
 ### **Health Conditions Dashboard**
 
-To visualize the spatial distribution of number of gardens and our [health outcomes](health.html) of interest (hypertension, obesity, life expectancy, and self-reported health) we used leaflet to create choropleths that colored each community district by quintile of value for the variable of interest.
+To visualize the spatial distribution of number of gardens and our [health outcomes](health.html) of interest (hypertension, obesity, life expectancy, and self-reported health), we used leaflet to create choropleths that colored each community district by quartile of value for the variable of interest.
 
 ```{r, message = FALSE, warning = FALSE}
 # Creating subset of tidied data for health exploration
@@ -760,11 +762,11 @@ leaflet(health_data_spatial) %>%
 
 From our maps we saw that obesity and hypertension are highly correlated, with a higher percentage of adults being obese and having hypertension in the Bronx and parts of Brooklyn. On the other hand, Manhattan has a much lower percentage of adults being obese and having hypertension. This relationship is further confirmed with life expectancy and self-reported health. Life expectancy at birth is highest for those in Manhattan and parts of Queens. Further, the highest percentage of adults rating their health as "excellent", "very good" or "good" lies in Manhattan and parts of Brooklyn. Therefore, it appears that adults living in Manhattan are the "healthiest". 
 
-Interestingly when comparing these health outcomes to the map of garden number per community district, it appears that the areas with a greater number of gardens actually have generally worse health outcomes. This is counter to our initial hypotheses. 
+Interestingly when comparing these health outcomes to the map of garden numbers per community district, it appears that the areas with a greater number of gardens actually have generally worse health outcomes. This is a counter to our initial hypotheses. 
 
 ### **Economic Conditions Dashboard**
 
-To visualize the spatial distribution of number of gardens and the [economic outcomes](property_values.html) of interest we used leaflet to visualize the locations of gardens and colored these points by quintile of the value for each economic variable of interest. In the dashboard we wanted to show both variables that we think are potential confounders (poverty and rent burden) as well as variables that exemplify community engagement (the amount of money allocated by the community to projects through participatory budgeting) and neighborhood value (average property market value). 
+To visualize the spatial distribution of number of gardens and the [economic outcomes](property_values.html) of interest, we used leaflet to visualize the locations of gardens and colored these points by quartile of the value for each economic variable of interest. In the dashboard we wanted to show both variables that we think are potential confounders (poverty and rent burden) as well as variables that exemplify community engagement (the amount of money allocated by the community to projects through participatory budgeting) and neighborhood value (average property market value). 
 
 One issue we encountered was that only 33 community districts use participatory budgeting (this is determined by the city council person), so there are about 25 districts where we do not have data on this particular measure of community engagement (visualized by the gray dots). 
 
@@ -809,7 +811,7 @@ property_data %>%
             opacity = 1) %<>% htmlwidgets::prependContent(html_fix)
 ```
 
-**Notes:** Visualization of the distribution of community gardens in New York City, colored by participatory budget allocated to each community board. NA values reflect community boards that do not engage in participatory budgeting. Budget allocation: total amount of participatory funding for projects in that community board. Participatory budget: process where community members vote of projects that they want funding to be allocated towards.
+**Notes:** Visualization of the distribution of community gardens in New York City, colored by participatory budget allocated to each community board. NA values reflect community boards that do not engage in participatory budgeting. Budget allocation: total amount of participatory funding for projects in that community board. Participatory budget: process where community members vote of projects that they want funding to be allocated towards. Data collected starting in 2018 and last updated February 2020. 
 
 
 ```{r, message = FALSE, warning = FALSE}
@@ -850,7 +852,7 @@ property_data %>%
 **Notes:** Visualization of the distribution of community gardens in New York City, colored by average revised market value in each community board, which is updated twice a year (most recently, Feb 2020). Average revised market value: updated original market value.
 
 
-```{r}
+```{r, message = FALSE, warning = FALSE}
 # Creating color palette for poverty map
 pal3 <- colorNumeric(
   palette = "viridis",
@@ -860,7 +862,7 @@ pal3 <- colorNumeric(
 property_data %>%
   mutate(
     click_label =
-      str_c("<b>", garden_name, "</b><br>Borough: ", borough,"</b><br>Community Borad: ", community_board, "</b><br>Percent Poverty: ", poverty, "%")) %>% 
+      str_c("<b>", garden_name, "</b><br>Borough: ", borough,"</b><br>Community Board: ", community_board, "</b><br>Percent Poverty: ", poverty, "%")) %>% 
   leaflet() %>%
   addProviderTiles(providers$CartoDB.Positron) %>% 
   addCircleMarkers(~longitude, ~latitude, radius = .1, color = ~pal3(poverty), popup = ~click_label) %>% 
@@ -870,9 +872,9 @@ property_data %>%
             opacity = 1)
 ```
 
-**Notes:** Visualization of the distribution of community gardens in New York City, colored by average percent poverty in each community board location. Poverty: percentage of residents living below 100% of NYC's calculated poverty threshold, based on income and necessary expenses.
+**Notes:** Visualization of the distribution of community gardens in New York City, colored by average percent poverty in each community board location. Poverty: percentage of residents living below 100% of NYC's calculated poverty threshold, based on income and necessary expenses. Data collected from 2012-2016 (community district and NYC).
 
-```{r}
+```{r, message = FALSE, warning = FALSE}
 
 # Creating color palette for rent burden map
 pal4 <- colorNumeric(
@@ -883,7 +885,7 @@ pal4 <- colorNumeric(
 property_data %>%
   mutate(
     click_label =
-      str_c("<b>", garden_name, "</b><br>Borough: ", borough,"</b><br>Community Borad: ", community_board, "</b><br>Percent of Income Spent on Rent: ", rent_burden, "%")) %>% 
+      str_c("<b>", garden_name, "</b><br>Borough: ", borough,"</b><br>Community Board: ", community_board, "</b><br>Percent of Income Spent on Rent: ", rent_burden, "%")) %>% 
   leaflet() %>%
   addProviderTiles(providers$CartoDB.Positron) %>% 
   addCircleMarkers(~longitude, ~latitude, radius = .1, color = ~pal4(rent_burden), popup = ~click_label) %>% 
@@ -893,7 +895,7 @@ property_data %>%
             opacity = 1)
 ```
 
-**Notes:** Visualization of the distribution of community gardens in New York City, colored by average percent of monthly income spent on rent in each community board location. Rent burden: percentage of renter-occupied homes whose gross rent is greater than or equal to 30% of the household income in the past 12 months.
+**Notes:** Visualization of the distribution of community gardens in New York City, colored by average percent of monthly income spent on rent in each community board location. Rent burden: percentage of renter-occupied homes whose gross rent is greater than or equal to 30% of the household income in the past 12 months. Data collected from 2012-2016 from the US Census.
 
 Looking at the budget and funding allocation map, we can see that most community boards receive around 150,000 to 350,000 dollars. Simply looking at this distribution does not provide any clear association, however there are a few pockets in east Harlem and the South Bronx that have higher budgets. 
 
@@ -922,7 +924,7 @@ invisible(names(com_board_spdf))
 analysis_data_spatial <- merge(com_board_spdf2, analysis_data_final, by.x = "boro_cd", by.y = "id_spatial")
 ```
 
-#### Assessing appropriateness of a linear model 
+#### Assessing Appropriateness of a Linear Model 
 We initially selected a linear model to test the relationship between the number of gardens in a community and our selected health and economic outcomes: 
 - Obesity  
 - Hypertension  
@@ -934,8 +936,10 @@ We initially selected a linear model to test the relationship between the number
 
 To confirm that linear regression is an appropriate model we first checked the assumptions. 
 
-##### **Normal distribution of variables** 
+##### **Normal Distribution of Variables** 
+
 Although several of our outcomes of interest are percentages (not continuous), it is common to use linear regression if the dependent variables are normally distributed without many values in the extremes (0 or 100). To check this we plotted the distribution of each outcome variable. All variables are mostly normally distributed.  
+
 ```{r, message = FALSE, warning = FALSE}
 
 market_val_density <-
@@ -974,8 +978,10 @@ market_val_density + tot_appr_density + life_exp_density + obes_density + hypert
 
 **Notes:** The above paneled graphs show the distribution of the outcome variables we were interested in studying. 
 
-##### **Linearity of predictor/outcome relationship and Homoscedasticity**  
+##### **Linearity of Predictor/Outcome Relationship and Homoscedasticity** 
+
 We next plotted each of our predictors (garden number and poverty) against each outcome variable to assess linearity of the relatinoship and equal variance. Most outcomes have a vaguely linear association, however it appears that the variance is not constant (heteroscedasticity), which we will address by looking at residuals after fitting our model. We tried transforming x (garden number) with a log transformation so that it would be a more linear relationship, but this resulted in an eventual error later in the analysis so we decided to stick with an untransformed x variable. Average revised market value did not seem to have a linear relationship at all, so we did not move forward with this outcome. 
+
 ```{r, message = FALSE, warning = FALSE}
 
 obesity_plot <-
@@ -1045,7 +1051,8 @@ avg_appr_poverty + avg_rev_poverty + life_poverty + obesity_poverty + hypertensi
 
 **Notes:** The above paneled plots depict the association of linearity between our exposure (garden number) and covariate (poverty) with all the outcome variables. We dropped market value from our analysis because this association was not close to linear with garden number.
 
-##### **No or little multicollinearity** 
+##### **Multicollinearity** 
+
 We check multicollinearity with this plot displaying the correlation between all variables. Regarding regression assumptions, we care about the explanatory variables not being too highly correlated with each other. We see that the correlation coefficient between garden number and poverty (the two explanatory variables) is only 0.32, which is not very high. 
 
 ```{r, message = FALSE, warning = FALSE}
@@ -1065,7 +1072,8 @@ analysis_data_final %>%
 **Notes:** The graphic above shows different color and intensity of shading based on the strength of the correlation between variables. We saw that the correlation between our exposure and covariate variables was not very strong, which was desirable. 
 
 
-##### **No auto-correlation**  
+##### **Auto-Correlation**  
+
 An assumption of linear regression is that the observations are independent. From our initial visual exploration, we suspected that there would be substantial auto-correlation (values are dependent on values of nearby areas) as it appears that [number of gardens](main.html), [economic variables](property_values.html), and [health outcome variables](health.html) are all clustered in space. 
 
 To test for spatial auto-correlation of variables beyond our visual assessment we used Moran's I. 
@@ -1149,9 +1157,12 @@ moran.plot(as.vector(analysis_data_spatial@data$self_rep_health), listw = analys
 
 We found that the **Moran's I for was significant at the 1% level for obesity, hypertension, life expectancy, and self-reported health.** We were not able to calculate Moran's I for participatory budget allocation because of too many missing values. Given the substantial number of missing values for budget, we did not move forward in the formal analysis with this outcome. Because we see significant spatial auto-correlation for all four of the health outcome variables, we decided to adjust for a spatial parameter in our linear regression model. 
 
-#### Fitting a model 
+***
 
-**Initial linear model**  
+#### Fitting a Model 
+
+**Initial Linear Model**  
+
 Based on our determination of spatial auto-correlation, we decided to fit spatial regression models. We first fit general linear models and then ran Lagrange Multiplier tests on these to identify the appropriate type of spatial regression model to use. We used the following flowchart to identify the appropriate spatial regression model based on the Lagrange multiplier diagnostics. 
 
 Since we only have one observation per community board and the values are only related to each other spatially, we don't have a higher order category to describe the similarity among community boards. Therefore, we chose to run a spatial model instead of a generalized estimating equation (GEE) or multi-level model.
@@ -1187,9 +1198,11 @@ lagrange_df %>%
 
 **Notes:** The Lagrange multiplier lag was significant for the models for obesity, hypertension and life-expectancy. None of the Lagrange multipliers were significant for self-reported health.
 
-**Final regression models**  
+**Final Regression Models**  
 
 Based on our spatial diagnostics we concluded that we need to run a spatial lag model for obesity, hypertension, and life expectancy, and a regular linear regression model for self-reported health (because none of the LM tests were significant, indicating no need for a spatial parameter adjustment). A spatial lag model includes a parameter (rho) that adjusts for spatial dependence among observations and ultimately ensures the residuals are no longer spatially correlated. This fixes the issue of dependent residuals in our model and makes us more confident that we have chosen an appropriate model because we are no longer violating the independence assumption. 
+
+**Spatial Lag Models for Outcomes**
 
 ```{r, message = FALSE, warning = FALSE}
 # Specify Spatial Lag Model for obesity
@@ -1217,7 +1230,7 @@ self_rep_lm %>%
   broom::tidy() 
 
 rbind(obesity_lag_df, hypertension_lag_df, life_expect_lag_df, self_rep_lm_df) %>%
-  knitr::kable(caption = "Spatial Lag Models for Outcomes") %>% 
+  knitr::kable() %>% 
     kable_styling() %>%
   pack_rows(index = c("Obesity" = 4, "Hypertension" = 4, "Life Expectancy" = 4, "Self Reported Health" = 3)) %>% 
   row_spec(3, color = "black", background = "#ceebcc") %>% 
@@ -1229,7 +1242,9 @@ rbind(obesity_lag_df, hypertension_lag_df, life_expect_lag_df, self_rep_lm_df) %
 
 **Notes:** “Rho”: Indicates the spatial lag parameter (there is no rho term in the self-reported health model because a spatial lag model was not run here). Alpha was set at 0.01 to account for Bonferroni Correction.
 
-### Revisiting model diagnostics
+***
+
+### Revisiting Model Diagnostics
 
 Once we fit our final models, we wanted to revisit the residuals to confirm that our assumptions of independence (no spatial correlation), normality, and homoscedasticity are satisfied. 
 ```{r, message = FALSE, warning = FALSE}
@@ -1322,7 +1337,7 @@ leaflet(analysis_data_spatial) %>%
 
 We also used the Moran's I test to check that the residuals for each model are not spatially correlated, as shown by the insignificant p-values for the Moran's I on the residuals from the all final models. 
 
-```{r}
+```{r, message = FALSE, warning = FALSE}
 # Check that residuals are no longer spatially dependent with the lag model 
 resid_moran_ob <- moran.mc(analysis_data_spatial$residuals_ob, analysis_nbq_w, 999) %>% 
   broom::tidy() %>% 
@@ -1359,6 +1374,8 @@ rbind(resid_moran_ob, resid_moran_ht, resid_moran_le, resid_moran_srh) %>%
 
 **Notes:** We assessed Moran's I for the final, spatially adjusted models and found no significant p-values.
 
+***
+
 ### Analysis and Visualization Conclusions
 
 Our analysis and visualizations were able to answer some of our initial questions, however we were not able to conclusively answer all of them due to limitations in our data.  
@@ -1367,19 +1384,23 @@ Our analysis and visualizations were able to answer some of our initial question
 
  * We did not do a formal analysis of demographic characteristics and community gardens, and instead opted for a more interactive tool that allows viewers to look up detailed demographic information for each community board. From this we can see that some trends where the areas with more garden tend to have a more racially diverse population and lower education levels. 
 
- * In our formal analysis through spatial linear regression we set alpha at 0.01, using the Bonferroni Correction, to account for the fact that we are doing multiple comparisons (4 models). Our models reveal that when adjusting for spatial effects and poverty, number of gardens is not associated with health outcomes for obesity, hypertension, or self-reported health. Despite not being significant, in each of these models the coefficient for garden number was in the direction of predicting worse health for each of these outcomes. In the one model where garden number was significant, we found that number of gardens is associated with a 1.19 year decrease in life expectancy when adjusting for poverty and spatial effects. Based on our diagnostics of residuals plotted against predicted values and our residuals plotted spatially, we are satisfied that our models fit the data fairly well. 
+ * In our formal analysis through spatial linear regression we set alpha at 0.01 using the Bonferroni Correction, to account for the fact that we are doing multiple comparisons (4 models). Our models reveal that when adjusting for spatial effects and poverty, number of gardens is not associated with health outcomes for obesity, hypertension, or self-reported health. Despite not being significant, in each of these models the coefficient for garden number was in the direction of predicting worse health for each of these outcomes. In the one model where garden number was significant, we found that number of gardens is associated with a 1.19 year decrease in life expectancy when adjusting for poverty and spatial effects. Based on our diagnostics of residuals plotted against predicted values and our residuals plotted spatially, we are satisfied that our models fit the data fairly well. 
  
  * We were not able to analyze the relationships of garden number with participatory budget allocation or average market value because of missing values for these variables. However from the visualization we can see that many of the areas with a high number of gardens also experience high percentage of poverty and high rent burden. Some of the areas with a high concentration of gardens (east Harlem and South Bronx) also show a particularly high average participatory budget allocation. There does not appear to be a trend with market value and garden location.
+ 
+***
 
-### Limitations 
+## Limitations 
 
 It is important to note the limitations of our model and analysis. 
 
 First, as mentioned we were not able to analyze the economic variables because of missing data. Additionally as we chose to visualize garden points colored by the economic variables, our visualization does not provide much information allowing the comparison of these values between areas of high garden density and low garden density (or areas with no gardens). We chose this visualization method because of the increased detail given with the specific location of gardens, but we recognize the information that is lost given this choice.
 
-Second, we have a small sample size (59 community boards), which became even smaller after removing one observation for having no neighboring community boards. As a result, we only adjusted for one covariate (poverty) which may not account for all the variance in the model and leave residual confounding. As can be seen from the demographic information section, there are clearly differences in other characteristics between the community boards. These differences may contribute to differential health outcomes, however we were not able to adjust for these which may obscure the true relationship of gardens to health outcomes. 
+Second, the data were not all collected at the same time. For example, the community data was compiled in 2018 but other data were last updated in 2020. Therefore, it is possible that some of the data that was included in this analysis is not up to date. However, we expect that if updated, there would be be significant changes. 
 
-Thirdly, when selecting the type of model we are aware that many of our outcomes are not perfectly linear relationships with garden number. Further, many variables that we included in our exploratory visualizations were skewed (ex. poverty, rent burden). We initially tried to use the log of garden number in order to transform to a more linear and normal relationship. However, we ran into issues later when using log(garden number) in the analysis due to the spatial nature. Therefore, we decided to continue with using a linear model, which may not be the absolute best fit for the data.  
+Third, we have a small sample size (59 community boards), which became even smaller after removing one observation for having no neighboring community boards. As a result, we only adjusted for one covariate (poverty) which may not account for all the variance in the model and leave residual confounding. As can be seen from the demographic information section, there are clearly differences in other characteristics between the community boards. These differences may contribute to differential health outcomes, however we were not able to adjust for these which may obscure the true relationship of gardens to health outcomes. 
+
+Finally, when selecting the type of model we are aware that many of our outcomes are not perfectly linear relationships with garden number. Further, many variables that we included in our exploratory visualizations were skewed (ex. poverty, rent burden). We initially tried to use the log of garden number in order to transform to a more linear and normal relationship. However, we ran into issues later when using log(garden number) in the analysis due to the spatial nature. Therefore, we decided to continue with using a linear model, which may not be the absolute best fit for the data.  
 
 ***
 
