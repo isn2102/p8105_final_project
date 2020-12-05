@@ -192,7 +192,7 @@ leaflet(health_data_spatial) %>%
 
 ```
 
-> Visualization of the distribution of hypertensio across community boards. 
+> Visualization of the distribution of hypertension across community boards. 
 > Hypertension: Percentage of adults ages 18 and older who report ever being told by a healthcare professional that they have hypertension, also known as high blood pressure. Data from the NYC 2018 Community Health Profiles.
 
 
@@ -241,7 +241,7 @@ leaflet(health_data_spatial) %>%
 ```
 
 > Visualization of the distribution of life expectancy across community boards. 
-> Life expectancy: Life expectancy at birth. Data from the NYC 2018 Community Health Profiles.
+> Life expectancy defined at birth. Data from the NYC 2018 Community Health Profiles.
 
 
 ### Self Reported Health

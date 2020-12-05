@@ -53,13 +53,13 @@ analysis_data_spatial <- merge(com_board_spdf2, analysis_data_final, by.x = "bor
 ```
 
 
-### **Community Gardens Distribution**  
+## **Community Gardens Distribution**  
  
-#### Hypothesis
+### Hypothesis
 
   We hypothesized that the community gardens in NYC would not be evenly distributed spatially, indicating that the number of gardens in a specific community board is dependent on where in NYC you are looking geographically
  
-#### Analysis
+### Analysis
 
 **Moran's I**
 
@@ -76,7 +76,7 @@ A correlation coefficient that measures the overall spatial auto-correlation amo
  * We created a Queen's neighborhood spatial weight matrix to define spatial neighbors as those community districts which are directly touching
  * We used this to calculate Moran's I using the `spdep` package
 
-#### Results
+### Results
 
   We found that *Moran's I = 0.1899 (p=0.0138)*. This confirmed our hypothesis that community gardens in NYC are not evenly distributed spatially.
 
@@ -112,53 +112,52 @@ moran.plot(as.vector(analysis_data_spatial@data$garden_num), listw = analysis_nb
 ```
 
 
-### **Gardens and Demographic Characteristics**  
+## **Gardens and Demographic Characteristics**  
 This was primarily a question that we explored through tables, and we did not incorporate demographic characteristics into our formal analysis. Some trends we saw include:  
 
  * Manhattan has a higher proportion of adults 25-44 and a lower percentage of children aged 0-17 compared to all other boroughs
  * The Bronx has the highest percentage of people who have less than a high school education, and Manhattan has the highest percentage of people who have a college education or higher  
  * Manhattan and Staten Island have a higher proportion of people identifying as white compared to other boroughs, Bronx has a higher proportion of people identifying as Latino compared to other boroughs, Queens has a higher proportion of people identifying as Asian compared to other boroughs, and Brooklyn and Bronx have a higher percentage of people identifying as Black compared to other boroughs. 
 
-### **Gardens and Economic Investment**  
-### **Gardens and Health Conditions**   
+## **Relationship of Gardens with Economic Investment and Health Conditions**   
 
 We explored both of these questions using linear regression modeling. 
 
-#### **Exposure of Interest and Confounder**
+### Exposure of Interest and Confounder
 
-##### Exposure:
+#### Exposure:
 
  * Number of gardens in each Community Board 
 
-##### Confounder:
+#### Confounder:
 
  * Poverty - percent living below 100% of NYC's calculated poverty threshold based on income and necessary expenses
     
     - Community gardens are historically formed in empty lots/areas of abandoned buildings 
     - Poverty impacts health and perceived neighborhood value
 
-#### **Outcomes of Interest** 
+### Outcomes of Interest 
 
-##### Health Outcomes
+#### Health Outcomes
 
  * Obesity - percent obesity in a community board (BMI > 30)
  * Hypertension - percent of hypertension in a community board (individuals with a diagnosis)
  * Life expectancy - at birth
  * Self reported health - percent of adults reporting health of "excellent," "very good," or "good" on a scale from excellent to poor
 
-##### Economic Outcomes
+#### Economic Outcomes
 
  * Average total appropriated - the amount of money allocated through the participatory budget process, averaged across all projects in a community board
     - After assessing the distribution of values, we found that there were too many missing values and chose to not move forward in analyzing this variable.
  * Average Market value of buildings  
     - After assessing the distribution of values, we found that there were too many missing values and chose to not move forward in analyzing this variable. Additionally the relationship of garden number to average market value was not remotely linear so we were not able to include it in our analysis using linear regression.
 
-#### Hypothesis  
+### Hypothesis  
   We hypothesized that a greater number of gardens in a community district would be associated with a decrease in the percentage of adults with hypertension and obesity, and an increase in life expectancy and the percentage of adults reporting good health, adjusting for percent poverty.
 
-#### Analysis
+### Analysis
 
-##### Choosing a Model: Linear Regression 
+#### Choosing a Model: Linear Regression 
 
  * Initially we intended to run a linear regression model because of ease of interpretation and flexibility with the model
  * To determine the appropriateness of linear regression we assessed the assumptions (see [report](report.html) for more information on this)
@@ -172,7 +171,7 @@ We explored both of these questions using linear regression modeling.
       - *Moran's I was significant for obesity, hypertension, life expectancy and self-reported health indicating that these observations are not spatially independent*
       - **We decided to adjust for a spatial parameter in our linear regression model to account for the significant auto-correlation**
 
-##### Spatial Diagnostics
+#### Spatial Diagnostics
 
   We fit general linear regression models for each outcome (obesity, hypertension, life expectancy, self-reported health) and ran Lagrange Multiplier tests on these to identify the appropriate type of spatial regression model to use. See [report](report.html) for more details on the diagnostic process.
 
@@ -204,7 +203,7 @@ lagrange_df %>%
 
 **Notes:** The Lagrange multiplier lag was significant for the models for obesity, hypertension and life-expectancy. None of the Lagrange multipliers were significant for self-reported health.
 
-##### **Final Model**
+#### **Final Model**
 
   Based on the linear regression assumptions and the spatial diagnostic tests, we concluded that we need to run **spatial lag linear regression models** for obesity, hypertension, and life-expectancy and a **regular multivariable linear regression model ** for self-reported health (since none of the Lagrange tests were significant we deduced that there was no need for spatial parameter adjustment). 
 
@@ -236,22 +235,22 @@ self_rep_lm %>%
 rbind(life_expect_lag_df, obesity_lag_df, hypertension_lag_df, self_rep_lm_df) %>%
   knitr::kable() %>% 
     kable_styling() %>%
-  pack_rows(index = c("Obesity" = 4, "Hypertension" = 4, "Life Expectancy" = 4, "Self Reported Health" = 3)) %>% 
-  row_spec(3, color = "black", background = "#ceebcc") %>% 
-  row_spec(7, color = "black", background = "#ceebcc") %>% 
-  row_spec(11, color = "black", background = "#EBE4CC", bold = TRUE) %>% 
-  row_spec(14, color = "black", background = "#ceebcc") 
+  pack_rows(index = c("Life Expectancy" = 4, "Obesity" = 4, "Hypertension" = 4, "Self Reported Health" = 3)) %>% 
+  row_spec(3, color = "black", background = "#ceebcc", bold = TRUE) %>% 
+  row_spec(7, color = "black", background = "#EBE4CC") %>% 
+  row_spec(11, color = "black", background = "#EBE4CC") %>% 
+  row_spec(14, color = "black", background = "#EBE4CC") 
 
 ```
 
 **Notes:** "Rho": Indicates the spatial lag parameter (there is no rho term in the self-reported health model because a spatial lag model was not run here). Alpha was set at 0.01 to account for Bonferroni Correction.
 
-#### Results
+### Results
   We set alpha at 0.01 to account for the fact that we are doing multiple comparisons (4 models). At this level of significance we found that there was no significant association between number of gardens and percent obesity, number of gardens and percent hypertension, or number of gardens and percent self-reporting good health.  
   
   We found that at the 1% level of significance a one unit increase in the number of gardens is associated with a **1.19 year decrease** in life expectancy, controlling for poverty and spacial effects. 
   
-### **Takeaways**
+## **Takeaways**
 
 **Limitations**
 

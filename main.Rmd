@@ -53,8 +53,6 @@ working <- getwd()
 com_board_spdf <- readOGR(dsn = working, layer = "community_board_new")
 names(com_board_spdf)
 data_spatial <- merge(com_board_spdf, garden, by.x = "boro_cd", by.y = "id_spatial")
-
-# Map of community boards regions and individual gardens. 111 gardens were missing longitude and latitude, so their individual leaf locations are missing from the map.
   
 ```
 

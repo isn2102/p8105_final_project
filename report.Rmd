@@ -9,6 +9,8 @@ editor_options:
   chunk_output_type: console
 ---
 
+<h6 style="text-align: center;" markdown="1">By: Sushupta Vijapur  ||  Kelley Lou ||  Isabel Nelson </h6>
+
 ```{r setup, include=FALSE}
 
 library(tidyverse)
@@ -266,7 +268,6 @@ The second tidied dataset (`final_unique_gardens`) contains 535 rows (the number
   * `age25to44`. Percent age between 25 and 44 years. ***
   * `age45to64`. Percent age between 45 and 64 years. ***
   * `age65plus`. Percent age 65 years and older. ***
-  * `on_time_hs_grad`. Percentage of public high school freshman from the 2013-2014 school year who graduated in 4 years. ***
   * `not_complete_hs`. Percentage of adults ages 25 and older whose highest level of education is less than a high school diploma or GED. ***
   * `hs_some_college`. Percentage of adults ages 25 and older who have a high school diploma or a high school diploma and some college. ***
   * `college_higher`. Percentage of adults ages 25 and older who obtained an educational degree above a High School diploma (Associate’s, Bachelor’s, or Graduate or professional degree). ***
@@ -319,9 +320,9 @@ Given that community gardens were historically formed in empty lots that resulte
 6. A higher number of community gardens in a district will be associated with higher average property market values.   
 
 Once we selected our variables of interest and formulated our hypotheses, we did some initial visual explorations to better understand our data. To help answer our first question **"How are community gardens spatially distributed throughout the city?**" we [visualized the distribution of community gardens](main.html) throughout the city. We wanted to see if the locations of community gardens are clustered throughout New York City.
-Furthermore, the dashboard for *Health conditions* provides a visual comparing number of gardens to percent obesity, hypertension, life expectancy, and self reported health. The dashboard for *Economic investment* shows a visual comparison between budget allocated to each board and market value, poverty percent and rent burden percent.
+Furthermore, the dashboard for [*Health conditions*] (health.html) provides a visual comparing number of gardens to percent obesity, hypertension, life expectancy, and self reported health. The dashboard for [*Economic investment*] (property_values.html) shows a visual comparison between budget allocated to each board and market value, poverty percent and rent burden percent.
 
-### **Garden Distribution**
+### Garden Distribution
 
 To explore this distribution, we created a leaflet map showing each garden as well as the outline of each community board. The labels for each community district have the total number of gardens in that district.  
 
@@ -428,7 +429,7 @@ number_borough %>%
 
 **Notes:** Number of gardens by each community board in NYC (garden data last updated in 2017).
 
-To answer our second question **"How are the locations of gardens related to certain demographic characteristics?** we created tables showing an overview of demographic information which allows the reader to gain a better understanding of differences between community boards These tables are side by side with the map of community gardens, so readers can click on a community board on the map and then search for the corresponding board in the tables to see the demographic characteristics of that area.
+To answer our second question **"How are the locations of gardens related to certain demographic characteristics?"** we created tables showing an overview of demographic information which allows the reader to gain a better understanding of differences between community boards. These tables are side by side with the map of community gardens, so readers can click on a community board on the map and then search for the corresponding board in the tables to see the demographic characteristics of that area.
 
 #### **Age Distribution**
 
@@ -529,7 +530,7 @@ reactable(race_tables, highlight = TRUE, searchable = TRUE, striped = FALSE, ful
 
 **Notes:** Proportion of race categories in each community board (data collected from 2012 - 2016).
 
-The garden map illustrates that there are many gardens distributed around the city, however they do not seem to be evenly spaced. There appear to be more gardens in north Brooklyn, south / west Queens, the lower east side, northern Manhattan and the Bronx. 
+The garden map illustrates that there are many gardens distributed around the city, however they do not seem to be evenly spaced. There appear to be more gardens in North Brooklyn, South / West Queens, the Lower East Side, Northern Manhattan and the Bronx. 
 
 The age table shows that the distribution in age across the five boroughs are similar, with the majority of people being 25 to 44 years old. However, there seems to be less children living in Manhattan when compared to the other boroughs. In terms of education, there is a larger difference. It appears that most people living in New York City have a high school education, with percentages tapering quickly moving towards college. Manhattan has the highest percentage of a college education or higher (65%), which is much higher than all other boroughs, more than doubling the percentage in the Bronx. Race also appears to be highly divided. While the majority of people in Staten Island are white, the majority of people in the Bronx are Latino. Manhattan and Queens are more evenly distributed, showing the difference in racial makeup for each geographical location.
 
@@ -543,17 +544,12 @@ analysis_data_final <-
   select(id_spatial, community_board, obesity, hypertension, life_expectancy, self_rep_health, poverty, avg_rev_value, avg_tot_appropriated, borough, garden_num) %>% 
 filter(!id_spatial %in% c('414'))
          
-#working <- getwd()
-#com_board_spdf <- readOGR(dsn = working, layer = "community_board_new", verbose = FALSE)
 com_board_spdf2 <- com_board_spdf[!com_board_spdf@data$boro_cd %in% c("414"), ]
 invisible(names(com_board_spdf))
 analysis_data_spatial <- merge(com_board_spdf2, analysis_data_final, by.x = "boro_cd", by.y = "id_spatial")
 
 # Create a queen's neighborhood weight matrix using the poly2nb command.
 analysis_nbq <- poly2nb(analysis_data_spatial)
-
-# extract coordinates to plot the connectivity matrix for visualization.
-#coords <- coordinates(analysis_data_spatial)
 
 # convert the neighborhood matrix into a list so that the connections between counties can be used in Moran's I test.
 analysis_nbq_w <- nb2listw(analysis_nbq)
@@ -562,9 +558,6 @@ analysis_nbq_w <- nb2listw(analysis_nbq)
 # Convert Exposure variable to z-form and then create the lag of that variable.
 analysis_data_spatial@data$garden_num <- scale(analysis_data_spatial@data$garden_num)
 analysis_data_spatial@data$lag_sQL <- lag.listw(analysis_nbq_w,analysis_data_spatial@data$garden_num)
-
-# Lose spatial properties when we turn into data frame for analysis
-#analysis_sp_data <- as.data.frame(analysis_data_spatial)
 
 # Run morans I test and plot the results.
 garden_moran <- moran.test(analysis_data_spatial@data$garden_num, listw = analysis_nbq_w, zero.policy = TRUE)
@@ -580,12 +573,12 @@ This information serves as a foundation for the other analyses to build off.
 
 ***
 
-### **Relationship of Garden Number to Economic and Health Outcomes**
+### Relationship of Garden Number to Economic and Health Outcomes
 
 The next step in our exploration was to answer the questions **"What is the relationship between community gardens and economic investment?"** and **"What is the relationship between community gardens and health conditions?"** To do this we decided to build regression models using the number of gardens in each community district as the main predictor of interest. We began the process by selecting specific outcome variables that we hypothesized might be influenced by the number of gardens in a community district, informed by prior literature. The studies and articles we reviewed (see Background and Related Work section of the report) suggested that access to green space and gardens was beneficial for health, and that community gardens may also positively impact community engagement and the perceived value of the neighborhood. 
 
 
-### **Health Conditions Dashboard**
+### Health Conditions Dashboard
 
 To visualize the spatial distribution of number of gardens and our [health outcomes](health.html) of interest (hypertension, obesity, life expectancy, and self-reported health), we used leaflet to create choropleths that colored each community district by quartile of value for the variable of interest.
 
@@ -595,8 +588,6 @@ health_data_final <-
   read_csv("./data/final_unique_boards.csv") %>% 
   select(community_board, borough, obesity, hypertension, life_expectancy, self_rep_health, garden_num, id_spatial) 
 
-#working <- getwd()
-#com_board_spdf <- readOGR(dsn = working, layer = "community_board_new", verbose = FALSE)
 invisible(names(com_board_spdf))
 health_data_spatial <- merge(com_board_spdf, health_data_final, by.x = "boro_cd", by.y = "id_spatial")
 
@@ -679,7 +670,7 @@ leaflet(health_data_spatial) %>%
             position = "topleft" )
 ```
 
-**Notes:** Visualization of the distribution of hypertensio across community boards. Hypertension: Percentage of adults ages 18 and older who report ever being told by a healthcare professional that they have hypertension, also known as high blood pressure. Data from the NYC 2018 Community Health Profiles.
+**Notes:** Visualization of the distribution of hypertension across community boards. Hypertension: Percentage of adults ages 18 and older who report ever being told by a healthcare professional that they have hypertension, also known as high blood pressure. Data from the NYC 2018 Community Health Profiles.
 
 ```{r}
 # Create a color palette for the life expectancy map:
@@ -720,7 +711,7 @@ leaflet(health_data_spatial) %>%
             position = "topleft" )
 ```
 
-**Notes:** Visualization of the distribution of life expectancy across community boards. Life expectancy: Life expectancy at birth. Data from the NYC 2018 Community Health Profiles.
+**Notes:** Visualization of the distribution of life expectancy across community boards. Life expectancy is defined at birth. Data from the NYC 2018 Community Health Profiles.
 
 ```{r}
 # Create a color palette for the self reported health map:
@@ -767,7 +758,7 @@ From our maps we saw that obesity and hypertension are highly correlated, with a
 
 Interestingly when comparing these health outcomes to the map of garden numbers per community district, it appears that the areas with a greater number of gardens actually have generally worse health outcomes. This is a counter to our initial hypotheses. 
 
-### **Economic Conditions Dashboard**
+### Economic Conditions Dashboard
 
 To visualize the spatial distribution of number of gardens and the [economic outcomes](property_values.html) of interest, we used leaflet to visualize the locations of gardens and colored these points by quartile of the value for each economic variable of interest. In the dashboard we wanted to show both variables that we think are potential confounders (poverty and rent burden) as well as variables that exemplify community engagement (the amount of money allocated by the community to projects through participatory budgeting) and neighborhood value (average property market value). 
 
@@ -920,8 +911,6 @@ analysis_data_final <-
   select(id_spatial, community_board, obesity, hypertension, life_expectancy, self_rep_health, poverty, avg_rev_value, avg_tot_appropriated, borough, garden_num) %>% 
 filter(!id_spatial %in% c('414'))
          
-#working <- getwd()
-#com_board_spdf <- readOGR(dsn = working, layer = "community_board_new", verbose = FALSE)
 com_board_spdf2 <- com_board_spdf[!com_board_spdf@data$boro_cd %in% c("414"), ]
 invisible(names(com_board_spdf))
 analysis_data_spatial <- merge(com_board_spdf2, analysis_data_final, by.x = "boro_cd", by.y = "id_spatial")
@@ -929,13 +918,14 @@ analysis_data_spatial <- merge(com_board_spdf2, analysis_data_final, by.x = "bor
 
 #### Assessing Appropriateness of a Linear Model 
 We initially selected a linear model to test the relationship between the number of gardens in a community and our selected health and economic outcomes: 
-- Obesity  
-- Hypertension  
-- Life expectancy at birth  
-- Self-reported health  
-- Participatory budgeting funding allocated  
-- Revised market value of properties    
-- Poverty  
+
+  - Obesity  
+  - Hypertension  
+  - Life expectancy at birth  
+  - Self-reported health  
+  - Participatory budgeting funding allocated  
+  - Revised market value of properties    
+  - Poverty  
 
 To confirm that linear regression is an appropriate model we first checked the assumptions. 
 
@@ -1087,9 +1077,6 @@ To test for spatial auto-correlation of variables beyond our visual assessment w
 analysis_data_spatial@data$obesity <- scale(analysis_data_spatial@data$obesity)
 analysis_data_spatial@data$lag_sQL_o <- lag.listw(analysis_nbq_w,analysis_data_spatial@data$obesity)
 
-# Lose spatial properties when we turn into data frame for analysis
-#analysis_sp_data <- as.data.frame(analysis_data_spatial)
-
 # Run morans I test and plot the results.
 obesity_moran <- moran.test(analysis_data_spatial@data$obesity, listw = analysis_nbq_w, zero.policy = TRUE)
 moran.plot(as.vector(analysis_data_spatial@data$obesity), listw = analysis_nbq_w, 
@@ -1107,9 +1094,6 @@ moran.plot(as.vector(analysis_data_spatial@data$obesity), listw = analysis_nbq_w
 analysis_data_spatial@data$hypertension <- scale(analysis_data_spatial@data$hypertension)
 analysis_data_spatial@data$lag_sQL_ht <- lag.listw(analysis_nbq_w,analysis_data_spatial@data$hypertension)
 
-### Lose spatial properties when we turn into data frame for analysis
-#analysis_sp_data <- as.data.frame(analysis_data_spatial)
-
 # Run morans I test and plot the results.
 hypertension_moran <- moran.test(analysis_data_spatial@data$hypertension, listw = analysis_nbq_w, zero.policy = TRUE)
 moran.plot(as.vector(analysis_data_spatial@data$hypertension), listw = analysis_nbq_w, 
@@ -1126,9 +1110,6 @@ moran.plot(as.vector(analysis_data_spatial@data$hypertension), listw = analysis_
 analysis_data_spatial@data$life_expectancy <- scale(analysis_data_spatial@data$life_expectancy)
 analysis_data_spatial@data$lag_sQL_l <- lag.listw(analysis_nbq_w,analysis_data_spatial@data$life_expectancy)
 
-### Lose spatial properties when we turn into data frame for analysis
-#analysis_sp_data <- as.data.frame(analysis_data_spatial)
-
 # Run morans I test and plot the results.
 life_moran <- moran.test(analysis_data_spatial@data$life_expectancy, listw = analysis_nbq_w, zero.policy = TRUE)
 moran.plot(as.vector(analysis_data_spatial@data$life_expectancy), listw = analysis_nbq_w, 
@@ -1144,9 +1125,6 @@ moran.plot(as.vector(analysis_data_spatial@data$life_expectancy), listw = analys
 # Convert outcome variable to z-form and then create the lag of that variable.
 analysis_data_spatial@data$self_rep_health <- scale(analysis_data_spatial@data$self_rep_health)
 analysis_data_spatial@data$lag_sQL_sh <- lag.listw(analysis_nbq_w,analysis_data_spatial@data$self_rep_health)
-
-### Lose spatial properties when we turn into data frame for analysis
-#analysis_sp_data <- as.data.frame(analysis_data_spatial)
 
 # Run morans I test and plot the results.
 self_health_moran <- moran.test(analysis_data_spatial@data$self_rep_health, listw = analysis_nbq_w, zero.policy = TRUE)
@@ -1170,7 +1148,8 @@ Based on our determination of spatial auto-correlation, we decided to fit spatia
 
 Since we only have one observation per community board and the values are only related to each other spatially, we don't have a higher order category to describe the similarity among community boards. Therefore, we chose to run a spatial model instead of a generalized estimating equation (GEE) or multi-level model.
 
-![](images/spatial_model.jpeg){ height="400px" width="350px" }
+![](images/spatial_model.jpeg){ height="450px" width="400px" }
+
 [Image source](https://rpubs.com/quarcs-lab/tutorial-spatial-regression)
 
 ```{r, message = FALSE, warning = FALSE}
@@ -1232,14 +1211,15 @@ self_rep_lm_df <-
 self_rep_lm %>% 
   broom::tidy() 
 
-rbind(obesity_lag_df, hypertension_lag_df, life_expect_lag_df, self_rep_lm_df) %>%
+# Creating final table to display betas and p-values
+rbind(life_expect_lag_df, obesity_lag_df, hypertension_lag_df, self_rep_lm_df) %>%
   knitr::kable() %>% 
     kable_styling() %>%
-  pack_rows(index = c("Obesity" = 4, "Hypertension" = 4, "Life Expectancy" = 4, "Self Reported Health" = 3)) %>% 
-  row_spec(3, color = "black", background = "#EBE4CC") %>% 
+  pack_rows(index = c("Life Expectancy" = 4, "Obesity" = 4, "Hypertension" = 4, "Self Reported Health" = 3)) %>% 
+  row_spec(3, color = "black", background = "#ceebcc", bold = TRUE) %>% 
   row_spec(7, color = "black", background = "#EBE4CC") %>% 
-  row_spec(11, color = "black", background = "#ceebcc", bold = TRUE) %>% 
-  row_spec(14, color = "black", background = "#EBE4CC") 
+  row_spec(11, color = "black", background = "#EBE4CC") %>% 
+  row_spec(14, color = "black", background = "#EBE4CC")
 
 ```
 
@@ -1375,7 +1355,7 @@ rbind(resid_moran_ob, resid_moran_ht, resid_moran_le, resid_moran_srh) %>%
   kable_styling()
 ```
 
-**Notes:** We assessed Moran's I for the final, spatially adjusted models and found no significant p-values.
+**Notes:** Table shows **Moran's I** p-values for the final, spatially adjusted models.
 
 ***
 
